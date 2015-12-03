@@ -1,22 +1,20 @@
-//
-//    FILE: dht.h
-//  AUTHOR: Rob Tillaart
-// VERSION: 0.1.14
-// PURPOSE: DHT Temperature & Humidity Sensor library for Arduino
-//     URL: http://arduino.cc/playground/Main/DHTLib
-//
-// HISTORY:
-// see dht.cpp file
-//
+/*
+ *
+ *   FILE: dht.h
+ * AUTHOR: Rob Tillaart
+ * VERSION: 0.1.14
+ * PURPOSE: DHT Temperature & Humidity Sensor library for Arduino
+ *   URL: http://arduino.cc/playground/Main/DHTLib
+ *
+ * Port to ESP8266 by Huang Rui <vowstar@gmail.com>
+ *
+ * HISTORY:
+ *   see dht.c file
+ *
+ */
 
-#ifndef dht_h
-#define dht_h
-
-// #if ARDUINO < 100
-// #include <WProgram.h>
-// #else
-// #include <Arduino.h>
-// #endif
+#ifndef __DHT_H__
+#define __DHT_H__
 
 #include "noduino.h"
 
@@ -42,12 +40,14 @@
 #define DHTLIB_TIMEOUT (100)
 
 // Platform specific I/O definitions
-
 #define DIRECT_READ(pin)         digitalRead(pin)
 #define DIRECT_MODE_INPUT(pin)   pinMode(pin, INPUT)
 #define DIRECT_MODE_OUTPUT(pin)	 pinMode(pin, OUTPUT)
 #define DIRECT_WRITE_LOW(pin)    digitalWrite(pin, LOW)
 #define DIRECT_WRITE_HIGH(pin)   digitalWrite(pin, HIGH)
+
+#define COMBINE_HIGH_AND_LOW_BYTE(byte_high, byte_low)  (((byte_high) << 8) | (byte_low))
+
 
 // return values:
 // DHTLIB_OK
@@ -66,6 +66,3 @@ double dht_getHumidity(void);
 double dht_getTemperature(void);
 
 #endif
-//
-// END OF FILE
-//
