@@ -1,3 +1,6 @@
 [submodule "toolchain"]
 	path = toolchain
 	url = git://github.com/icamgo/xtensa-toolchain.git
+[submodule "rtos"]
+	path = rtos
+	url = git://github.com/espressif/esp8266_rtos_sdk.git
