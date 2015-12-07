@@ -17,15 +17,11 @@ It's based on Espressif SDK 1.4.0
 
 ```bash
 # clone the whole sdk
-$ git clone git://github.com/icamgo/noduino-sdk.git noduino-sdk
+$ git clone --recursive git://github.com/icamgo/noduino-sdk.git noduino-sdk
 
-# fetch the toolchain of esp8266
-$ cd noduino-sdk
-$ git submodule init
-$ git submodule update
-$ cd toolchain
-$ ./gen.py
 # generate the toolchain (you need Python 2.7)
+$ cd noduino-sdk/toolchain
+$ ./gen.py
 
 # try the first example
 $ cd ../example/noduino/blink
