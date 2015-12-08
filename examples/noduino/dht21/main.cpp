@@ -33,9 +33,9 @@ loop()
     char h_buf[8];
 
 	if(dht21.read() == -1) {
-		serial_printf("Read sensor error\n");
+		serial_printf("Read sensor error\r\n");
 	} else {
-		serial_printf("Temp: %sC, Humi: %s%\n",
+		serial_printf("Temp: %sC, Humi: %s%\r\n",
 			dtostrf(dht21.temperature(), 5, 2, t_buf),
 			dtostrf(dht21.humidity(), 5, 2, h_buf));
 	}

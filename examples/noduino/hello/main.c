@@ -24,6 +24,6 @@ void setup()
 
 void loop()
 {
-	serial_print("Hello World!\n");
+	serial_printf("Hello World!\r\n");
 	delay(1500);
 }

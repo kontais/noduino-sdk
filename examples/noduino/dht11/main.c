@@ -30,18 +30,18 @@ void loop()
 
 	switch (dht11_read(D1)) {
 		case DHT11_OK:
-			serial_printf("Temp: %sC, Humi: %s%\n",
+			serial_printf("Temp: %sC, Humi: %s%\r\n",
 				dtostrf(dht11_temperature(), 5, 2, t_buf),
 				dtostrf(dht11_humidity(), 5, 2, h_buf));
 			break;
 		case DHT11_ERROR_CHECKSUM:
-			serial_printf("Checksum error\n");
+			serial_printf("Checksum error\r\n");
 			break;
 		case DHT11_ERROR_TIMEOUT:
-			serial_printf("Timeout error\n");
+			serial_printf("Timeout error\r\n");
 			break;
 		default:
-			serial_printf("Unknown error\n");
+			serial_printf("Unknown error\r\n");
 			break;
 	}
 
