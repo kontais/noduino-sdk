@@ -55,6 +55,28 @@ const airkiss_config_t akconf = {
 	0
 };
 
+irom void plug_on()
+{
+#ifdef DEBUG
+	serial_printf("Turn on the plug\n");
+#endif
+	// noduino falcon onboard led
+	digitalWrite(ctrl_pin, LOW);
+	// itead studio plug board
+	//digitalWrite(ctrl_pin, HIGH);
+}
+
+irom void plug_off()
+{
+#ifdef DEBUG
+	serial_printf("Turn on the plug\n");
+#endif
+	// noduino falcon onboard led
+	digitalWrite(ctrl_pin, HIGH);
+	// itead studio plug board
+	//digitalWrite(ctrl_pin, LOW);
+}
+
 static irom void time_callback(void)
 {
 	airkiss_udp.remote_port = DEFAULT_LAN_PORT;
@@ -214,13 +236,11 @@ irom void mqttDataCb (uint32_t *args, const char* topic,
 
 	if(os_strncmp(dataBuf, "on", 2) == 0)
 	{
-		serial_printf("Turn on the plug\n");
-		digitalWrite(ctrl_pin, HIGH);
+		plug_on();
 	}
 	if(os_strncmp(dataBuf, "off", 3) == 0)
 	{
-		serial_printf("Turn off the plug\n");
-		digitalWrite(ctrl_pin, LOW);
+		plug_off();
 	}
 
 	serial_printf("Receive topic: %s, data: %s \r\n", topicBuf, dataBuf);
@@ -268,6 +288,7 @@ irom void cos_check_ip()
 
 irom void setup(void)
 {
+	char client_name[32] = "\0";
 #ifdef DEBUG
 	serial_begin(115200);
 #endif
@@ -276,10 +297,12 @@ irom void setup(void)
 	pinMode(ctrl_pin, OUTPUT);
 
 	// set ctrl_pin low
-	digitalWrite(ctrl_pin, LOW);
+	digitalWrite(ctrl_pin, HIGH);
+
+	sprintf(client_name, "noduino_falcon_%d", os_random()%10000);
 
 	MQTT_InitConnection(&mqttClient, "101.200.202.247", 1883, 0);
-	MQTT_InitClient(&mqttClient, "noduino_falcon", mqtt_uname, mqtt_pass, 120, 1);
+	MQTT_InitClient(&mqttClient, client_name, mqtt_uname, mqtt_pass, 120, 1);
 	MQTT_OnConnected(&mqttClient, mqttConnectedCb);
 	MQTT_OnDisconnected(&mqttClient, mqttDisconnectedCb);
 	MQTT_OnPublished(&mqttClient, mqttPublishedCb);
