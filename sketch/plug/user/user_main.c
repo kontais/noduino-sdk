@@ -25,8 +25,11 @@
 
 #define	DEBUG	1
 
-MQTT_Client mqttClient;
+// Controll pin is gpio2 for onboard blue led
+// gpio12 for itead studio plug box
+LOCAL uint8_t ctrl_pin = 2;
 
+MQTT_Client mqttClient;
 LOCAL uint8_t check_ip_count = 0;
 
 os_timer_t time_serv;
@@ -212,12 +215,12 @@ irom void mqttDataCb (uint32_t *args, const char* topic,
 	if(os_strncmp(dataBuf, "on", 2) == 0)
 	{
 		serial_printf("Turn on the plug\n");
-		digitalWrite(12, HIGH);
+		digitalWrite(ctrl_pin, HIGH);
 	}
 	if(os_strncmp(dataBuf, "off", 3) == 0)
 	{
 		serial_printf("Turn off the plug\n");
-		digitalWrite(12, LOW);
+		digitalWrite(ctrl_pin, LOW);
 	}
 
 	serial_printf("Receive topic: %s, data: %s \r\n", topicBuf, dataBuf);
@@ -265,13 +268,15 @@ irom void cos_check_ip()
 
 irom void setup(void)
 {
+#ifdef DEBUG
 	serial_begin(115200);
+#endif
 
-	//Set GPIO12 to output mode
-	pinMode(12, OUTPUT);
+	//Set ctrl_pin to output mode
+	pinMode(ctrl_pin, OUTPUT);
 
-	// set gpio12 low
-	digitalWrite(12, LOW);
+	// set ctrl_pin low
+	digitalWrite(ctrl_pin, LOW);
 
 	MQTT_InitConnection(&mqttClient, "101.200.202.247", 1883, 0);
 	MQTT_InitClient(&mqttClient, "noduino_falcon", mqtt_uname, mqtt_pass, 120, 1);
