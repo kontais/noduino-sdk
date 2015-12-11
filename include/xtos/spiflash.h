@@ -32,6 +32,7 @@ struct SPIFlashHeader {
 	struct SPIFlashHeadSegment seg;	// Segment
 } __attribute__ ((packed));
 
+#if 0
 typedef struct {
 	uint32_t deviceId;
 	uint32_t chip_size;	// chip size in byte
@@ -40,6 +41,7 @@ typedef struct {
 	uint32_t page_size;
 	uint32_t status_mask;
 } SpiFlashChip;
+#endif
 
 /* redeclaration
 typedef enum {
