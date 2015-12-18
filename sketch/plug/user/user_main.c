@@ -27,7 +27,7 @@
 
 // Controll pin is gpio2 for onboard blue led
 // gpio12 for itead studio plug box
-LOCAL uint8_t ctrl_pin = 2;
+LOCAL uint8_t ctrl_pin = 12;
 
 MQTT_Client mqttClient;
 LOCAL uint8_t check_ip_count = 0;
