@@ -61,20 +61,20 @@ irom void plug_on()
 	serial_printf("Turn on the plug\n");
 #endif
 	// noduino falcon onboard led
-	digitalWrite(ctrl_pin, LOW);
+	//digitalWrite(ctrl_pin, LOW);
 	// itead studio plug board
-	//digitalWrite(ctrl_pin, HIGH);
+	digitalWrite(ctrl_pin, HIGH);
 }
 
 irom void plug_off()
 {
 #ifdef DEBUG
-	serial_printf("Turn on the plug\n");
+	serial_printf("Turn off the plug\n");
 #endif
 	// noduino falcon onboard led
-	digitalWrite(ctrl_pin, HIGH);
+	//digitalWrite(ctrl_pin, HIGH);
 	// itead studio plug board
-	//digitalWrite(ctrl_pin, LOW);
+	digitalWrite(ctrl_pin, LOW);
 }
 
 static irom void time_callback(void)
@@ -295,9 +295,6 @@ irom void setup(void)
 
 	//Set ctrl_pin to output mode
 	pinMode(ctrl_pin, OUTPUT);
-
-	// set ctrl_pin low
-	digitalWrite(ctrl_pin, HIGH);
 
 	sprintf(client_name, "noduino_falcon_%d", os_random()%10000);
 
