@@ -65,7 +65,7 @@ CFLAGS		= -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -
 LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
 
 # linker script used for the above linkier step
-LD_SCRIPT	= esp8266.1024.ld 
+LD_SCRIPT	= esp8266.1024.ld
 
 # we create two different files for uploading into the flash
 # these are the names and options to generate them
@@ -149,6 +149,9 @@ flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
 
 zero:
 	-$(ESPTOOL) -cd nodemcu -cb 230400 -cp $(ESPPORT) -ca 0x3FE000 -cf $(ESPSDK_BASE)/bin/blank.bin
+
+recover:
+	-$(ESPTOOL) -cd nodemcu -cb 230400 -cp $(ESPPORT) -ca 0x0 -cf ./fw/miniK-25l80.bin
 
 clean:
 	$(Q) rm -f $(APP_AR)
