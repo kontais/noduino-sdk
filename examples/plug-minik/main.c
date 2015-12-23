@@ -29,7 +29,7 @@
 #include "smartconfig.h"
 #include "mqtt/mqtt.h"
 
-#define	DEBUG	1
+#include "user_config.h"
 
 MQTT_Client mqttClient;
 
@@ -217,13 +217,18 @@ void ICACHE_FLASH_ATTR mqttDataCb (uint32_t *args, const char* topic,
 
 	if(os_strncmp(dataBuf, "on", 2) == 0)
 	{
-		os_printf("set gpio15 to high\n");
-		gpio_output_set(BIT15, 0, BIT15, 0);
+#ifdef DEBUG
+		os_printf("Turn on the relay!\n");
+#endif
+		relay_on();
 	}
+
 	if(os_strncmp(dataBuf, "off", 3) == 0)
 	{
-		os_printf("set gpio15 to low\n");
-		gpio_output_set(0, BIT15, BIT15, 0);
+#ifdef DEBUG
+		os_printf("Turn off the relay!\n");
+#endif
+		relay_off();
 	}
 
 	os_printf("Receive topic: %s, data: %s \r\n", topicBuf, dataBuf);
@@ -287,14 +292,9 @@ void ICACHE_FLASH_ATTR user_init(void)
 	uart_init(115200, 115200);
 #endif
 
-	//Initialize the GPIO subsystem.
-	gpio_init();
-
-	//Set GPIO15 to output mode
-	PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_GPIO15);
-
-	//Set GPIO15 low
-	gpio_output_set(0, BIT15, BIT15, 0);
+	param_init();
+	relay_init();
+	xkey_init();
 
 	MQTT_InitConnection(&mqttClient, "101.200.202.247", 1883, 0);
 	MQTT_InitClient(&mqttClient, "noduino_falcon", mqtt_uname, mqtt_pass, 120, 1);
