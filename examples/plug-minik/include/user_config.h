@@ -19,7 +19,7 @@
 #define XKEY_IO_NUM		12
 #define XKEY_IO_FUNC	FUNC_GPIO12
 
-// NOTICE---this is for 512KB spi flash
+// NOTICE---this is for 1024KB spi flash
 #define PRIV_PARAM_START_SEC	0x3C
 #define PRIV_PARAM_SAVE			0
 

@@ -28,7 +28,9 @@ void ICACHE_FLASH_ATTR param_set_status(uint8_t status)
 {
 	if (status != minik_param.status) {
 		if (status > 1) {
+#ifdef DEBUG
 			os_printf("Error status input!\n");
+#endif
 			return;
 		}
 
@@ -57,8 +59,13 @@ void ICACHE_FLASH_ATTR param_init()
 		       (uint32 *) & minik_param,
 		       sizeof(struct minik_saved_param));
 
-	// no used SPI Flash
+	// init data of spi flash
 	if (minik_param.status == 0xff) {
-		minik_param.status = 1;
+#ifdef DEBUG
+		os_printf("Invalid status value, reset to 0!\n");
+#endif
+		minik_param.status = 0;
 	}
+
+	os_printf("Saved Status is: %d\n", param_get_status());
 }

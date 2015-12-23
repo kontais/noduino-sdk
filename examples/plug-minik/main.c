@@ -220,6 +220,8 @@ void ICACHE_FLASH_ATTR mqttDataCb (uint32_t *args, const char* topic,
 #ifdef DEBUG
 		os_printf("Turn on the relay!\n");
 #endif
+		param_set_status(1);
+		param_save();
 		relay_on();
 	}
 
@@ -228,6 +230,8 @@ void ICACHE_FLASH_ATTR mqttDataCb (uint32_t *args, const char* topic,
 #ifdef DEBUG
 		os_printf("Turn off the relay!\n");
 #endif
+		param_set_status(0);
+		param_save();
 		relay_off();
 	}
 
@@ -294,6 +298,7 @@ void ICACHE_FLASH_ATTR user_init(void)
 
 	param_init();
 	relay_init();
+	relay_set_status(param_get_status());
 	xkey_init();
 
 	MQTT_InitConnection(&mqttClient, "101.200.202.247", 1883, 0);
