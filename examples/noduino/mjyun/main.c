@@ -16,33 +16,9 @@
  *
 */
 #include "noduino.h"
-#include "ets_sys.h"
-#include "osapi.h"
-#include "os_type.h"
-#include "mem.h"
-#include "gpio.h"
-
-#include "noduino/esp8266_peri.h"
 #include "mjyun.h"
 
 #define	DEBUG	1
-
-irom void gpio16_output()
-{
-	GPF16 = GP16FFS(GPFFS_GPIO(16));	//Set mode to GPIO
-	GPC16 = 0;
-	GP16E |= 1;
-}
-
-irom void gpio16_high()
-{
-	GP16O |= 1;
-}
-
-irom void gpio16_low()
-{
-	GP16O &= ~1;
-}
 
 irom void mjyun_stated_cb(MJYUN_State_t state)
 {
@@ -95,11 +71,11 @@ irom void mjyun_stated_cb(MJYUN_State_t state)
             break;
         case MJYUN_CONNECTED:
             os_printf("Platform: MJYUN_CONNECTED \r\n");
-            gpio16_high();
+			digitalWrite(2, LOW);
             break;
         case MJYUN_DISCONNECTED:
             os_printf("Platform: MJYUN_DISCONNECTED\r\n");
-            gpio16_low();
+			digitalWrite(2, HIGH);
             break;
         default:
             break;
@@ -113,32 +89,10 @@ irom void mjyun_receive(const char *event_name, const char *event_data)
 	MJYUN_Publish(event_name, event_data);
 }
 
-irom void cos_check_ip()
-{
-
-}
-
 irom void setup()
 {
-	//Initialize the GPIO subsystem.
-	gpio_init();
-
-	//Set GPIO2 to output mode
-	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
-
-    //gpio16 output
-    gpio16_output();
-    gpio16_low();
-
-	//Set GPIO12 to output mode
-	//PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO12);
-
-	//Set GPIO2 low
-	//GPIO_OUTPUT_SET(2, 0);
-	gpio_output_set(BIT2, 0, BIT2, 0);
-
-
 	serial_begin(115200);
+	pinMode(2, OUTPUT);
 
 	MJYUN_Init("gh_51111441aa63");
 	MJYUN_StateChanged(mjyun_stated_cb);
