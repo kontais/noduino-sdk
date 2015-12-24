@@ -27,25 +27,24 @@
 
 #define	DEBUG	1
 
-void gpio16_output()
+irom void gpio16_output()
 {
 	GPF16 = GP16FFS(GPFFS_GPIO(16));	//Set mode to GPIO
 	GPC16 = 0;
 	GP16E |= 1;
 }
 
-void gpio16_high()
+irom void gpio16_high()
 {
 	GP16O |= 1;
 }
 
-void gpio16_low()
+irom void gpio16_low()
 {
 	GP16O &= ~1;
 }
 
-LOCAL void ICACHE_FLASH_ATTR
-mjyun_stated_cb(MJYUN_State_t state)
+irom void mjyun_stated_cb(MJYUN_State_t state)
 {
     if (MJYUN_State() != state)
         os_printf("Platform: mjyun_state error \r\n");
@@ -107,19 +106,19 @@ mjyun_stated_cb(MJYUN_State_t state)
     }
 }
 
-void ICACHE_FLASH_ATTR
-mjyun_receive(const char *event_name, const char *event_data)
+irom void mjyun_receive(const char *event_name, const char *event_data)
 {
 	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 	// Publish back
 	MJYUN_Publish(event_name, event_data);
 }
 
-void ICACHE_FLASH_ATTR cos_check_ip()
+irom void cos_check_ip()
 {
+
 }
 
-void setup()
+irom void setup()
 {
 	//Initialize the GPIO subsystem.
 	gpio_init();
@@ -146,7 +145,7 @@ void setup()
     MJYUN_OnData(mjyun_receive);
 }
 
-void loop()
+irom void loop()
 {
 	serial_printf("Hello World!\r\n");
 	delay(1500);
