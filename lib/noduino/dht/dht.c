@@ -223,7 +223,6 @@ int dht_readSensor(uint8_t pin, uint8_t wakeupDelay)
 
 	// REQUEST SAMPLE
 	// pinMode(pin, OUTPUT);
-	platform_gpio_mode(pin, PLATFORM_GPIO_OUTPUT, PLATFORM_GPIO_PULLUP);
 	DIRECT_MODE_OUTPUT(pin);
 	// digitalWrite(pin, LOW); // T-be
 	DIRECT_WRITE_LOW(pin);
