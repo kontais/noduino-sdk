@@ -292,6 +292,7 @@ void ICACHE_FLASH_ATTR cos_check_ip()
 
 void ICACHE_FLASH_ATTR user_init(void)
 {
+	char client_name[32] = "\0";
 #ifdef DEBUG
 	uart_init(115200, 115200);
 #endif
@@ -301,8 +302,10 @@ void ICACHE_FLASH_ATTR user_init(void)
 	relay_set_status(param_get_status());
 	xkey_init();
 
+	os_sprintf(client_name, "noduino_falcon_%d", os_random()%10000);
+
 	MQTT_InitConnection(&mqttClient, "101.200.202.247", 1883, 0);
-	MQTT_InitClient(&mqttClient, "noduino_falcon", mqtt_uname, mqtt_pass, 120, 1);
+	MQTT_InitClient(&mqttClient, client_name, mqtt_uname, mqtt_pass, 120, 1);
 
 	MQTT_OnConnected(&mqttClient, mqttConnectedCb);
 	MQTT_OnDisconnected(&mqttClient, mqttDisconnectedCb);
