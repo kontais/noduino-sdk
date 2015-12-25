@@ -24,6 +24,7 @@
 #include "osapi.h"
 #include "user_interface.h"
 #include "espconn.h"
+#include "uart.h"
 #include "httpclient.h"
 
 #define AP_NAME               "YOUR_ROUTER_AP_NAME"
