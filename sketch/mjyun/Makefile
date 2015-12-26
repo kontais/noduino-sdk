@@ -7,7 +7,7 @@
 TARGET		= app
 
 # which modules (subdirectories) of the project to include in compiling
-MODULES		= user
+MODULES		= .
 
 BUILD_DIR	= build
 FW_BASE		= build
@@ -19,7 +19,8 @@ TOOLCHAIN_DIR	?= $(SDK_BASE)/toolchain
 
 # paths from the SDK used in this project
 SDK_INCDIR	= include include/driver
-SDK_LIBDIR = lib
+SDK_LIBDIR	= lib
+SDK_LDDIR	= ld
 
 # various paths from the ESPSDK used in this project
 ESPSDK_INCDIR	= include include/json
@@ -28,8 +29,8 @@ ESPSDK_LDDIR	= ld
 
 # libraries used in this project, mainly provided by the ESPSDK
 LIBS		:= gcc 
-LIBS		+= crypto espnow json lwip mesh net80211 phy pp pwm smartconfig ssl upgrade wpa wps main
-LIBS		+= driver airkiss mjyun 
+LIBS		+= crypto espnow json lwip mesh net80211 phy pp pwm smartconfig upgrade ssl wpa wps main
+LIBS		+= driver airkiss cjson mqtt push httpclient mjyun 
 
 
 # esptool path and port
@@ -51,7 +52,7 @@ else
 endif
 
 # firmware generating tool
-FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
+ESPTOOL_PY		?= $(TOOLCHAIN_DIR)/bin/esptool.py
 
 # toolchain
 CC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
@@ -65,7 +66,8 @@ CFLAGS		= -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -
 LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
 
 # linker script used for the above linkier step
-LD_SCRIPT	= eagle.app.v6.4096.ld
+#LD_SCRIPT	= eagle.app.v6.4096.ld
+LD_SCRIPT	= esp8266.4096.ld
 
 # we create two different files for uploading into the flash
 # these are the names and options to generate them
@@ -85,7 +87,7 @@ SDK_LIBDIR		:= $(addprefix -L$(SDK_BASE)/,$(SDK_LIBDIR))
 
 ESPSDK_INCDIR	:= $(addprefix -I$(ESPSDK_BASE)/,$(ESPSDK_INCDIR))
 ESPSDK_LIBDIR	:= $(addprefix -L$(ESPSDK_BASE)/,$(ESPSDK_LIBDIR))
-LD_SCRIPT		:= $(addprefix -T$(ESPSDK_BASE)/$(ESPSDK_LDDIR)/,$(LD_SCRIPT))
+LD_SCRIPT		:= $(addprefix -T$(SDK_BASE)/$(SDK_LDDIR)/,$(LD_SCRIPT))
 
 INCDIR			:= $(addprefix -I,$(SRC_DIR))
 MODULE_INCDIR	:= -I include
@@ -145,10 +147,14 @@ firmware:
 	$(Q) mkdir -p $@
 
 flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
-	-$(ESPTOOL) -cd nodemcu -cb 576000 -cp $(ESPPORT) -ca 0x00000 -cf $(FW_BASE)/0x00000.bin -ca 0x40000 -cf $(FW_BASE)/0x40000.bin
+	-$(ESPTOOL) -cd nodemcu -cb 230400 -cp $(ESPPORT)			\
+				-ca 0x00000 -cf $(FW_BASE)/0x00000.bin			\
+				-ca 0x40000 -cf $(FW_BASE)/0x40000.bin
+mem:
+	-$(ESPTOOL_PY) elf2image -o /tmp/ build/app.out
 
 zero:
-	-$(ESPTOOL) -cd nodemcu -cb 576000 -cp $(ESPPORT) -ca 0x3FE000 -cf $(ESPSDK_BASE)/bin/blank.bin
+	-$(ESPTOOL) -cd nodemcu -cb 230400 -cp $(ESPPORT) -ca 0x3FE000 -cf $(ESPSDK_BASE)/bin/blank.bin
 
 clean:
 	$(Q) rm -f $(APP_AR)

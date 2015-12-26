@@ -120,6 +120,12 @@ void ICACHE_FLASH_ATTR cos_check_ip()
 	gpio16_output_conf();
 	gpio16_output_set(1);
 
+	os_printf("=> Simple POST\n");
+	http_post("http://httpbin.org/post",
+		  "Content-Type: application/x-www-form-urlencoded\r\n",
+		  "first_word=hello&second_word=world",
+		  NULL);
+
 	MJYUN_Init("gh_51111441aa63");
 	MJYUN_StateChanged(mjyun_stated_cb);
     MJYUN_OnData(mjyun_receive);
