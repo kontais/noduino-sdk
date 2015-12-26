@@ -10,6 +10,7 @@
 
 #include "xtos/spiflash.h"
 #include "xtos/sha1.h"
+#include "xtos/md5.h"
 #include "xtos/ets.h"
 #include "xtos/gpio.h"
 #include "xtos/uart.h"
