@@ -89,14 +89,29 @@ irom void mjyun_receive(const char *event_name, const char *event_data)
 	MJYUN_Publish(event_name, event_data);
 }
 
+void mjyun_connected()
+{
+    MJYUN_PublishStatus("device status save");
+    digitalWrite(2, LOW);
+}
+
+void mjyun_disconnected()
+{
+    digitalWrite(2, HIGH);
+}
+
 irom void setup()
 {
 	serial_begin(115200);
 	pinMode(2, OUTPUT);
 
-	MJYUN_Init("gh_51111441aa63");
 	MJYUN_StateChanged(mjyun_stated_cb);
-    MJYUN_OnData(mjyun_receive);
+	MJYUN_OnData(mjyun_receive);
+	MJYUN_OnConnected(mjyun_connected);
+	MJYUN_OnDisconnected(mjyun_disconnected);
+
+	//MJYUN_Init("gh_51111442aa63", NULL);
+	MJYUN_Init("WotP0123456789", NULL);
 }
 
 irom void loop()

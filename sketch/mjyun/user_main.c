@@ -95,11 +95,9 @@ static void mjyun_stated_cb(MJYUN_State_t state)
             break;
         case MJYUN_CONNECTED:
             os_printf("Platform: MJYUN_CONNECTED \r\n");
-            gpio16_high();
             break;
         case MJYUN_DISCONNECTED:
             os_printf("Platform: MJYUN_DISCONNECTED\r\n");
-            gpio16_low();
             break;
         default:
             break;
@@ -113,20 +111,28 @@ void mjyun_receive(const char *event_name, const char *event_data)
 	MJYUN_Publish(event_name, event_data);
 }
 
+void mjyun_connected()
+{
+    MJYUN_PublishStatus("{state:\"online\"}");
+	gpio16_high();
+}
+
+void mjyun_disconnected()
+{
+	gpio16_low();
+}
+
 void cos_check_ip()
 {
 	gpio16_output_conf();
 	gpio16_output_set(1);
 
-	os_printf("=> Simple POST\n");
-	http_post("http://httpbin.org/post",
-		  "Content-Type: application/x-www-form-urlencoded\r\n",
-		  "first_word=hello&second_word=world",
-		  NULL);
-
-	MJYUN_Init("gh_51111441aa63");
 	MJYUN_StateChanged(mjyun_stated_cb);
     MJYUN_OnData(mjyun_receive);
+	MJYUN_OnConnected(mjyun_connected);
+	MJYUN_OnDisconnected(mjyun_disconnected);
+	//MJYUN_Init("gh_51111442aa63", NULL);
+	MJYUN_Init("WotP0123456789", NULL);
 }
 
 void user_init(void)
