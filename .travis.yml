@@ -33,10 +33,10 @@ script:
 - make
 - cd ../../
 #build env-sensor
-- cd sketch/env-sensor
-- make clean
-- make
-- cd ../../
+# - cd sketch/env-sensor
+# - make clean
+# - make
+# - cd ../../
 #build door-sensor
 - cd sketch/door-sensor
 - make clean
