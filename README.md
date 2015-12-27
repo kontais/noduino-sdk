@@ -1,5 +1,7 @@
 Noduino SDK
 ===========================================
+[![Build Status](https://travis-ci.org/vowstar/noduino-sdk.svg)](https://travis-ci.org/vowstar/noduino-sdk) 
+
 
 This is a Professional SDK developed by MaiKe Labs for ESP8266 WiFi SoC
 
