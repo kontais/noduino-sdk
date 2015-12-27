@@ -12,7 +12,7 @@
 
 typedef enum {
 	WIFI_IDLE,
-	WIFI_STAR_SMARTLINK,
+	WIFI_SMARTLINK_START,
 	WIFI_SMARTLINK_LINKING,
 	WIFI_SMARTLINK_FINDING,
 	WIFI_SMARTLINK_TIMEOUT,
@@ -44,7 +44,7 @@ typedef void (*MjyunCallback)();
 typedef void (*MjyunDataCallback)(const char *event_name, const char *event_data);
 typedef void (*MjyunStateCallback)(/* MJYUN_MsgType_t type ,*/MJYUN_State_t state);
 
-void ICACHE_FLASH_ATTR MJYUN_Init(const char* product_id);
+void ICACHE_FLASH_ATTR MJYUN_Init(const char* product_id, const char* offline_words);
 void ICACHE_FLASH_ATTR MJYUN_OnConnected(MjyunCallback connectedCb);
 void ICACHE_FLASH_ATTR MJYUN_OnDisconnected(MjyunCallback disconnectedCb);
 void ICACHE_FLASH_ATTR MJYUN_Connect();
