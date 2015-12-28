@@ -43,4 +43,4 @@ script:
 - make
 - cd ../../
 # http://docs.travis-ci.com/user/environment-variables/#Convenience-Variables
-- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash "$TRAVIS_BUILD_DIR"/tools/pr-build.sh; fi
+# - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash "$TRAVIS_BUILD_DIR"/tools/pr-build.sh; fi
