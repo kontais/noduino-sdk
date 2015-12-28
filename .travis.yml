@@ -1,0 +1,46 @@
+sudo: false
+language: cpp
+addons:
+  apt:
+    packages:
+    - python-serial
+    - srecord
+install:
+- cd toolchain
+- python gen.py
+- cd ..
+script:
+#TODO: put build lib script here
+#
+#build mjyun
+- cd sketch/mjyun
+- make clean
+- make
+- cd ../../
+#build light
+- cd sketch/light
+- make clean
+- make
+- cd ../../
+#build plug
+- cd sketch/plug
+- make clean
+- make
+- cd ../../
+#build mp3
+- cd sketch/mp3
+- make clean
+- make
+- cd ../../
+#build env-sensor
+# - cd sketch/env-sensor
+# - make clean
+# - make
+# - cd ../../
+#build door-sensor
+- cd sketch/door-sensor
+- make clean
+- make
+- cd ../../
+# http://docs.travis-ci.com/user/environment-variables/#Convenience-Variables
+- if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash "$TRAVIS_BUILD_DIR"/tools/pr-build.sh; fi
