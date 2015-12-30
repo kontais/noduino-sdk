@@ -10,6 +10,17 @@
 #define MJYUN_DEBUG(format, ...)
 #endif
 
+/*
+ * 对mjyun库进行配置
+ */
+typedef struct
+{
+	const char* product_id; /* 产品id [必填]*/
+	const char* sub_pid; /*产品子id(一般用于微信设备) [选填]*/
+	const char* online_words; /*设备上线时，给app发送online消息中的附加数据，[选填]*/
+	const char* offline_words; /*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+} mjyun_config_t;
+
 typedef enum {
 	WIFI_IDLE,
 	WIFI_SMARTLINK_START,
@@ -45,17 +56,19 @@ typedef void (*mjyun_data_callback)(const char *event_name, const char *event_da
 typedef void (*mjyun_state_callback)(/* mjyun_msgtype_t type ,*/mjyun_state_t state);
 
 /******************************************************************************
- * FunctionName : mjyun_init
- * Description  : device parame init based on mjyun platform
+ * FunctionName : mjyun_run
+ * Description  : device start to run mjyun platform
  * Parameters   : const char* product_id -- mjyun product id
  *              : const char* offline_words -- device will word
  * Returns      : return 0 success, others fails
  *******************************************************************************/
-void mjyun_init(const char* product_id, const char* offline_words);
+int mjyun_run(const mjyun_config_t* conf);
 void mjyun_onconnected(mjyun_callback connectedCb);
 void mjyun_ondisconnected(mjyun_callback disconnectedCb);
+/*
 void mjyun_connect();
 void mjyun_disconnect();
+*/
 void mjyun_ondata(mjyun_data_callback dataCb);
 void mjyun_onpublished(mjyun_callback sendCb);
 BOOL mjyun_publish(const char* event_name, const char* event_data);

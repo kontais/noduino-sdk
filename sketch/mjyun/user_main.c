@@ -142,15 +142,22 @@ void mjyun_disconnected()
 {
 }
 
+const mjyun_config_t mjyun_conf = {
+	//"WotP0123456789",  /* 产品id [必填]*/
+	"gh_51111441aa63",  /* 产品id [必填]*/
+	"3707",/*产品子id(一般用于微信设备) [选填]*/
+	"Hi, I'm coming!!!",/*设备上线时，给app发送online消息中的附加数据，[选填]*/
+	"I will come back!!!"/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+};
+
 void cos_check_ip()
 {
-
 	mjyun_statechanged(mjyun_stated_cb);
 	mjyun_ondata(mjyun_receive);
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
-	mjyun_init("gh_51111441aa63", NULL);
-	//mjyun_init("WotP0123456789", NULL);
+
+	mjyun_run(&mjyun_conf);
 }
 
 void user_init(void)
