@@ -156,7 +156,7 @@ mem:
 	-$(ESPTOOL_PY) elf2image -o /tmp/ build/app.out
 
 wificlean:
-	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0xfe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x3fe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7e000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x1fe000 -cf $(ESPSDK_BASE)/bin/blank.bin
+	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0x3fe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7fe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xFFe000 -cf $(ESPSDK_BASE)/bin/blank.bin
 
 mjyunclean:
 	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0x3F4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7F4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xFF4000 -cf $(ESPSDK_BASE)/bin/blank.bin
