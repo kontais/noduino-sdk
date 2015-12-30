@@ -106,9 +106,9 @@ static void mjyun_stated_cb(MJYUN_State_t state)
 
 void mjyun_receive(const char *event_name, const char *event_data)
 {
-	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
-	// Publish back
-	MJYUN_Publish(event_name, event_data);
+    os_printf("RECEIVED: key=%s,value=%s\r\n", event_name, event_data);
+    // Publish back
+    MJYUN_Publish(event_name, event_data);
 }
 
 void mjyun_connected()
@@ -131,8 +131,8 @@ void cos_check_ip()
     MJYUN_OnData(mjyun_receive);
 	MJYUN_OnConnected(mjyun_connected);
 	MJYUN_OnDisconnected(mjyun_disconnected);
-	//MJYUN_Init("gh_51111442aa63", NULL);
-	MJYUN_Init("WotP0123456789", NULL);
+	MJYUN_Init("gh_51111441aa63", NULL);
+	//MJYUN_Init("WotP0123456789", NULL);
 }
 
 void user_init(void)
@@ -158,7 +158,11 @@ void user_init(void)
 	//GPIO_OUTPUT_SET(2, 0);
 	gpio_output_set(BIT2, 0, BIT2, 0);
 
-
+#define MJYUN_STORAGE_SECTOR_SIZE           (0x1000)
+#define MJYUN_STORAGE_SECTOR                (flash_rom_get_size_byte() / MJYUN_STORAGE_SECTOR_SIZE - 12)
 	os_printf("\r\nSystem started ...\r\n");
+    extern uint32_t ICACHE_FLASH_ATTR flash_rom_get_size_byte(void);
+    os_printf("\r\nflash size =%dBytes(%dMBytes)\r\n", flash_rom_get_size_byte(),flash_rom_get_size_byte()/1024/1024);
+    os_printf("\r\nsector =%d\r\n", MJYUN_STORAGE_SECTOR);
 	system_init_done_cb(cos_check_ip);
 }

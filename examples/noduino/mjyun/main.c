@@ -20,9 +20,9 @@
 
 #define	DEBUG	1
 
-irom void mjyun_stated_cb(MJYUN_State_t state)
+irom void mjyun_stated_cb(mjyun_state_t state)
 {
-    if (MJYUN_State() != state)
+    if (mjyun_state() != state)
         os_printf("Platform: mjyun_state error \r\n");
 
     switch (state)
@@ -86,12 +86,12 @@ irom void mjyun_receive(const char *event_name, const char *event_data)
 {
 	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 	// Publish back
-	MJYUN_Publish(event_name, event_data);
+	mjyun_publish(event_name, event_data);
 }
 
 void mjyun_connected()
 {
-    MJYUN_PublishStatus("device status save");
+    mjyun_publishstatus("device status save");
     digitalWrite(2, LOW);
 }
 
@@ -100,18 +100,25 @@ void mjyun_disconnected()
     digitalWrite(2, HIGH);
 }
 
+const mjyun_config_t mjyun_conf = {
+	"WotP0123456789",  /* 产品id [必填]*/
+	//"gh_51111441aa63",  /* 产品id [必填]*/
+	NULL,/*产品子id(一般用于微信设备) [选填]*/
+	NULL,/*设备上线时，给app发送online消息中的附加数据，[选填]*/
+	NULL/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+};
+
 irom void setup()
 {
 	serial_begin(115200);
 	pinMode(2, OUTPUT);
 
-	MJYUN_StateChanged(mjyun_stated_cb);
-	MJYUN_OnData(mjyun_receive);
-	MJYUN_OnConnected(mjyun_connected);
-	MJYUN_OnDisconnected(mjyun_disconnected);
+	mjyun_statechanged(mjyun_stated_cb);
+	mjyun_ondata(mjyun_receive);
+	mjyun_onconnected(mjyun_connected);
+	mjyun_ondisconnected(mjyun_disconnected);
 
-	//MJYUN_Init("gh_51111442aa63", NULL);
-	MJYUN_Init("WotP0123456789", NULL);
+	mjyun_run(&mjyun_conf);
 }
 
 irom void loop()

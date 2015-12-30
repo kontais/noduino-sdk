@@ -10,6 +10,17 @@
 #define MJYUN_DEBUG(format, ...)
 #endif
 
+/*
+ * 对mjyun库进行配置
+ */
+typedef struct
+{
+	const char* product_id; /* 产品id [必填]*/
+	const char* sub_pid; /*产品子id(一般用于微信设备) [选填]*/
+	const char* online_words; /*设备上线时，给app发送online消息中的附加数据，[选填]*/
+	const char* offline_words; /*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+} mjyun_config_t;
+
 typedef enum {
 	WIFI_IDLE,
 	WIFI_SMARTLINK_START,
@@ -28,35 +39,44 @@ typedef enum {
 	MJYUN_CONNECTING_ERROR,
 	MJYUN_CONNECTED,
 	MJYUN_DISCONNECTED,
-} MJYUN_State_t;
+} mjyun_state_t;
 
 typedef enum {
 	MARTLINK,
 	WIFI,
 	MJYUN_CLOUD,
-} MJYUN_MsgType_t;
+} mjyun_msgtype_t;
 
 /*----------------------- */
 /*mjyun APIs*/
 /*----------------------- */
 
-typedef void (*MjyunCallback)();
-typedef void (*MjyunDataCallback)(const char *event_name, const char *event_data);
-typedef void (*MjyunStateCallback)(/* MJYUN_MsgType_t type ,*/MJYUN_State_t state);
+typedef void (*mjyun_callback)();
+typedef void (*mjyun_data_callback)(const char *event_name, const char *event_data);
+typedef void (*mjyun_state_callback)(/* mjyun_msgtype_t type ,*/mjyun_state_t state);
 
-void ICACHE_FLASH_ATTR MJYUN_Init(const char* product_id, const char* offline_words);
-void ICACHE_FLASH_ATTR MJYUN_OnConnected(MjyunCallback connectedCb);
-void ICACHE_FLASH_ATTR MJYUN_OnDisconnected(MjyunCallback disconnectedCb);
-void ICACHE_FLASH_ATTR MJYUN_Connect();
-void ICACHE_FLASH_ATTR MJYUN_Disconnect();
-void ICACHE_FLASH_ATTR MJYUN_OnData(MjyunDataCallback dataCb);
-void ICACHE_FLASH_ATTR MJYUN_OnPublished(MjyunCallback sendCb);
-BOOL ICACHE_FLASH_ATTR MJYUN_Publish(const char* event_name, const char* event_data);
-BOOL ICACHE_FLASH_ATTR MJYUN_PublishStatus(const char* status_data);
+/******************************************************************************
+ * FunctionName : mjyun_run
+ * Description  : device start to run mjyun platform
+ * Parameters   : const char* product_id -- mjyun product id
+ *              : const char* offline_words -- device will word
+ * Returns      : return 0 success, others fails
+ *******************************************************************************/
+int mjyun_run(const mjyun_config_t* conf);
+void mjyun_onconnected(mjyun_callback connectedCb);
+void mjyun_ondisconnected(mjyun_callback disconnectedCb);
+/*
+void mjyun_connect();
+void mjyun_disconnect();
+*/
+void mjyun_ondata(mjyun_data_callback dataCb);
+void mjyun_onpublished(mjyun_callback sendCb);
+BOOL mjyun_publish(const char* event_name, const char* event_data);
+BOOL mjyun_publishstatus(const char* status_data);
 
 
-void ICACHE_FLASH_ATTR MJYUN_StateChanged(MjyunStateCallback stateChangedCb);
-MJYUN_State_t ICACHE_FLASH_ATTR MJYUN_State();
+void mjyun_statechanged(mjyun_state_callback stateChangedCb);
+mjyun_state_t mjyun_state();
 
 /*----------------------- */
 /*others APIs*/
@@ -68,31 +88,31 @@ MJYUN_State_t ICACHE_FLASH_ATTR MJYUN_State();
  * Parameters   : none 
  * Returns      : if this device didn't init, return NULL
 *******************************************************************************/
-uint8_t* MJYUN_GetDevicePasswd();
+uint8_t* mjyun_getdevicepasswd();
 
 /******************************************************************************
- * FunctionName : MJYUN_GetDeviceId
+ * FunctionName : mjyun_getdeviceid
  * Description  : get mjyun DID of this device
  * Parameters   : none 
  * Returns      : passwd, if did didn't init, return NULL
 *******************************************************************************/
-uint8_t* MJYUN_GetDeviceId();
+uint8_t* mjyun_getdeviceid();
 
 //mjyun_get_firmware_id( uint8_t slot );
 //mjyun_get_firmware_version( void );
 //mjyun_get_hardware_version( void );
 
 /******************************************************************************
- * FunctionName : MJYUN_SystemRecovery
+ * FunctionName : mjyun_systemrecovery
  * Description  : recovery mjyun data
  * Parameters   : none 
  * Returns      : none
 *******************************************************************************/
-void MJYUN_SystemRecovery(); //系统恢复，抹掉所有mjcloud相关数据 --> 一般对应物理按键
+void mjyun_systemrecovery(); //系统恢复，抹掉所有mjcloud相关数据 --> 一般对应物理按键
 
-void MJYUN_ForceEnterSmartlinkMode(); //强制进入配网模式 --> 一般对应物理按键
+void mjyun_forceentersmartlinkmode(); //强制进入配网模式 --> 一般对应物理按键
 
-void MJYUN_SetssidPrefix(const char* sPrefix);
+void mjyun_setssidprefix(const char* sPrefix);
 
 
 #endif /*  __MJYUN_H__ */

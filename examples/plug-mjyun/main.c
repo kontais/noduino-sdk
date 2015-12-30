@@ -21,35 +21,10 @@
 #include "mem.h"
 #include "gpio.h"
 
-#include "noduino/esp8266_peri.h"
 #include "driver/uart.h"
 #include "mjyun.h"
 
 #define	DEBUG	1
-
-void switch_on()
-{
-#ifdef DEBUG
-	os_printf("set gpio2 to low\n");
-#endif
-	gpio_output_set(0, BIT2, BIT2, 0);
-}
-
-void switch_off()
-{
-#ifdef DEBUG
-	os_printf("set gpio2 to high\n");
-#endif
-	gpio_output_set(BIT2, 0, BIT2, 0);
-}
-
-void switch_init()
-{
-	gpio_init();
-
-	//PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_GPIO15);
-	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
-}
 
 static void mjyun_stated_cb(mjyun_state_t state)
 {
@@ -108,28 +83,35 @@ static void mjyun_stated_cb(mjyun_state_t state)
             break;
         default:
             break;
-    }
+	}
 }
 
 void mjyun_receive(const char *event_name, const char *event_data)
 {
+#ifdef DEBUG
 	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
+#endif
+
 	if(os_strncmp(event_data, "on", 2) == 0)
 	{
 #ifdef DEBUG
 		os_printf("set switch on\r\n");
 #endif
-		switch_on();
+		param_set_status(1);
+		param_save();
+		relay_set_status(1);
 	}
 	if(os_strncmp(event_data, "off", 3) == 0)
 	{
 #ifdef DEBUG
 		os_printf("set switch off\r\n");
 #endif
-		switch_off();
+		param_set_status(0);
+		param_save();
+		relay_set_status(0);
 	}
 	
-	// Publish back
+	// publish back
 	mjyun_publish(event_name, event_data);
 }
 
@@ -140,24 +122,18 @@ void mjyun_connected()
 
 void mjyun_disconnected()
 {
+    mjyun_publishstatus("{state:\"offline\"}");
 }
-// 3707 -->摩羯插座 3708 -->摩羯灯 
-const mjyun_config_t mjyun_conf = {
-	//"WotP0123456789",  /* 产品id [必填]*/
-	"gh_51111441aa63",  /* 产品id [必填]*/
-	"3707",/*产品子id(一般用于微信设备) [选填]*/
-	"Hi, I'm coming!!!",/*设备上线时，给app发送online消息中的附加数据，[选填]*/
-	"I will come back!!!"/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
-};
 
-void cos_check_ip()
+void init_yun()
 {
 	mjyun_statechanged(mjyun_stated_cb);
 	mjyun_ondata(mjyun_receive);
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
 
-	mjyun_run(&mjyun_conf);
+	// The product id of mjyun Smart Plug related to WeChat
+	mjyun_init("gh_51111441aa63", NULL);
 }
 
 void user_init(void)
@@ -166,8 +142,18 @@ void user_init(void)
 	uart_init(115200, 115200);
 #endif
 
-	switch_init();
+	led_init();
+	param_init();
+
+	relay_init();
+
+	uint8_t istat = param_get_status();
+
+	relay_set_status(istat);
+	led_set_status(istat);
+
+	xkey_init();
 
 	os_printf("\r\nSystem started ...\r\n");
-	system_init_done_cb(cos_check_ip);
+	system_init_done_cb(init_yun);
 }
