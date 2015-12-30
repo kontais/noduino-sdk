@@ -27,21 +27,28 @@
 
 #define	DEBUG	1
 
-void gpio16_output()
+void switch_on()
 {
-	GPF16 = GP16FFS(GPFFS_GPIO(16));	//Set mode to GPIO
-	GPC16 = 0;
-	GP16E |= 1;
+#ifdef DEBUG
+	os_printf("set gpio2 to low\n");
+#endif
+	gpio_output_set(0, BIT2, BIT2, 0);
 }
 
-void gpio16_high()
+void switch_off()
 {
-	GP16O |= 1;
+#ifdef DEBUG
+	os_printf("set gpio2 to high\n");
+#endif
+	gpio_output_set(BIT2, 0, BIT2, 0);
 }
 
-void gpio16_low()
+void switch_init()
 {
-	GP16O &= ~1;
+	gpio_init();
+
+	//PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_GPIO15);
+	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
 }
 
 static void mjyun_stated_cb(MJYUN_State_t state)
@@ -107,6 +114,21 @@ static void mjyun_stated_cb(MJYUN_State_t state)
 void mjyun_receive(const char *event_name, const char *event_data)
 {
 	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
+	if(os_strncmp(event_data, "on", 2) == 0)
+	{
+#ifdef DEBUG
+		os_printf("set switch on\r\n");
+#endif
+		switch_on();
+	}
+	if(os_strncmp(event_data, "off", 3) == 0)
+	{
+#ifdef DEBUG
+		os_printf("set switch off\r\n");
+#endif
+		switch_off();
+	}
+	
 	// Publish back
 	MJYUN_Publish(event_name, event_data);
 }
@@ -114,21 +136,17 @@ void mjyun_receive(const char *event_name, const char *event_data)
 void mjyun_connected()
 {
     MJYUN_PublishStatus("{state:\"online\"}");
-	gpio16_high();
 }
 
 void mjyun_disconnected()
 {
-	gpio16_low();
 }
 
 void cos_check_ip()
 {
-	gpio16_output_conf();
-	gpio16_output_set(1);
 
 	MJYUN_StateChanged(mjyun_stated_cb);
-    MJYUN_OnData(mjyun_receive);
+	MJYUN_OnData(mjyun_receive);
 	MJYUN_OnConnected(mjyun_connected);
 	MJYUN_OnDisconnected(mjyun_disconnected);
 	MJYUN_Init("gh_51111441aa63", NULL);
@@ -141,23 +159,7 @@ void user_init(void)
 	uart_init(115200, 115200);
 #endif
 
-	//Initialize the GPIO subsystem.
-	gpio_init();
-
-	//Set GPIO2 to output mode
-	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
-
-    //gpio16 output
-    gpio16_output();
-    gpio16_low();
-
-	//Set GPIO12 to output mode
-	//PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO12);
-
-	//Set GPIO2 low
-	//GPIO_OUTPUT_SET(2, 0);
-	gpio_output_set(BIT2, 0, BIT2, 0);
-
+	switch_init();
 
 	os_printf("\r\nSystem started ...\r\n");
 	system_init_done_cb(cos_check_ip);
