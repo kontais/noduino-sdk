@@ -52,6 +52,7 @@ endif
 
 # firmware generating tool
 FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
+ESPBAUD		?= 230400
 
 # toolchain
 CC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
@@ -145,10 +146,10 @@ firmware:
 	$(Q) mkdir -p $@
 
 flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
-	-$(ESPTOOL) -cd nodemcu -cb 115200 -cp $(ESPPORT) -ca 0x00000 -cf $(FW_BASE)/0x00000.bin -ca 0x40000 -cf $(FW_BASE)/0x40000.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0x00000 -cf $(FW_BASE)/0x00000.bin -ca 0x40000 -cf $(FW_BASE)/0x40000.bin
 
 zero:
-	-$(ESPTOOL) -cd nodemcu -cb 115200 -cp $(ESPPORT) -ca 0x3FE000 -cf $(ESPSDK_BASE)/bin/blank.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0x3FE000 -cf $(ESPSDK_BASE)/bin/blank.bin
 
 clean:
 	$(Q) rm -f $(APP_AR)
