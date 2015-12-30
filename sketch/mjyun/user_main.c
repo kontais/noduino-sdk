@@ -51,9 +51,9 @@ void switch_init()
 	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
 }
 
-static void mjyun_stated_cb(MJYUN_State_t state)
+static void mjyun_stated_cb(mjyun_state_t state)
 {
-    if (MJYUN_State() != state)
+    if (mjyun_state() != state)
         os_printf("Platform: mjyun_state error \r\n");
 
     switch (state)
@@ -130,12 +130,12 @@ void mjyun_receive(const char *event_name, const char *event_data)
 	}
 	
 	// Publish back
-	MJYUN_Publish(event_name, event_data);
+	mjyun_publish(event_name, event_data);
 }
 
 void mjyun_connected()
 {
-    MJYUN_PublishStatus("{state:\"online\"}");
+    mjyun_publishstatus("{state:\"online\"}");
 }
 
 void mjyun_disconnected()
@@ -145,12 +145,12 @@ void mjyun_disconnected()
 void cos_check_ip()
 {
 
-	MJYUN_StateChanged(mjyun_stated_cb);
-	MJYUN_OnData(mjyun_receive);
-	MJYUN_OnConnected(mjyun_connected);
-	MJYUN_OnDisconnected(mjyun_disconnected);
-	MJYUN_Init("gh_51111441aa63", NULL);
-	//MJYUN_Init("WotP0123456789", NULL);
+	mjyun_statechanged(mjyun_stated_cb);
+	mjyun_ondata(mjyun_receive);
+	mjyun_onconnected(mjyun_connected);
+	mjyun_ondisconnected(mjyun_disconnected);
+	mjyun_init("gh_51111441aa63", NULL);
+	//mjyun_init("WotP0123456789", NULL);
 }
 
 void user_init(void)
