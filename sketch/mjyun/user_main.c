@@ -141,7 +141,7 @@ void mjyun_connected()
 void mjyun_disconnected()
 {
 }
-
+// 3707 -->摩羯插座 3708 -->摩羯灯 
 const mjyun_config_t mjyun_conf = {
 	//"WotP0123456789",  /* 产品id [必填]*/
 	"gh_51111441aa63",  /* 产品id [必填]*/
