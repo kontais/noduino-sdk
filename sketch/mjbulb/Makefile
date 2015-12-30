@@ -155,8 +155,11 @@ flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
 mem:
 	-$(ESPTOOL_PY) elf2image -o /tmp/ build/app.out
 
-zero:
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0x3FE000 -cf $(ESPSDK_BASE)/bin/blank.bin
+wificlean:
+	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0xfe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x3fe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7e000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x1fe000 -cf $(ESPSDK_BASE)/bin/blank.bin
+
+mjyunclean:
+	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0x3F4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7F4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xFF4000 -cf $(ESPSDK_BASE)/bin/blank.bin
 
 clean:
 	$(Q) rm -f $(APP_AR)
