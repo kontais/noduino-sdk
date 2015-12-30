@@ -131,8 +131,8 @@ void cos_check_ip()
     MJYUN_OnData(mjyun_receive);
 	MJYUN_OnConnected(mjyun_connected);
 	MJYUN_OnDisconnected(mjyun_disconnected);
-	//MJYUN_Init("gh_51111442aa63", NULL);
-	MJYUN_Init("WotP0123456789", NULL);
+	MJYUN_Init("gh_51111441aa63", NULL);
+	//MJYUN_Init("WotP0123456789", NULL);
 }
 
 void user_init(void)
