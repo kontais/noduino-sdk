@@ -74,6 +74,7 @@ void ICACHE_FLASH_ATTR user_init()
 	wifi_enter_sta();
 
 	os_delay_us(100000);
+	os_delay_us(100000);
 
 	system_init_done_cb(sntp_test);
 }
