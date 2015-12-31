@@ -115,12 +115,11 @@ void mjyun_connected()
 
 void mjyun_disconnected()
 {
-    mjyun_publishstatus("{state:\"offline\"}");
 }
 
-/* 
+/*
  * 3707 --> 摩羯插座
- * 3708 --> 摩羯灯 
+ * 3708 --> 摩羯灯
  */
 const mjyun_config_t mjyun_conf = {
 	//"WotP0123456789",		/* 产品id [必填] */
@@ -146,17 +145,12 @@ void user_init(void)
 	uart_init(115200, 115200);
 #endif
 
-	led_init();
 	param_init();
-
+	led_init();
 	relay_init();
-
-	uint8_t istat = param_get_status();
-
-	relay_set_status(istat);
-	led_set_status(istat);
-
 	xkey_init();
+
+	relay_set_status(param_get_status());
 
 	os_printf("\r\nSystem started ...\r\n");
 	system_init_done_cb(init_yun);
