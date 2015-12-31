@@ -7,19 +7,19 @@ ESPSDK_BASE		?= $(SDK_BASE)/sdk
 TOOLCHAIN_DIR	?= $(SDK_BASE)/toolchain
 
 # paths from the SDK used in this project
-SDK_INCDIR	= include include/driver
+SDK_INCDIR	+= include include/driver
 SDK_LIBDIR = lib
 SDK_LDDIR = ld
 
 # various paths from the ESPSDK used in this project
-ESPSDK_INCDIR	= include include/json
+ESPSDK_INCDIR	+= include include/json
 ESPSDK_LIBDIR	= lib
 ESPSDK_LDDIR	= ld
 
 # libraries used in this project, mainly provided by the ESPSDK
-LIBS		:= gcc
+LIBS		+= gcc
 LIBS		+= crypto espnow json lwip_536 lwip mesh net80211 phy pp pwm smartconfig ssl upgrade wpa wps main
-LIBS		+= driver airkiss mqtt mjyun
+LIBS		+= driver
 
 # toolchain
 CC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
@@ -27,10 +27,10 @@ AR		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-ar
 LD		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
 
 # compiler flags using during compilation of source files
-CFLAGS		= -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
+CFLAGS		+= -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
 
 # linker flags used to generate the main object file
-LDFLAGS		= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
+LDFLAGS		+= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
 
 # linker script used for the above linkier step
 LD_SCRIPT	= $(CONFIG_LD_SCRIPT)
