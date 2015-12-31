@@ -30,6 +30,11 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 */
+#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <math.h>
+#include <stddef.h>
 #include "utils.h"
 
 
