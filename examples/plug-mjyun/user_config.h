@@ -40,5 +40,7 @@ void param_init();
 
 void led_init();
 void led_set_status(uint8_t status);
+void wifi_led_enable();
+void wifi_led_disable();
 
 #endif

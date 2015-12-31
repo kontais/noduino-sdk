@@ -17,22 +17,6 @@
 */
 #include "user_config.h"
 
-void ICACHE_FLASH_ATTR green_led_on()
-{
-#ifdef DEBUG
-	os_printf("set gpio13 to low\n");
-#endif
-	gpio_output_set(0, BIT13, BIT13, 0);
-}
-
-void ICACHE_FLASH_ATTR green_led_off()
-{
-#ifdef DEBUG
-	os_printf("set gpio13 to high\n");
-#endif
-	gpio_output_set(BIT13, 0, BIT13, 0);
-}
-
 void ICACHE_FLASH_ATTR red_led_on()
 {
 #ifdef DEBUG
@@ -69,4 +53,15 @@ void ICACHE_FLASH_ATTR led_set_status(uint8_t status)
 	} else if (status == 1) {
 		red_led_on();
 	}
+}
+
+void ICACHE_FLASH_ATTR wifi_led_enable()
+{
+	// GPIO13: the wifi status led
+	wifi_status_led_install (13, PERIPHS_IO_MUX_MTCK_U, FUNC_GPIO13);
+}
+
+void ICACHE_FLASH_ATTR wifi_led_disable()
+{
+	wifi_status_led_uninstall();
 }

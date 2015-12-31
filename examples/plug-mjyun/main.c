@@ -111,10 +111,15 @@ void mjyun_receive(const char *event_name, const char *event_data)
 void mjyun_connected()
 {
     mjyun_publishstatus("{state:\"online\"}");
+
+	// stop to show the wifi status
+	wifi_led_disable();
 }
 
 void mjyun_disconnected()
 {
+	// show the wifi status
+	wifi_led_enable();
 }
 
 /*
