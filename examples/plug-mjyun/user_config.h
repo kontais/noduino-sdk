@@ -11,6 +11,8 @@
 #include "driver/key.h"
 #include "driver/uart.h"
 
+#include "mjyun.h"
+
 #define	DEBUG			1
 
 #define	XKEY_NUM		1
@@ -35,5 +37,8 @@ void param_set_status(uint8_t status);
 uint8_t param_get_status(void);
 void param_save(void);
 void param_init();
+
+void led_init();
+void led_set_status(uint8_t status);
 
 #endif

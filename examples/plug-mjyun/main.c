@@ -15,14 +15,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
 */
-#include "ets_sys.h"
-#include "osapi.h"
-#include "os_type.h"
-#include "mem.h"
-#include "gpio.h"
-
-#include "driver/uart.h"
-#include "mjyun.h"
+#include "user_config.h"
 
 #define	DEBUG	1
 
@@ -125,6 +118,18 @@ void mjyun_disconnected()
     mjyun_publishstatus("{state:\"offline\"}");
 }
 
+/* 
+ * 3707 --> 摩羯插座
+ * 3708 --> 摩羯灯 
+ */
+const mjyun_config_t mjyun_conf = {
+	//"WotP0123456789",		/* 产品id [必填] */
+	"gh_51111441aa63",		/* 产品id [必填] */
+	"3707",					/* 产品子id (一般用于微信设备) [选填]*/
+	"Hi, I'm coming!!!",	/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
+	"I will come back!!!"	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+};
+
 void init_yun()
 {
 	mjyun_statechanged(mjyun_stated_cb);
@@ -132,8 +137,7 @@ void init_yun()
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
 
-	// The product id of mjyun Smart Plug related to WeChat
-	mjyun_init("gh_51111441aa63", NULL);
+	mjyun_run(&mjyun_conf);
 }
 
 void user_init(void)
