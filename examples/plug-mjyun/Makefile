@@ -53,6 +53,7 @@ endif
 # firmware generating tool
 FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 ESPBAUD		?= 230400
+ESPTOOL_PY	?= $(TOOLCHAIN_DIR)/bin/esptool.py
 
 # toolchain
 CC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
@@ -151,18 +152,24 @@ flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
 				-ca 0x40000 -cf $(FW_BASE)/0x40000.bin
 
 zero:
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT)			\
-				-ca 0x3E000 -cf $(ESPSDK_BASE)/bin/blank.bin	\
-				-ca 0x3F000 -cf $(ESPSDK_BASE)/bin/blank.bin	\
-				-ca 0xFC000 -cf $(ESPSDK_BASE)/bin/blank.bin	\
-				-ca 0xFE000 -cf $(ESPSDK_BASE)/bin/blank.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT)		\
+				-ca 0xF4000 -cf $(ESPSDK_BASE)/bin/blank.bin	\
+				-ca 0xF5000 -cf $(ESPSDK_BASE)/bin/blank.bin	\
+				-ca 0xFE000 -cf $(ESPSDK_BASE)/bin/blank.bin	\
+				-ca 0xFF000 -cf $(ESPSDK_BASE)/bin/blank.bin
 
 rfinit:
 	-$(ESPTOOL) -cd nodemcu -cb 115200 -cp $(ESPPORT) 			\
 				-ca 0xFC000 -cf $(ESPSDK_BASE)/bin/esp_init_data_default.bin
 
-recover:
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0x0 -cf ./fw/miniK-25l80.bin
+# Reset the device id to WotD0000000208, for testing
+devid:
+	-$(ESPTOOL_PY) read_flash 0x0f4000 0x1000 jackxx.bin
+	-printf 'WotD0000000208' | dd conv=notrunc of=jackxx.bin bs=1 seek=35
+	-$(ESPTOOL) -cd nodemcu -cb 230400 -cp $(ESPPORT)			\
+				-ca 0x0F4000 -cf jackxx.bin						\
+				-ca 0x0F5000 -cf jackxx.bin
+	-rm -f jackxx.bin
 
 clean:
 	$(Q) rm -f $(APP_AR)

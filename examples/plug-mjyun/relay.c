@@ -46,9 +46,11 @@ void relay_set_status(uint8_t status)
 	if(status == 0) {
 		relay_off();
 		led_set_status(0);
+		mjyun_publish("raw", "off");
 	} else if (status == 1) {
 		relay_on();
 		led_set_status(1);
+		mjyun_publish("raw", "on");
 	}
 }
 
