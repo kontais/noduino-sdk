@@ -74,7 +74,7 @@ LD_SCRIPT	= esp8266.4096.ld
 # we create two different files for uploading into the flash
 # these are the names and options to generate them
 FW_FILE_1		= 0x00000
-FW_FILE_1_ARGS	= -bo $@ -bm dio -bf 40 -bz 4M -bs .text -bs .data -bs .rodata -bc -ec
+FW_FILE_1_ARGS	= -bo $@ -bm dio -bf 40 -bz 1M -bs .text -bs .data -bs .rodata -bc -ec
 FW_FILE_2		= 0x40000
 FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 
@@ -149,17 +149,18 @@ firmware:
 	$(Q) mkdir -p $@
 
 flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT)			\
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT)		\
 				-ca 0x00000 -cf $(FW_BASE)/0x00000.bin			\
-				-ca 0x40000 -cf $(FW_BASE)/0x40000.bin
+				-ca 0x40000 -cf $(FW_BASE)/0x40000.bin			\
+				-ca 0xFC000 -cf $(ESPSDK_BASE)/bin/esp_init_data_default.bin
 mem:
 	-$(ESPTOOL_PY) elf2image -o /tmp/ build/app.out
 
 wificlean:
-	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0x3fe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7fe000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xFFe000 -cf $(ESPSDK_BASE)/bin/blank.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0x7e000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xfe000 -ca 0xFC000 -cf $(ESPSDK_BASE)/bin/esp_init_data_default.bin
 
 mjyunclean:
-	-$(ESPTOOL) -cd nodemcu -cb 921600 -cp $(ESPPORT) -ca 0x3F4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0x7F4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xFF4000 -cf $(ESPSDK_BASE)/bin/blank.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0xF4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xF5000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xF6000
 
 clean:
 	$(Q) rm -f $(APP_AR)

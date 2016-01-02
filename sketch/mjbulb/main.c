@@ -24,6 +24,7 @@
 #include "noduino/esp8266_peri.h"
 #include "driver/uart.h"
 #include "mjyun.h"
+#include "main.h"
 
 #define	DEBUG	1
 
@@ -44,9 +45,9 @@ void gpio16_low()
 	GP16O &= ~1;
 }
 
-static void mjyun_stated_cb(MJYUN_State_t state)
+static void mjyun_stated_cb(mjyun_state_t state)
 {
-    if (MJYUN_State() != state)
+    if (mjyun_state() != state)
         os_printf("Platform: mjyun_state error \r\n");
 
     switch (state)
@@ -108,12 +109,12 @@ void mjyun_receive(const char *event_name, const char *event_data)
 {
     os_printf("RECEIVED: key=%s,value=%s\r\n", event_name, event_data);
     // Publish back
-    MJYUN_Publish(event_name, event_data);
+    mjyun_publish(event_name, event_data);
 }
 
 void mjyun_connected()
 {
-    MJYUN_PublishStatus("{state:\"online\"}");
+    mjyun_publishstatus("{state:\"online\"}");
 	gpio16_high();
 }
 
@@ -122,20 +123,31 @@ void mjyun_disconnected()
 	gpio16_low();
 }
 
-void cos_check_ip()
-{
-	gpio16_output_conf();
-	gpio16_output_set(1);
+/*
+ * 3707 --> 摩羯插座
+ * 3708 --> 摩羯灯
+ */
+const mjyun_config_t mjyun_conf = {
+    //"WotP0123456789",     /* 产品id [必填] */
+    "gh_51111441aa63",      /* 产品id [必填] */
+    "3708",                 /* 产品子id (一般用于微信设备) [选填]*/
+    "Hi, I'm coming!!!",    /* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
+    "I will come back!!!"   /* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+};
 
-	MJYUN_StateChanged(mjyun_stated_cb);
-    MJYUN_OnData(mjyun_receive);
-	MJYUN_OnConnected(mjyun_connected);
-	MJYUN_OnDisconnected(mjyun_disconnected);
-	MJYUN_Init("gh_51111441aa63", NULL);
-	//MJYUN_Init("WotP0123456789", NULL);
+void init_yun()
+{
+    gpio16_output_conf();
+    gpio16_output_set(1);
+    mjyun_statechanged(mjyun_stated_cb);
+    mjyun_ondata(mjyun_receive);
+    mjyun_onconnected(mjyun_connected);
+    mjyun_ondisconnected(mjyun_disconnected);
+
+    mjyun_run(&mjyun_conf);
 }
 
-void user_init(void)
+void main(int argc, char *argv[])
 {
 #ifdef DEBUG
 	uart_init(115200, 115200);
@@ -158,11 +170,5 @@ void user_init(void)
 	//GPIO_OUTPUT_SET(2, 0);
 	gpio_output_set(BIT2, 0, BIT2, 0);
 
-#define MJYUN_STORAGE_SECTOR_SIZE           (0x1000)
-#define MJYUN_STORAGE_SECTOR                (flash_rom_get_size_byte() / MJYUN_STORAGE_SECTOR_SIZE - 12)
-	os_printf("\r\nSystem started ...\r\n");
-    extern uint32_t ICACHE_FLASH_ATTR flash_rom_get_size_byte(void);
-    os_printf("\r\nflash size =%dBytes(%dMBytes)\r\n", flash_rom_get_size_byte(),flash_rom_get_size_byte()/1024/1024);
-    os_printf("\r\nsector =%d\r\n", MJYUN_STORAGE_SECTOR);
-	system_init_done_cb(cos_check_ip);
+	system_init_done_cb(init_yun);
 }
