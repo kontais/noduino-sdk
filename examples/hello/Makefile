@@ -25,7 +25,7 @@ sinclude .config
 #XLD		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
 
 # include path used in this project
-SDKINC_DIR	+=
+SDK_INCDIR	+=
 
 # libraries used in this project
 LIBS		+=
