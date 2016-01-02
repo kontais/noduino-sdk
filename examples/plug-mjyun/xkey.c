@@ -45,5 +45,5 @@ void ICACHE_FLASH_ATTR xkey_init()
 									xkey_long_press, xkey_short_press);
 	keys.key_num = XKEY_NUM;
 	keys.single_key = single_key;
-	key_init(&keys);
+	pu_key_init(&keys);
 }
