@@ -22,6 +22,7 @@ struct keys_param {
 };
 
 struct single_key_param *key_init_single(uint8 gpio_id, uint32 gpio_name, uint8 gpio_func, key_function long_press, key_function short_press);
-void key_init(struct keys_param *key);
+void pu_key_init(struct keys_param *key);
+void pd_key_init(struct keys_param *key);
 
 #endif
