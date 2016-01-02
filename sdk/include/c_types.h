@@ -79,6 +79,9 @@ typedef enum {
 #define ICACHE_RODATA_ATTR
 #endif /* ICACHE_FLASH */
 
+#define	irom	__attribute__((section(".irom0.text")))
+#define	iram	__attribute__((section(".iram1.text")))
+
 #ifndef __cplusplus
 typedef unsigned char   bool;
 #define BOOL            bool

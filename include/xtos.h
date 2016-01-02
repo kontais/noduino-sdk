@@ -13,7 +13,7 @@
 #include "xtos/md5.h"
 #include "xtos/ets.h"
 #include "xtos/gpio.h"
-#include "xtos/uart.h"
+//#include "xtos/uart.h"
 #include "xtos/vectors.h"
 #include "xtos/xthal.h"
 #include "xtos/_xtos.h"
