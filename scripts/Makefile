@@ -48,17 +48,17 @@ FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 ifeq ($(OS),Windows_NT)
 	ESPTOOL		?= $(TOOLCHAIN_DIR)/bin/esptool.exe
 	FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool.exe
-	ESPPORT		?= COM3
+	CONFIG_ESPPORT	?= COM3
 else
 	ESPTOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 	FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 
 	UNAME_S		:= $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
-		ESPPORT		?= /dev/cu.SLAB_USBtoUART
+		CONFIG_ESPPORT	?= /dev/cu.SLAB_USBtoUART
 	endif
 	ifeq ($(UNAME_S),Linux)
-		ESPPORT		?= /dev/ttyUSB0
+		CONFIG_ESPPORT	?= /dev/ttyUSB0
 	endif
 endif
 
@@ -95,8 +95,14 @@ CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).4096.ld
 FLASH_SIZE = 4M
 endif
 
+ifneq ($(ESPBAUD),)
+CONFIG_ESPBAUD		= $(ESPBAUD)
+endif
 CONFIG_ESPBAUD		?= 230400
-CONFIG_ESPPORT		?= $(ESPPORT)
+
+ifneq ($(ESPPORT),)
+CONFIG_ESPPORT		= $(ESPPORT)
+endif
 
 ##############################################
 #### no user configurable options below here
