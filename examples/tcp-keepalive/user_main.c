@@ -194,6 +194,7 @@ void ICACHE_FLASH_ATTR user_set_station_config(void)
 
 void user_init(void)
 {
+	uart_init(115200, 115200);
 	os_printf("SDK version:%s\n", system_get_sdk_version());
 
 	//Set softAP + station mode
