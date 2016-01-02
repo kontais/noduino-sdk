@@ -96,6 +96,7 @@ FLASH_SIZE = 4M
 endif
 
 CONFIG_ESPBAUD		?= 230400
+CONFIG_ESPPORT		?= $(ESPPORT)
 
 ##############################################
 #### no user configurable options below here
@@ -178,21 +179,21 @@ $(FW_FILE_2): $(TARGET_OUT)
 	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_2_ARGS)
  
 flash: all
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)				\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)				\
 				-ca $(CONFIG_IRAM_ADDR) -cf $(FW_BASE)/$(CONFIG_IRAM_ADDR).bin	\
 				-ca $(CONFIG_IROM_ADDR) -cf $(FW_BASE)/$(CONFIG_IROM_ADDR).bin
 
 rfinit:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT) 			\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) 			\
 				-ca $(CONFIG_RFINIT_ADDR) -cf $(ESPSDK_BASE)/bin/$(CONFIG_RF_INIT_DATA)
 
 wificlean:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)		\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
 				-ca $(CONFIG_SYSCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
 yunclean:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)		\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
@@ -203,7 +204,7 @@ zero: wificlean yunclean
 devid:
 	-$(ESPTOOL_PY) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 jackxx.bin
 	-printf $(DID) | dd conv=notrunc of=jackxx.bin bs=1 seek=35
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)	\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)	\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf jackxx.bin					\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf jackxx.bin
 	-rm -f jackxx.bin
@@ -214,4 +215,4 @@ mem:
 
 # erase the whole flash!
 erase:
-	-$(ESPTOOL_PY) --port $(ESPPORT) erase_flash
+	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) erase_flash
