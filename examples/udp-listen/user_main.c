@@ -86,17 +86,21 @@ void ICACHE_FLASH_ATTR user_udp_init(void)
 {
 	ptrespconn.type = ESPCONN_UDP;
 	ptrespconn.proto.udp = (esp_udp *) os_zalloc(sizeof(esp_udp));
-	ptrespconn.proto.udp->local_port = 1025;	// ESP8266 udp port
+	ptrespconn.proto.udp->local_port = 1025;			/// ESP8266 udp port
 	espconn_regist_recvcb(&ptrespconn, user_udp_recv);	// register a udp packet receiving callback
-	espconn_create(&ptrespconn);	// create udp
+	espconn_create(&ptrespconn);						// create udp
+
+	os_printf("Listen UDP port 1025\r\n");
 }
 
 void user_init(void)
 {
-	os_printf("SDK version:%s\n", system_get_sdk_version());
+	uart_init(115200, 115200);
 
-	//Set softAP + station mode
+	//Set softap + station mode
 	wifi_set_opmode(STATIONAP_MODE);
+
+	os_printf("SDK version:%s\r\n", system_get_sdk_version());
 
 	// Create udp listening.
 	user_udp_init();

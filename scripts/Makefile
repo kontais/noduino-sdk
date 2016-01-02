@@ -22,9 +22,9 @@ LIBS		+= crypto espnow json lwip_536 lwip mesh net80211 phy pp pwm smartconfig s
 LIBS		+= driver
 
 # toolchain
-CC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
-AR		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-ar
-LD		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
+XCC		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
+XAR		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-ar
+XLD		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
 
 # compiler flags using during compilation of source files
 CFLAGS		+= -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
@@ -48,17 +48,17 @@ FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 ifeq ($(OS),Windows_NT)
 	ESPTOOL		?= $(TOOLCHAIN_DIR)/bin/esptool.exe
 	FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool.exe
-	ESPPORT		?= COM3
+	CONFIG_ESPPORT	?= COM3
 else
 	ESPTOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 	FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 
 	UNAME_S		:= $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
-		ESPPORT		?= /dev/cu.SLAB_USBtoUART
+		CONFIG_ESPPORT	?= /dev/cu.SLAB_USBtoUART
 	endif
 	ifeq ($(UNAME_S),Linux)
-		ESPPORT		?= /dev/ttyUSB0
+		CONFIG_ESPPORT	?= /dev/ttyUSB0
 	endif
 endif
 
@@ -95,7 +95,14 @@ CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).4096.ld
 FLASH_SIZE = 4M
 endif
 
+ifneq ($(ESPBAUD),)
+CONFIG_ESPBAUD		= $(ESPBAUD)
+endif
 CONFIG_ESPBAUD		?= 230400
+
+ifneq ($(ESPPORT),)
+CONFIG_ESPPORT		= $(ESPPORT)
+endif
 
 ##############################################
 #### no user configurable options below here
@@ -136,7 +143,7 @@ vpath %.c $(SRC_DIR)
 define compile-objects
 $1/%.o: %.c
 	$(vecho) "CC $$<"
-	$(Q) $(CC) $(INCDIR) $(MODULE_INCDIR) $(ESPSDK_INCDIR) $(SDK_INCDIR) $(CFLAGS)  -c $$< -o $$@
+	$(Q) $(XCC) $(INCDIR) $(MODULE_INCDIR) $(ESPSDK_INCDIR) $(SDK_INCDIR) $(CFLAGS)  -c $$< -o $$@
 endef
 
 .PHONY: all checkdirs flash clean
@@ -145,11 +152,11 @@ all: checkdirs $(TARGET_OUT) $(FW_FILE_1) $(FW_FILE_2)
 
 $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
-	$(Q) $(LD) $(ESPSDK_LIBDIR) $(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
+	$(Q) $(XLD) $(ESPSDK_LIBDIR) $(SDK_LIBDIR) $(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $(LIBS) $(APP_AR) -Wl,--end-group -o $@
 
 $(APP_AR): $(OBJ)
 	$(vecho) "AR $@"
-	$(Q) $(AR) cru $@ $^
+	$(Q) $(XAR) cru $@ $^
 
 checkdirs: $(BUILD_BASE) $(FW_BASE)
 
@@ -178,21 +185,21 @@ $(FW_FILE_2): $(TARGET_OUT)
 	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_2_ARGS)
  
 flash: all
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)				\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)				\
 				-ca $(CONFIG_IRAM_ADDR) -cf $(FW_BASE)/$(CONFIG_IRAM_ADDR).bin	\
 				-ca $(CONFIG_IROM_ADDR) -cf $(FW_BASE)/$(CONFIG_IROM_ADDR).bin
 
 rfinit:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT) 			\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) 			\
 				-ca $(CONFIG_RFINIT_ADDR) -cf $(ESPSDK_BASE)/bin/$(CONFIG_RF_INIT_DATA)
 
 wificlean:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)		\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
 				-ca $(CONFIG_SYSCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
 yunclean:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)		\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
@@ -203,7 +210,7 @@ zero: wificlean yunclean
 devid:
 	-$(ESPTOOL_PY) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 jackxx.bin
 	-printf $(DID) | dd conv=notrunc of=jackxx.bin bs=1 seek=35
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(ESPPORT)	\
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)	\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf jackxx.bin					\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf jackxx.bin
 	-rm -f jackxx.bin
@@ -214,4 +221,4 @@ mem:
 
 # erase the whole flash!
 erase:
-	-$(ESPTOOL_PY) --port $(ESPPORT) erase_flash
+	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) erase_flash
