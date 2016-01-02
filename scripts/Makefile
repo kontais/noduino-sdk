@@ -40,7 +40,7 @@ LD_SCRIPT	= $(CONFIG_LD_SCRIPT)
 # these are the names and options to generate them
 FW_FILE_1		= $(CONFIG_IRAM_ADDR)
 FW_FILE_1_ARGS	= -bo $@ -bm $(CONFIG_FLASH_MODE) -bf $(CONFIG_FLASH_FREQ)	\
-				  -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec
+				  -bz $(subst B,,$(CONFIG_FLASH_SIZE)) -bs .text -bs .data -bs .rodata -bc -ec
 FW_FILE_2		= $(CONFIG_IROM_ADDR)
 FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 
@@ -66,33 +66,33 @@ endif
 FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 ESPTOOL_PY	?= $(TOOLCHAIN_DIR)/bin/esptool.py
 
-ifeq ($(CONFIG_FFLASH_SIZELASH_SIZE), 512KB)
+ifeq ($(CONFIG_FLASH_SIZE), 512KB)
 CONFIG_RFINIT_ADDR	?= 0x7C000
 CONFIG_SYSCONF_ADDR	?= 0x7E000
 CONFIG_YUNCONF_ADDR	?= 0x74000
 CONFIG_LD_SCRIPT	?= $(CONFIG_CPU).512.ld
-FLASH_SIZE = 512K
+FLASH_SIZE = 512
 endif
 ifeq ($(CONFIG_FLASH_SIZE), 1MB)
 CONFIG_RFINIT_ADDR	?= 0xFC000
 CONFIG_SYSCONF_ADDR	?= 0xFE000
 CONFIG_YUNCONF_ADDR	?= 0xF4000
 CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).1024.ld
-FLASH_SIZE = 1M
+FLASH_SIZE = 1024
 endif
 ifeq ($(CONFIG_FLASH_SIZE), 2MB)
 CONFIG_RFINIT_ADDR ?= 0x1FC000
 CONFIG_SYSCONF_ADDR ?= 0x1FE000
 CONFIG_YUNCONF_ADDR ?= 0x1F4000
 CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).2048.ld
-FLASH_SIZE = 2M
+FLASH_SIZE = 2048
 endif
 ifeq ($(CONFIG_FLASH_SIZE), 4MB)
 CONFIG_RFINIT_ADDR ?= 0x3FC000
 CONFIG_SYSCONF_ADDR ?= 0x3FE000
 CONFIG_YUNCONF_ADDR ?= 0x3F4000
 CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).4096.ld
-FLASH_SIZE = 4M
+FLASH_SIZE = 4096
 endif
 
 ifneq ($(ESPBAUD),)
@@ -208,7 +208,7 @@ zero: wificlean yunclean
 # Reset the device id to $(DID), for testing
 # make devid DID=WotD0000000208
 devid:
-	-$(ESPTOOL_PY) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 jackxx.bin
+	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 jackxx.bin
 	-printf $(DID) | dd conv=notrunc of=jackxx.bin bs=1 seek=35
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)	\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf jackxx.bin					\
@@ -222,3 +222,6 @@ mem:
 # erase the whole flash!
 erase:
 	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) erase_flash
+
+dump:
+	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) --baud $(CONFIG_ESPBAUD) read_flash 0x0 $(shell echo $$(($(FLASH_SIZE)*1024))) flash.bin
