@@ -20,15 +20,13 @@
 LOCAL struct keys_param keys;
 LOCAL struct single_key_param *single_key[XKEY_NUM];
 
-LOCAL void ICACHE_FLASH_ATTR
-xkey_long_press(void)
+void xkey_long_press(void)
 {
     system_restore();
     system_restart();
 }
 
-LOCAL void ICACHE_FLASH_ATTR
-xkey_short_press(void)
+void xkey_short_press(void)
 {
 	// reverse the status of relay
 	uint8_t st = (~relay_get_status()) & 0x1;
@@ -39,11 +37,11 @@ xkey_short_press(void)
 	relay_set_status(st);
 }
 
-void ICACHE_FLASH_ATTR xkey_init()
+irom void xkey_init()
 {
 	single_key[0] = key_init_single (XKEY_IO_NUM, XKEY_IO_MUX, XKEY_IO_FUNC,
-									xkey_long_press, xkey_short_press);
+							xkey_long_press, xkey_short_press);
 	keys.key_num = XKEY_NUM;
 	keys.single_key = single_key;
-	key_init(&keys);
+	pd_key_init(&keys);
 }
