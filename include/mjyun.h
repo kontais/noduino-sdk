@@ -42,7 +42,7 @@ typedef enum {
 } mjyun_state_t;
 
 typedef enum {
-	MARTLINK,
+	SMARTLINK,
 	WIFI,
 	MJYUN_CLOUD,
 } mjyun_msgtype_t;
