@@ -309,7 +309,7 @@ void ICACHE_FLASH_ATTR
 
 
 
-void spi_slave_isr_handler(void *para)
+iram void spi_slave_isr_handler(void *para)
 {
 	uint32 regvalue,calvalue;
     	static uint8 state =0;

@@ -40,7 +40,7 @@ os_event_t    uart_recvTaskQueue[uart_recvTaskQueueLen];
 #define DBG2 os_printf
 
 
-LOCAL void uart0_rx_intr_handler(void *para);
+iram LOCAL void uart0_rx_intr_handler(void *para);
 
 /******************************************************************************
  * FunctionName : uart_config
