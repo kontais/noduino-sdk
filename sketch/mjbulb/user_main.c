@@ -130,7 +130,7 @@ void mjyun_disconnected()
 const mjyun_config_t mjyun_conf = {
     //"WotP0123456789",     /* 产品id [必填] */
     "gh_51111441aa63",      /* 产品id [必填] */
-    "3707",                 /* 产品子id (一般用于微信设备) [选填]*/
+    "3708",                 /* 产品子id (一般用于微信设备) [选填]*/
     "Hi, I'm coming!!!",    /* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
     "I will come back!!!"   /* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
 };
