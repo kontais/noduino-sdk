@@ -6,7 +6,7 @@ Small K mini Smart Plug Reference Firmware
 Old Smart Plug of Ai-Thinker:
 
 1. GPIO4 control the relay
-2. GPIO5 related to the key
+2. GPIO5 related to the key (pull up, pressed is low)
 3. GPIO13 control the Green LED
 4. GPIO12 control the Red LED to show the state of the relay
 

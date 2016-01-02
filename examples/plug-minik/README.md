@@ -6,7 +6,7 @@ Small K mini Smart Plug Reference Firmware
 Small K mini resource:
 
 1. GPIO15 control the relay
-2. GPIO12 related to the key
+2. GPIO12 related to the key (pull down, pressed is high)
 3. GPIO3 (U0RX) control the blue LED
 4. Red LED show the state of the relay (no related gpio)
 
