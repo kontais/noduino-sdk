@@ -19,20 +19,24 @@ SDK_BASE		?= ../..
 include $(SDK_BASE)/.config
 sinclude .config
 
-# libraries used in this project, mainly provided by the ESPSDK
-LIBS	:= httpclient cirom
+# override following variables to use your toolchain
+#XCC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
+#XAR		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-ar
+#XLD		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
 
-# toolchain
-#CC		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
-#AR		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-ar
-#LD		:= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
+# include path used in this project
+SDK_INCDIR	+=
+
+# libraries used in this project
+LIBS		+= cirom httpclient
 
 # compiler flags using during compilation of source files
-#CFLAGS		+=
+CFLAGS		+=
 
 # linker flags used to generate the main object file
-#LDFLAGS		+=
+LDFLAGS		+=
 
+# include common section of the build system
 ifeq ($(CONFIG_OTA), y)
 include $(SDK_BASE)/scripts/Makefile.ota
 else
