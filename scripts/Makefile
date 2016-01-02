@@ -193,7 +193,7 @@ rfinit:
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) 			\
 				-ca $(CONFIG_RFINIT_ADDR) -cf $(ESPSDK_BASE)/bin/$(CONFIG_RF_INIT_DATA)
 
-wificlean:
+sysclean:
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
 				-ca $(CONFIG_SYSCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
@@ -213,11 +213,12 @@ devid:
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)	\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf jackxx.bin					\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf jackxx.bin
-	-rm -f jackxx.bin
+	-$(Q) rm -f jackxx.bin
 
 # analysis the memory usage of our firmware
-mem:
-	-$(ESPTOOL_PY) elf2image -o /tmp/ $(TARGET_OUT)
+mem: all
+	-$(Q) $(ESPTOOL_PY) elf2image -o /tmp/ $(TARGET_OUT)
+	-$(Q) rm -f /tmp/*.bin
 
 # erase the whole flash!
 erase:
