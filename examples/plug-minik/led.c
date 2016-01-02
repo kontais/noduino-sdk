@@ -17,42 +17,21 @@
 */
 #include "user_config.h"
 
-void relay_on()
-{
-#ifdef DEBUG
-	os_printf("set gpio15 to high\n");
-#endif
-	gpio_output_set(BIT15, 0, BIT15, 0);
-}
-
-void relay_off()
-{
-#ifdef DEBUG
-	os_printf("set gpio15 to low\n");
-#endif
-	gpio_output_set(0, BIT15, BIT15, 0);
-}
-
-void relay_init()
+void ICACHE_FLASH_ATTR led_init()
 {
 	gpio_init();
 
-	// Set GPIO15 to output mode
-	PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_GPIO15);
+	// GPIO3: the wifi status led
+	wifi_status_led_install (3, PERIPHS_IO_MUX_U0RXD_U, FUNC_GPIO3);
 }
 
-void relay_set_status(uint8_t status)
+void ICACHE_FLASH_ATTR wifi_led_enable()
 {
-	if(status == 0) {
-		relay_off();
-		mjyun_publishstatus("off");
-	} else if (status == 1) {
-		relay_on();
-		mjyun_publishstatus("on");
-	}
+	// GPIO13: the wifi status led
+	wifi_status_led_install (3, PERIPHS_IO_MUX_U0RXD_U, FUNC_GPIO3);
 }
 
-uint8_t relay_get_status()
+void ICACHE_FLASH_ATTR wifi_led_disable()
 {
-	return (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT15) == 0 ? 0 : 1;
+	wifi_status_led_uninstall();
 }

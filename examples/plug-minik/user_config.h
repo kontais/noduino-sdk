@@ -11,6 +11,8 @@
 #include "driver/key.h"
 #include "driver/uart.h"
 
+#include "mjyun.h"
+
 #define	DEBUG			1
 
 #define	XKEY_NUM		1
@@ -19,9 +21,9 @@
 #define XKEY_IO_NUM		12
 #define XKEY_IO_FUNC	FUNC_GPIO12
 
-// NOTICE---this is for 1024KB spi flash
-#define PRIV_PARAM_START_SEC	0x3C
-#define PRIV_PARAM_SAVE			0
+// NOTICE: --- For 1024KB spi flash
+// 0x3C000
+#define PARAM_START_SEC		0x3C
 
 void xkey_init();
 
@@ -35,5 +37,9 @@ void param_set_status(uint8_t status);
 uint8_t param_get_status(void);
 void param_save(void);
 void param_init();
+
+void led_init();
+void wifi_led_enable();
+void wifi_led_disable();
 
 #endif

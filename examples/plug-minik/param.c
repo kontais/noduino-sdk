@@ -45,17 +45,15 @@ uint8_t ICACHE_FLASH_ATTR param_get_status(void)
 
 void ICACHE_FLASH_ATTR param_save(void)
 {
-	spi_flash_erase_sector(PRIV_PARAM_START_SEC + PRIV_PARAM_SAVE);
-	spi_flash_write((PRIV_PARAM_START_SEC +
-			 PRIV_PARAM_SAVE) * SPI_FLASH_SEC_SIZE,
+	spi_flash_erase_sector(PARAM_START_SEC + 0);
+	spi_flash_write((PARAM_START_SEC + 0) * SPI_FLASH_SEC_SIZE,
 			(uint32 *) & minik_param,
 			sizeof(struct minik_saved_param));
 }
 
 void ICACHE_FLASH_ATTR param_init()
 {
-	spi_flash_read((PRIV_PARAM_START_SEC +
-			PRIV_PARAM_SAVE) * SPI_FLASH_SEC_SIZE,
+	spi_flash_read((PARAM_START_SEC + 0) * SPI_FLASH_SEC_SIZE,
 		       (uint32 *) & minik_param,
 		       sizeof(struct minik_saved_param));
 

@@ -15,303 +15,148 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
 */
-#include "ets_sys.h"
-#include "osapi.h"
-#include "ip_addr.h"
-#include "user_interface.h"
-#include "espconn.h"
-#include "os_type.h"
-#include "mem.h"
-#include "gpio.h"
-
-#include "driver/uart.h"
-#include "airkiss.h"
-#include "smartconfig.h"
-#include "mqtt/mqtt.h"
-
 #include "user_config.h"
 
-MQTT_Client mqttClient;
+#define	DEBUG	1
 
-LOCAL uint8_t check_ip_count = 0;
-
-os_timer_t time_serv;
-os_timer_t client_timer;
-
-esp_udp airkiss_udp;
-struct espconn ptrairudpconn;
-
-uint8_t lan_buf[200];
-uint16_t lan_buf_len;
-
-#define DEVICE_TYPE			"gh_95fae1ba6fa0"
-#define DEVICE_ID			"gh_95fae1ba6fa0_8312db1c74a6d97d04063fb88d9a8e47"
-#define DEFAULT_LAN_PORT	12476
-
-char mqtt_uname[] = DEVICE_ID;
-char mqtt_pass[] = "123456";
-
-const airkiss_config_t akconf = {
-	(airkiss_memset_fn) & memset,
-	(airkiss_memcpy_fn) & memcpy,
-	(airkiss_memcmp_fn) & memcmp,
-	0
-};
-
-static void ICACHE_FLASH_ATTR time_callback(void)
+static void mjyun_stated_cb(mjyun_state_t state)
 {
-	airkiss_udp.remote_port = DEFAULT_LAN_PORT;
-	airkiss_udp.remote_ip[0] = 255;
-	airkiss_udp.remote_ip[1] = 255;
-	airkiss_udp.remote_ip[2] = 255;
-	airkiss_udp.remote_ip[3] = 255;
-	lan_buf_len = sizeof(lan_buf);
+    if (mjyun_state() != state)
+        os_printf("Platform: mjyun_state error \r\n");
 
-	int ret = airkiss_lan_pack(AIRKISS_LAN_SSDP_NOTIFY_CMD,
-				   DEVICE_TYPE, DEVICE_ID, 0, 0, lan_buf,
-				   &lan_buf_len, &akconf);
+    switch (state)
+    {
+        case WIFI_IDLE:
+            os_printf("Platform: WIFI_IDLE\r\n");
+            break;
+        case WIFI_SMARTLINK_LINKING:
+            os_printf("Platform: WIFI_SMARTLINK_LINKING\r\n");
+            break;
+        case WIFI_SMARTLINK_FINDING:
+            os_printf("Platform: WIFI_SMARTLINK_FINDING\r\n");
+            break;
+        case WIFI_SMARTLINK_TIMEOUT:
+            os_printf("Platform: WIFI_SMARTLINK_TIMEOUT\r\n");
+            break;
+        case WIFI_SMARTLINK_GETTING:
+            os_printf("Platform: WIFI_SMARTLINK_GETTING\r\n");
+            break;
+        case WIFI_SMARTLINK_OK:
+            os_printf("Platform: WIFI_SMARTLINK_OK\r\n");
+            break;
+        case WIFI_AP_OK:
+            os_printf("Platform: WIFI_AP_OK\r\n");
+            break;
+        case WIFI_AP_ERROR:
+            os_printf("Platform: WIFI_AP_ERROR\r\n");
+            break;
+        case WIFI_AP_STATION_OK:
+            os_printf("Platform: WIFI_AP_STATION_OK\r\n");
+            break;
+        case WIFI_AP_STATION_ERROR:
+            os_printf("Platform: WIFI_AP_STATION_ERROR\r\n");
+            break;
+        case WIFI_STATION_OK:
+            os_printf("Platform: WIFI_STATION_OK\r\n");
+            break;
+        case WIFI_STATION_ERROR:
+            os_printf("Platform: WIFI_STATION_ERROR\r\n");
+            break;
+        case MJYUN_CONNECTING:
+            os_printf("Platform: MJYUN_CONNECTING\r\n");
+            break;
+        case MJYUN_CONNECTING_ERROR:
+            os_printf("Platform: MJYUN_CONNECTING_ERROR\r\n");
+            break;
+        case MJYUN_CONNECTED:
+            os_printf("Platform: MJYUN_CONNECTED \r\n");
+            break;
+        case MJYUN_DISCONNECTED:
+            os_printf("Platform: MJYUN_DISCONNECTED\r\n");
+            break;
+        default:
+            break;
+	}
+}
 
-	if (ret != AIRKISS_LAN_PAKE_READY) {
+void mjyun_receive(const char *event_name, const char *event_data)
+{
 #ifdef DEBUG
-		uart0_sendStr("Pack lan packet error!\r\n");
+	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 #endif
-		return;
-	}
-	ret = espconn_sent(&ptrairudpconn, lan_buf, lan_buf_len);
-	if (ret != 0) {
-		uart0_sendStr("UDP send error!\r\n");
-	}
-#ifdef DEBUG
-	uart0_sendStr("Finish send notify!\r\n");
-#endif
-}
 
-void ICACHE_FLASH_ATTR airkiss_nff_stop(void)
-{
-	os_timer_disarm(&time_serv);
-}
-
-void ICACHE_FLASH_ATTR wifilan_recv_callbk(void *arg, char *pdata, unsigned short len)
-{
-	airkiss_lan_ret_t ret = airkiss_lan_recv(pdata, len, &akconf);
-	airkiss_lan_ret_t packret;
-
-	switch (ret) {
-	case AIRKISS_LAN_SSDP_REQ:
-
-		airkiss_udp.remote_port = DEFAULT_LAN_PORT;
-		lan_buf_len = sizeof(lan_buf);
-
-		packret = airkiss_lan_pack(AIRKISS_LAN_SSDP_RESP_CMD,
-					   DEVICE_TYPE, DEVICE_ID, 0, 0,
-					   lan_buf, &lan_buf_len, &akconf);
-
-		if (packret != AIRKISS_LAN_PAKE_READY) {
-			uart0_sendStr("Pack lan packet error!\r\n");
-			return;
-		}
-
-		packret = espconn_sent(&ptrairudpconn, lan_buf, lan_buf_len);
-
-		if (packret != 0) {
-			uart0_sendStr("LAN UDP Send err!\r\n");
-		} else {
-			airkiss_nff_stop();
-		}
-		break;
-	default:
-		uart0_sendStr("Pack is not ssdq req!\r\n");
-		break;
-	}
-}
-
-void ICACHE_FLASH_ATTR airkiss_nff_start(void)
-{
-	airkiss_udp.local_port = 12476;
-	ptrairudpconn.type = ESPCONN_UDP;
-	ptrairudpconn.proto.udp = &(airkiss_udp);
-
-	espconn_create(&ptrairudpconn);
-	espconn_regist_recvcb(&ptrairudpconn, wifilan_recv_callbk);
-
-	os_timer_setfn(&time_serv, (os_timer_func_t *) time_callback, NULL);
-	os_timer_arm(&time_serv, 5000, 1);	//5s定时器
-}
-
-void ICACHE_FLASH_ATTR smartconfig_done(sc_status status, void *pdata)
-{
-	switch (status) {
-	case SC_STATUS_WAIT:
-		os_printf("SC_STATUS_WAIT\n");
-		break;
-	case SC_STATUS_FIND_CHANNEL:
-		os_printf("SC_STATUS_FIND_CHANNEL\n");
-		break;
-	case SC_STATUS_GETTING_SSID_PSWD:
-		os_printf("SC_STATUS_GETTING_SSID_PSWD\n");
-		sc_type *type = pdata;
-		if (*type == SC_TYPE_ESPTOUCH) {
-			os_printf("SC_TYPE:SC_TYPE_ESPTOUCH\n");
-		} else {
-			os_printf("SC_TYPE:SC_TYPE_AIRKISS\n");
-		}
-		break;
-	case SC_STATUS_LINK:
-		os_printf("SC_STATUS_LINK\n");
-		struct station_config *sta_conf = pdata;
-
-		os_printf("Store the ssid and password into flash\n");
-		wifi_station_set_config(sta_conf);
-
-		wifi_station_disconnect();
-		wifi_station_connect();
-		break;
-	case SC_STATUS_LINK_OVER:
-		os_printf("SC_STATUS_LINK_OVER\n");
-		if (pdata != NULL) {
-			uint8 phone_ip[4] = { 0 };
-
-			os_memcpy(phone_ip, (uint8 *) pdata, 4);
-			os_printf("Phone ip: %d.%d.%d.%d\n", phone_ip[0],
-				  phone_ip[1], phone_ip[2], phone_ip[3]);
-		}
-		smartconfig_stop();
-		break;
-	}
-
-}
-
-void ICACHE_FLASH_ATTR mqttConnectedCb(uint32_t *args)
-{
-	MQTT_Client* client = (MQTT_Client*)args;
-	os_printf("MQTT: Connected\r\n");
-	MQTT_Subscribe(client, "/app2dev/gh_95fae1ba6fa0_8312db1c74a6d97d04063fb88d9a8e47", 0);
-	MQTT_Publish(client, "/dev2app/gh_95fae1ba6fa0_8312db1c74a6d97d04063fb88d9a8e47", "online", 6, 0, 0);
-}
-
-void ICACHE_FLASH_ATTR mqttDisconnectedCb(uint32_t *args)
-{
-	MQTT_Client* client = (MQTT_Client*)args;
-	os_printf("MQTT: Disconnected\r\n");
-}
-
-void ICACHE_FLASH_ATTR mqttPublishedCb(uint32_t *args)
-{
-	MQTT_Client* client = (MQTT_Client*)args;
-	os_printf("MQTT: Published\r\n");
-}
-
-void ICACHE_FLASH_ATTR mqttDataCb (uint32_t *args, const char* topic,
-	   	uint32_t topic_len, const char *data, uint32_t data_len)
-{
-	char *topicBuf = (char*)os_zalloc(topic_len+1),
-			*dataBuf = (char*)os_zalloc(data_len+1);
-
-	MQTT_Client* client = (MQTT_Client*)args;
-
-	os_memcpy(topicBuf, topic, topic_len);
-	topicBuf[topic_len] = 0;
-
-	os_memcpy(dataBuf, data, data_len);
-	dataBuf[data_len] = 0;
-
-	if(os_strncmp(dataBuf, "on", 2) == 0)
+	if(os_strncmp(event_data, "on", 2) == 0)
 	{
 #ifdef DEBUG
-		os_printf("Turn on the relay!\n");
+		os_printf("set switch on\r\n");
 #endif
 		param_set_status(1);
 		param_save();
-		relay_on();
+		relay_set_status(1);
 	}
-
-	if(os_strncmp(dataBuf, "off", 3) == 0)
+	if(os_strncmp(event_data, "off", 3) == 0)
 	{
 #ifdef DEBUG
-		os_printf("Turn off the relay!\n");
+		os_printf("set switch off\r\n");
 #endif
 		param_set_status(0);
 		param_save();
-		relay_off();
+		relay_set_status(0);
 	}
-
-	os_printf("Receive topic: %s, data: %s \r\n", topicBuf, dataBuf);
-	os_free(topicBuf);
-	os_free(dataBuf);
+	
+	// publish back
+	mjyun_publish(event_name, event_data);
 }
 
-void ICACHE_FLASH_ATTR cos_check_ip()
+void mjyun_connected()
 {
-	struct ip_info ipconfig;
+    mjyun_publishstatus("{state:\"online\"}");
 
-	static bool smartconfig_started = false;
-
-	os_timer_disarm(&client_timer);
-
-	wifi_get_ip_info(STATION_IF, &ipconfig);
-
-	if (wifi_station_get_connect_status() == STATION_GOT_IP
-		&& ipconfig.ip.addr != 0) {
-		// connect to router success
-		// TODO: notify the cloud I'm online
-		// cloud return the bind state
-
-		// start broadcast airkiss-nff udp pkg
-		// TODO: need to check the binding state
-		airkiss_nff_start();
-		MQTT_Connect(&mqttClient);
-		smartconfig_started = false;
-	} else {
-		// idle or connecting
-		os_timer_setfn(&client_timer, (os_timer_func_t *)cos_check_ip, NULL);
-		os_timer_arm(&client_timer, 150, 0);
-
-		if (check_ip_count++ > 50) {
-			// delay 10s, need to start airkiss to reconfig the network
-			// TODO: flash led to show wifi disconnect
-			if(!smartconfig_started)
-			{
-				wifi_set_opmode(STATION_MODE);
-				smartconfig_set_type(SC_TYPE_AIRKISS);
-				// esptouch_set_timeout(200);
-#if defined(ESPTOUCH_DEBUG)
-				smartconfig_start(smartconfig_done, 1);
-#else
-				smartconfig_start(smartconfig_done, 1);
-#endif
-				// set smartconfig flag to prevent start again
-				smartconfig_started = true;
-			}
-			// reset the count
-			check_ip_count = 0;
-		}
-
-		MQTT_Disconnect(&mqttClient);
-	}
+	// stop to show the wifi status
+	wifi_led_disable();
 }
 
-void ICACHE_FLASH_ATTR user_init(void)
+void mjyun_disconnected()
 {
-	char client_name[32] = "\0";
+	// show the wifi status
+	wifi_led_enable();
+}
+
+/*
+ * 3707 --> 摩羯插座
+ * 3708 --> 摩羯灯
+ */
+const mjyun_config_t mjyun_conf = {
+	//"WotP0123456789",		/* 产品id [必填] */
+	"gh_51111441aa63",		/* 产品id [必填] */
+	"3707",					/* 产品子id (一般用于微信设备) [选填]*/
+	"Hi, I'm coming!!!",	/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
+	"I will come back!!!"	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+};
+
+void init_yun()
+{
+	mjyun_statechanged(mjyun_stated_cb);
+	mjyun_ondata(mjyun_receive);
+	mjyun_onconnected(mjyun_connected);
+	mjyun_ondisconnected(mjyun_disconnected);
+
+	mjyun_run(&mjyun_conf);
+}
+
+void user_init(void)
+{
 #ifdef DEBUG
 	uart_init(115200, 115200);
 #endif
 
 	param_init();
+	led_init();
 	relay_init();
-	relay_set_status(param_get_status());
 	xkey_init();
 
-	os_sprintf(client_name, "noduino_falcon_%d", os_random()%10000);
-
-	MQTT_InitConnection(&mqttClient, "101.200.202.247", 1883, 0);
-	MQTT_InitClient(&mqttClient, client_name, mqtt_uname, mqtt_pass, 120, 1);
-
-	MQTT_OnConnected(&mqttClient, mqttConnectedCb);
-	MQTT_OnDisconnected(&mqttClient, mqttDisconnectedCb);
-	MQTT_OnPublished(&mqttClient, mqttPublishedCb);
-	MQTT_OnData(&mqttClient, mqttDataCb);
+	relay_set_status(param_get_status());
 
 	os_printf("\r\nSystem started ...\r\n");
-	system_init_done_cb(cos_check_ip);
+	system_init_done_cb(init_yun);
 }
