@@ -203,7 +203,7 @@ yunclean:
 				-ca $(CONFIG_YUNCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
-zero: wificlean yunclean
+zero: sysclean yunclean
 
 # Reset the device id to $(DID), for testing
 # make devid DID=WotD0000000208
