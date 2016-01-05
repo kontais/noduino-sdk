@@ -149,18 +149,22 @@ firmware:
 	$(Q) mkdir -p $@
 
 flash: all $(FW_BASE)/0x00000.bin $(FW_BASE)/0x40000.bin
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT)		\
-				-ca 0x00000 -cf $(FW_BASE)/0x00000.bin			\
-				-ca 0x40000 -cf $(FW_BASE)/0x40000.bin			\
-				-ca 0xFC000 -cf $(ESPSDK_BASE)/bin/esp_init_data_default.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT)					\
+				-ca 0x00000 -cf $(FW_BASE)/0x00000.bin						\
+				-ca 0x40000 -cf $(FW_BASE)/0x40000.bin
 mem:
 	-$(ESPTOOL_PY) elf2image -o /tmp/ build/app.out
 
 wificlean:
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0x7e000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xfe000 -ca 0xFC000 -cf $(ESPSDK_BASE)/bin/esp_init_data_default.bin
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) 					\
+				-ca 0x7e000 -cf $(ESPSDK_BASE)/bin/blank.bin 				\
+				-ca 0xFC000 -cf $(ESPSDK_BASE)/bin/esp_init_data_default.bin
 
 mjyunclean:
-	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) -ca 0xF4000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xF5000 -cf $(ESPSDK_BASE)/bin/blank.bin -ca 0xF6000
+	-$(ESPTOOL) -cd nodemcu -cb $(ESPBAUD) -cp $(ESPPORT) 					\
+				-ca 0xF4000 -cf $(ESPSDK_BASE)/bin/blank.bin 				\
+				-ca 0xF5000 -cf $(ESPSDK_BASE)/bin/blank.bin 				\
+				-ca 0xF6000 -cf $(ESPSDK_BASE)/bin/blank.bin 
 
 clean:
 	$(Q) rm -f $(APP_AR)
