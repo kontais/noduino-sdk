@@ -46,6 +46,17 @@ void relay_set_status(uint8_t status)
 	if(status == 0) {
 		relay_off();
 		led_set_status(0);
+	} else if (status == 1) {
+		relay_on();
+		led_set_status(1);
+	}
+}
+
+void relay_set_status_and_publish(uint8_t status)
+{
+	if(status == 0) {
+		relay_off();
+		led_set_status(0);
 		mjyun_publishstatus("off");
 	} else if (status == 1) {
 		relay_on();
@@ -57,4 +68,14 @@ void relay_set_status(uint8_t status)
 uint8_t relay_get_status()
 {
 	return (GPIO_REG_READ(GPIO_OUT_ADDRESS) & BIT4) == 0 ? 0 : 1;
+}
+
+void relay_publish_status()
+{
+	uint8_t status = relay_get_status();
+	if(status == 0) {
+		mjyun_publishstatus("off");
+	} else if (status == 1) {
+		mjyun_publishstatus("on");
+	}
 }
