@@ -103,15 +103,10 @@ void mjyun_receive(const char *event_name, const char *event_data)
 		param_save();
 		relay_set_status(0);
 	}
-	
-	// publish back
-	mjyun_publish(event_name, event_data);
 }
 
 void mjyun_connected()
 {
-    mjyun_publishstatus("{state:\"online\"}");
-
 	// stop to show the wifi status
 	wifi_led_disable();
 }
