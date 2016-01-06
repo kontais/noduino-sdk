@@ -34,7 +34,7 @@ void xkey_short_press(void)
 	param_set_status(st);
 	param_save();
 
-	relay_set_status(st);
+	relay_set_status_and_publish(st);
 }
 
 irom void xkey_init()

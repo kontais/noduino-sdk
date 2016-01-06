@@ -31,7 +31,9 @@ void relay_on();
 void relay_off();
 void relay_init();
 void relay_set_status(uint8_t status);
+void relay_set_status_and_publish(uint8_t status);
 uint8_t relay_get_status();
+void relay_publish_status();
 
 void param_set_status(uint8_t status);
 uint8_t param_get_status(void);
