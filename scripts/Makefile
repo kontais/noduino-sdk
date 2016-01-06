@@ -203,13 +203,28 @@ yunclean:
 				-ca $(CONFIG_YUNCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
-zero: sysclean yunclean
+zero:
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
+				-ca $(CONFIG_SYSCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
+				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin	\
+				-ca $(CONFIG_YUNCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin		\
+				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin
 
 # Reset the device id to $(DID), for testing
-# make devid DID=WotD0000000208
-devid:
-	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 jackxx.bin
+# make devid DID=WotD0000000208 PASS=xxxxxxxx
+
+getdevid:
+	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 mjyun.bin
+	-$(Q) echo "The original mjyun data is got into mjyun.bin"
+
+setdevid:
+	-$(if $(value DID),, $(error Device ID (DID) is not set!))
+	-$(if $(value PASS),, $(error Device Password (PASS) is not set!))
+	-$(if $(wildcard mjyun.bin),, $(error please run 'make getdevid' to backup devid first!))
+	-$(Q) cp mjyun.bin jackxx.bin
+	-echo "The original mjyun data is backuped in mjyun.bin"
 	-printf $(DID) | dd conv=notrunc of=jackxx.bin bs=1 seek=35
+	-printf $(PASS) | dd conv=notrunc of=jackxx.bin bs=1 seek=68
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)	\
 				-ca $(CONFIG_YUNCONF_ADDR) -cf jackxx.bin					\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf jackxx.bin
