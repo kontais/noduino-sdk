@@ -25,6 +25,7 @@ LIBS		+= driver
 XCC		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
 XAR		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-ar
 XLD		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
+XOBJCOPY	?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-objcopy
 
 # compiler flags using during compilation of source files
 CFLAGS		+= -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
@@ -47,11 +48,9 @@ FW_FILE_2_ARGS	= -es .irom0.text $@ -ec
 # esptool path and port
 ifeq ($(OS),Windows_NT)
 	ESPTOOL		?= $(TOOLCHAIN_DIR)/bin/esptool.exe
-	FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool.exe
 	CONFIG_ESPPORT	?= COM3
 else
 	ESPTOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
-	FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
 
 	UNAME_S		:= $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
@@ -63,8 +62,10 @@ else
 endif
 
 # firmware generating tool
-FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/esptool
+FW_TOOL		?= $(TOOLCHAIN_DIR)/bin/gen_appbin.py
 ESPTOOL_PY	?= $(TOOLCHAIN_DIR)/bin/esptool.py
+
+fw_addr = 0x01000
 
 ifeq ($(CONFIG_FLASH_SIZE), 512KB)
 CONFIG_RFINIT_ADDR	?= 0x7C000
@@ -72,27 +73,75 @@ CONFIG_SYSCONF_ADDR	?= 0x7E000
 CONFIG_YUNCONF_ADDR	?= 0x74000
 CONFIG_LD_SCRIPT	?= $(CONFIG_CPU).512.ld
 FLASH_SIZE = 512
+flash_map = 0
+# 0 = 512KB (256KB + 256KB)
 endif
+
 ifeq ($(CONFIG_FLASH_SIZE), 1MB)
 CONFIG_RFINIT_ADDR	?= 0xFC000
 CONFIG_SYSCONF_ADDR	?= 0xFE000
 CONFIG_YUNCONF_ADDR	?= 0xF4000
 CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).1024.ld
 FLASH_SIZE = 1024
+flash_map = 2
+# 2 = 1024KB (512KB + 512KB)
 endif
+
 ifeq ($(CONFIG_FLASH_SIZE), 2MB)
 CONFIG_RFINIT_ADDR ?= 0x1FC000
 CONFIG_SYSCONF_ADDR ?= 0x1FE000
 CONFIG_YUNCONF_ADDR ?= 0x1F4000
 CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).2048.ld
 FLASH_SIZE = 2048
+ifneq ($(CONFIG_FLASH_MAP_EXTEND), y)
+flash_map = 3
+# 3 = 2048KB (512KB + 512KB)
+else
+flash_map = 5
+# 5 = 2048KB (1024KB + 1024KB)
 endif
+endif
+
 ifeq ($(CONFIG_FLASH_SIZE), 4MB)
 CONFIG_RFINIT_ADDR ?= 0x3FC000
 CONFIG_SYSCONF_ADDR ?= 0x3FE000
 CONFIG_YUNCONF_ADDR ?= 0x3F4000
 CONFIG_LD_SCRIPT ?= $(CONFIG_CPU).4096.ld
 FLASH_SIZE = 4096
+ifneq ($(CONFIG_FLASH_MAP_EXTEND), y)
+flash_map = 4
+# 4 = 4096KB (512KB + 512KB)
+else
+flash_map = 6
+# 6 = 4096KB (1024KB + 1024KB)
+endif
+endif
+
+ifeq ($(CONFIG_FLASH_MODE), qout)
+    flash_mode = 1
+else
+    ifeq ($(CONFIG_FLASH_MODE), dio)
+        flash_mode = 2
+    else
+        ifeq ($(CONFIG_FLASH_MODE), dout)
+            flash_mode = 3
+        else
+            flash_mode = 0
+        endif
+    endif
+endif
+ifeq ($(CONFIG_FLASH_FREQ), 26.7)
+    flash_freq = 1
+else
+    ifeq ($(CONFIG_FLASH_FREQ), 20)
+        flash_freq = 2
+    else
+        ifeq ($(CONFIG_FLASH_FREQ), 80)
+            flash_freq = 15
+        else
+            flash_freq = 0
+        endif
+    endif
 endif
 
 ifneq ($(ESPBAUD),)
@@ -148,7 +197,7 @@ endef
 
 .PHONY: all checkdirs flash clean
 
-all: checkdirs $(TARGET_OUT) $(FW_FILE_1) $(FW_FILE_2)
+all: checkdirs $(TARGET_OUT) $(FW_BASE)/%.bin
 
 $(TARGET_OUT): $(APP_AR)
 	$(vecho) "LD $@"
@@ -173,16 +222,22 @@ clean:
 	$(Q) rm -f $(FW_FILE_1)
 	$(Q) rm -f $(FW_FILE_2)
 	$(Q) rm -rf $(FW_BASE)
+	$(Q) rm -rf .*.bin
+	$(Q) rm -rf flash.bin
+	$(Q) rm -rf *.sym
 
 $(foreach bdir,$(BUILD_BASE),$(eval $(call compile-objects,$(bdir))))
 
-$(FW_FILE_1): $(TARGET_OUT)
-	$(vecho) "FW $@"
-	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_1_ARGS)
-
-$(FW_FILE_2): $(TARGET_OUT)
-	$(vecho) "FW $@"
-	$(Q) $(FW_TOOL) -eo $(TARGET_OUT) $(FW_FILE_2_ARGS)
+$(FW_BASE)/%.bin: $(TARGET_OUT)
+	$(vecho) "Using boot_v1.4 and + bootloader"
+	@$(XOBJCOPY) --only-section .text -O binary $< .text.bin
+	@$(XOBJCOPY) --only-section .data -O binary $< .data.bin
+	@$(XOBJCOPY) --only-section .rodata -O binary $< .rodata.bin
+	@$(XOBJCOPY) --only-section .irom0.text -O binary $< .irom0text.bin
+	$(vecho) "Generating flash.bin ..."
+	$(Q) $(FW_TOOL) $< 2 $(flash_mode) $(flash_freq) $(flash_map)
+	$(vecho) "boot.bin ------------> 0x00000"
+	$(vecho) "flash.bin -----------> $(addr)"
  
 flash: all
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)				\

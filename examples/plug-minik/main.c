@@ -92,7 +92,7 @@ void mjyun_receive(const char *event_name, const char *event_data)
 #endif
 		param_set_status(1);
 		param_save();
-		relay_set_status(1);
+		relay_set_status_and_publish(1);
 	}
 	if(os_strncmp(event_data, "off", 3) == 0)
 	{
@@ -101,16 +101,14 @@ void mjyun_receive(const char *event_name, const char *event_data)
 #endif
 		param_set_status(0);
 		param_save();
-		relay_set_status(0);
+		relay_set_status_and_publish(0);
 	}
-	
-	// publish back
-	mjyun_publish(event_name, event_data);
 }
 
 void mjyun_connected()
 {
-    mjyun_publishstatus("{state:\"online\"}");
+	// need to update the status in cloud
+	relay_publish_status();
 
 	// stop to show the wifi status
 	wifi_led_disable();
@@ -155,6 +153,7 @@ void user_init(void)
 	relay_init();
 	xkey_init();
 
+	// restore the relay status quickly
 	relay_set_status(param_get_status());
 
 	os_printf("\r\nSystem started ...\r\n");
