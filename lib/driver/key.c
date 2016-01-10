@@ -264,3 +264,90 @@ iram LOCAL void pd_key_intr_handler(struct keys_param *keys)
         }
     }
 }
+
+iram void key_long_cb(struct single_key_param *single_key)
+{
+    os_timer_disarm(&single_key->key_5s);
+
+	if (single_key->long_press) {
+		single_key->long_press();
+	}
+
+	//gpio_pin_intr_state_set(GPIO_ID_PIN(single_key->gpio_id), GPIO_PIN_INTR_ANYEDGE);
+}
+
+iram void key_short_cb(struct single_key_param *single_key)
+{
+    os_timer_disarm(&single_key->key_50ms);
+
+	if (single_key->short_press) {
+		single_key->short_press();
+	}
+
+	//gpio_pin_intr_state_set(GPIO_ID_PIN(single_key->gpio_id), GPIO_PIN_INTR_ANYEDGE);
+}
+
+iram void key_intr_handler(struct keys_param *keys)
+{
+    ETS_GPIO_INTR_DISABLE();
+    uint32 gpio_status = GPIO_REG_READ(GPIO_STATUS_ADDRESS);
+
+	static uint32 last_time = 0;
+	uint32 duration;
+	uint32 time;
+
+	if (gpio_status & BIT(keys->single_key[0]->gpio_id)) {
+
+		time = system_get_time();
+		duration = time - last_time;
+
+		if (last_time != 0) {
+			if (duration > 4000000U) {
+				os_timer_disarm(&keys->single_key[0]->key_5s);
+				os_timer_setfn(&keys->single_key[0]->key_5s, (os_timer_func_t *)key_long_cb, keys->single_key[0]);
+				os_timer_arm(&keys->single_key[0]->key_5s, 100, 0);
+			} else if (50000 < duration && duration <= 1000000U) {
+				os_timer_disarm(&keys->single_key[0]->key_50ms);
+				os_timer_setfn(&keys->single_key[0]->key_50ms, (os_timer_func_t *)key_short_cb, keys->single_key[0]);
+				os_timer_arm(&keys->single_key[0]->key_50ms, 1, 0);
+			}
+
+			last_time = 0;
+		}
+
+		// start count time if key is pressed
+		if (keys->single_key[0]->key_level == GPIO_INPUT_GET(GPIO_ID_PIN(keys->single_key[0]->gpio_id))) {
+			last_time = time;
+		} else {
+			last_time = 0;
+		}
+
+		//clear interrupt status
+		GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, gpio_status & BIT(keys->single_key[0]->gpio_id));
+	}
+    ETS_GPIO_INTR_ENABLE();
+}
+
+irom void key_init(struct keys_param *keys)
+{
+    uint8 i;
+
+    ETS_GPIO_INTR_ATTACH(key_intr_handler, keys);
+
+    ETS_GPIO_INTR_DISABLE();
+
+	PIN_FUNC_SELECT(keys->single_key[0]->gpio_name, keys->single_key[0]->gpio_func);
+
+	gpio_output_set(0, 0, 0, GPIO_ID_PIN(keys->single_key[0]->gpio_id));
+
+	gpio_register_set(GPIO_PIN_ADDR(keys->single_key[0]->gpio_id), GPIO_PIN_INT_TYPE_SET(GPIO_PIN_INTR_DISABLE)
+					  | GPIO_PIN_PAD_DRIVER_SET(GPIO_PAD_DRIVER_DISABLE)
+					  | GPIO_PIN_SOURCE_SET(GPIO_AS_PIN_SOURCE));
+
+	GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, BIT(keys->single_key[0]->gpio_id));
+
+	//enable interrupt
+	gpio_pin_intr_state_set(GPIO_ID_PIN(keys->single_key[0]->gpio_id), GPIO_PIN_INTR_ANYEDGE);
+
+    ETS_GPIO_INTR_ENABLE();
+}
