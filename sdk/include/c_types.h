@@ -80,7 +80,7 @@ typedef enum {
 #endif /* ICACHE_FLASH */
 
 #define	irom	__attribute__((section(".irom0.text")))
-#define	iram	__attribute__((section(".iram1.text")))
+#define	iram	__attribute__((section(".text")))
 
 #ifndef __cplusplus
 typedef unsigned char   bool;
