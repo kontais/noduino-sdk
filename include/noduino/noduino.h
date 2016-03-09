@@ -21,7 +21,7 @@
 #define __noduino_h__
 
 #define	irom	__attribute__((section(".irom0.text")))
-#define	iram	__attribute__((section(".text")))
+#define	iram	__attribute__((section(".iram1.text")))
 
 #ifdef __cplusplus
 extern "C" {
