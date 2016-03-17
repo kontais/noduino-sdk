@@ -18,6 +18,7 @@
 #include "user_config.h"
 
 #define	DEBUG	1
+#define	FW_VER	"1.0"
 
 static void mjyun_stated_cb(mjyun_state_t state)
 {
@@ -156,6 +157,7 @@ void user_init(void)
 	// restore the relay status quickly
 	relay_set_status(param_get_status());
 
-	os_printf("\r\nSystem started ...\r\n");
+	os_printf("\r\nWelcom to Noduino!\r\n");
+	os_printf("Firmware Version: %s\r\n", FW_VER);
 	system_init_done_cb(init_yun);
 }
