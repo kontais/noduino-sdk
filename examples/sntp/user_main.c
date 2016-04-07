@@ -27,8 +27,8 @@
 #include "sntp.h"
 #include "driver/uart.h"
 
-#define AP_NAME               "YOUR_ROUTER_AP_NAME"
-#define AP_PASS               "YOUR_ROUTER_AP_PASSWORD"
+#define AP_NAME		"YOUR_ROUTER_AP_NAME"
+#define AP_PASS		"YOUR_ROUTER_AP_PASSWORD"
 
 void wifi_enter_sta()
 {
@@ -41,7 +41,10 @@ void wifi_enter_sta()
 	strcpy(config.ssid, AP_NAME);
 	strcpy(config.password, AP_PASS);
 
+	wifi_set_opmode(STATIONAP_MODE);
 	wifi_station_set_config(&config);
+	wifi_station_disconnect();
+	wifi_station_connect();
 }
 
 static ETSTimer test_timer;
@@ -58,7 +61,9 @@ static void ICACHE_FLASH_ATTR test_timer_cb()
 void ICACHE_FLASH_ATTR sntp_test()
 {
 	sntp_init();
-	sntp_setservername(0, "time.windows.com");
+	sntp_setservername(0, (char*)"cn.pool.ntp.org");
+	sntp_setservername(1, (char*)"1.cn.pool.ntp.org");
+	sntp_setservername(2, (char*)"2.cn.pool.ntp.org");
 
 	os_timer_disarm(&test_timer);
 	os_timer_setfn(&test_timer, test_timer_cb, NULL);
