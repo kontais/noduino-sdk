@@ -122,9 +122,9 @@ SECTIONS
 
   .UserExceptionVector.literal : AT(LOADADDR(.rodata) + (ADDR(.UserExceptionVector.literal) - ADDR(.rodata))) ALIGN(4)
   {
-  	_UserExceptionVector_literal_start = ABSOLUTE(.);
-  	*(.UserExceptionVector.literal)
-  	_UserExceptionVector_literal_end = ABSOLUTE(.);
+    _UserExceptionVector_literal_start = ABSOLUTE(.);
+    *(.UserExceptionVector.literal)
+    _UserExceptionVector_literal_end = ABSOLUTE(.);
   } >dram0_0_seg :dram0_0_phdr
 
   .bss ALIGN(8) (NOLOAD) : ALIGN(4)
