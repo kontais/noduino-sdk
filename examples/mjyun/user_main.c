@@ -128,26 +128,27 @@ void mjyun_receive(const char *event_name, const char *event_data)
 #endif
 		switch_off();
 	}
-	
-	// Publish back
-	mjyun_publish(event_name, event_data);
 }
 
 void mjyun_connected()
 {
-    mjyun_publishstatus("{state:\"online\"}");
 }
 
 void mjyun_disconnected()
 {
 }
-// 3707 -->摩羯插座 3708 -->摩羯灯 
+
+/*
+ * 4285 --> 摩羯窗帘
+ * 3707 --> 摩羯插座
+ * 3708 --> 摩羯灯
+ * 6287 --> 传感器
+ */
 const mjyun_config_t mjyun_conf = {
-	//"WotP0123456789",  /* 产品id [必填]*/
-	"gh_51111441aa63",  /* 产品id [必填]*/
-	"3707",/*产品子id(一般用于微信设备) [选填]*/
-	"Hi, I'm coming!!!",/*设备上线时，给app发送online消息中的附加数据，[选填]*/
-	"I will come back!!!"/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+	"gh_51111441aa63",				/* 产品id [必填]*/
+	"3707",							/*产品子id(一般用于微信设备) [选填]*/
+	"Hi, I'm coming!!!",			/*设备上线时，给app发送online消息中的附加数据，[选填]*/
+	"I will come back!!!"			/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
 };
 
 void cos_check_ip()
