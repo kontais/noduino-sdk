@@ -15,30 +15,43 @@
  */
 typedef struct
 {
-	const char* product_id; /* 产品id [必填]*/
-	const char* sub_pid; /*产品子id(一般用于微信设备) [选填]*/
-	const char* online_words; /*设备上线时，给app发送online消息中的附加数据，[选填]*/
-	const char* offline_words; /*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+	const char* product_id; 		/* 产品id, 可从mjyun官网后台获得 [必填]*/
+	const char* sub_pid; 			/*产品子id(一般用于微信设备) [选填]*/
+	const char* online_words; 		/*设置mjyun服务器发送给app的设备上线(online)的附加数据 [该数据缺省为设备id] [选填]*/
+	const char* offline_words; 		/*设置mjyun服务器发送给app的设备离线消息(offline)的附加数据 [该数据缺省为设备id] [选填]*/
 } mjyun_config_t;
 
+/*
+ * 如果需要使用OTA功能，则使用mjyun_ota_config配置，否则忽略
+ * OTA功能可能是平台相关的，不同硬件上该接口的实现可能不一致
+ * 以下是ESP8266平台进行OTA所需要的必要参数
+ */
+typedef struct
+{
+	const char* hardware_version;	/*设置硬件的当前版本，需要在云端新建硬件，然后获得该版本号 [选填]*/
+	const char* firmware_version;	/*设置固件的当前版本，需要在云端新建固件，然后获得该版本号 [选填]*/
+	const char* firmware_id_1;		/*设置运行在保护分区1的固件ID，该ID需要从云端后台获得。这两个ID对应的固件版本相同。 [选填]*/
+	const char* firmware_id_2;		/*设置运行在保护分区2的固件ID，该ID需要从云端后台获得。这两个ID对应的固件版本相同。 [选填]*/
+} mjyun_ota_config_t;
+
 typedef enum {
-	WIFI_IDLE,
-	WIFI_SMARTLINK_START,
-	WIFI_SMARTLINK_LINKING,
-	WIFI_SMARTLINK_FINDING,
-	WIFI_SMARTLINK_TIMEOUT,
-	WIFI_SMARTLINK_GETTING,
-	WIFI_SMARTLINK_OK,
-	WIFI_AP_OK,
-	WIFI_AP_ERROR,
-	WIFI_AP_STATION_OK,
-	WIFI_AP_STATION_ERROR,
-	WIFI_STATION_OK,
-	WIFI_STATION_ERROR,
-	MJYUN_CONNECTING,
-	MJYUN_CONNECTING_ERROR,
-	MJYUN_CONNECTED,
-	MJYUN_DISCONNECTED,
+	WIFI_IDLE, 						/*Wi-Fi空闲，常出现在设备刚刚启动且没有连接过任何SSID时*/
+	WIFI_SMARTLINK_START, 			/*设备进入智能连接状态*/
+	WIFI_SMARTLINK_LINKING, 		/*设备正在进行智能连接*/
+	WIFI_SMARTLINK_FINDING, 		/*设备正在进行智能连接，正在查找手机所在的信道与发出的特征包*/
+	WIFI_SMARTLINK_TIMEOUT, 		/*设备智能连接超时*/
+	WIFI_SMARTLINK_GETTING, 		/*设备正在进行智能连接，已经锁定手机信道，正在解码数据包*/
+	WIFI_SMARTLINK_OK, 				/*设备智能连接成功*/
+	WIFI_AP_OK, 					/*设备在AP模式*/
+	WIFI_AP_ERROR, 					/*设备在AP模式并发生了某些错误*/
+	WIFI_AP_STATION_OK, 			/*设备在AP-STATION混合模式*/
+	WIFI_AP_STATION_ERROR, 			/*设备在AP-STATION混合模式并发生了某些错误*/
+	WIFI_STATION_OK, 				/*设备在STATION模式*/
+	WIFI_STATION_ERROR, 			/*设备在STATION模式并发生了某些错误*/
+	MJYUN_CONNECTING, 				/*正在连接摩羯云*/
+	MJYUN_CONNECTING_ERROR, 		/*连接摩羯云失败*/
+	MJYUN_CONNECTED, 				/*已连接摩羯云*/
+	MJYUN_DISCONNECTED, 			/*与摩羯云的连接断开*/
 } mjyun_state_t;
 
 typedef enum {
@@ -63,6 +76,7 @@ typedef void (*mjyun_state_callback)(/* mjyun_msgtype_t type ,*/mjyun_state_t st
  * Returns      : return 0 success, others fails
  *******************************************************************************/
 int mjyun_run(const mjyun_config_t* conf);
+int mjyun_ota_config(const mjyun_ota_config_t* conf);
 void mjyun_onconnected(mjyun_callback connectedCb);
 void mjyun_ondisconnected(mjyun_callback disconnectedCb);
 /*
@@ -112,7 +126,9 @@ void mjyun_systemrecovery(); //系统恢复，抹掉所有mjcloud相关数据 --
 
 void mjyun_forceentersmartlinkmode(); //强制进入配网模式 --> 一般对应物理按键
 
-void mjyun_setssidprefix(const char* sPrefix);
+void mjyun_setssidprefix(const char* sPrefix); //设置物理硬件作为AP时的SSID前缀
+
+void mjyun_check_update(); //检查固件更新
 
 
 #endif /*  __MJYUN_H__ */
