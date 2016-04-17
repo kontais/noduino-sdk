@@ -103,6 +103,13 @@ void mjyun_receive(const char *event_name, const char *event_data)
 		param_save();
 		relay_set_status_and_publish(0);
 	}
+	if(os_strncmp(event_data, "ota", 3) == 0)
+	{
+#ifdef DEBUG
+		os_printf("OTA: upgrade the firmware!\r\n");
+#endif
+		mini_ota_start("ota/dev/minik/files");
+	}
 }
 
 void mjyun_connected()
