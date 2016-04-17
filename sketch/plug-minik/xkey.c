@@ -20,7 +20,7 @@
 LOCAL struct keys_param keys;
 LOCAL struct single_key_param *single_key[XKEY_NUM];
 
-void xkey_long_press(void)
+iram void xkey_long_press(void)
 {
 #ifdef DEBUG
 	os_printf("key long pressed\r\n");
@@ -29,7 +29,7 @@ void xkey_long_press(void)
     system_restart();
 }
 
-void xkey_short_press(void)
+iram void xkey_short_press(void)
 {
 	// reverse the status of relay
 	uint8_t st = (~relay_get_status()) & 0x1;

@@ -12,6 +12,7 @@
 #include "driver/uart.h"
 
 #include "mjyun.h"
+#include "ota.h"
 
 #define	DEBUG			1
 
@@ -22,8 +23,8 @@
 #define XKEY_IO_FUNC	FUNC_GPIO12
 
 // NOTICE: --- For 1024KB spi flash
-// 0x3C000
-#define PARAM_START_SEC		0x3C
+// 0xFA000
+#define PARAM_START_SEC		0xFA
 
 void xkey_init();
 
