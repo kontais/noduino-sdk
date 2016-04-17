@@ -77,24 +77,9 @@ int ICACHE_FLASH_ATTR sprintf(char *buffer, const char *format, ...)
 	return ret;
 }
 
-int ICACHE_FLASH_ATTR snprintf(char *buffer, size_t size, const char *format, ...)
-{
-	int ret;
-	va_list arglist;
-	va_start(arglist, format);
-	ret = ets_vsnprintf(buffer, size, format, arglist);
-	va_end(arglist);
-	return ret;
-}
-
 int ICACHE_FLASH_ATTR vprintf(const char *format, va_list arg)
 {
 	return ets_vprintf(format, arg);
-}
-
-int ICACHE_FLASH_ATTR vsnprintf(char *buffer, size_t size, const char *format, va_list arg)
-{
-	return ets_vsnprintf(buffer, size, format, arg);
 }
 
 size_t ICACHE_FLASH_ATTR strnlen(const char *s, size_t len)

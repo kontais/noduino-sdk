@@ -20,7 +20,6 @@
 
  */
 
-
 /**
  *  UART GPIOs
  *
@@ -41,6 +40,7 @@
  *
  */
 #include "noduino.h"
+#include "uart.h"
 
 static int s_uart_debug_nr = UART0;
 
@@ -145,7 +145,7 @@ irom int uart_get_baudrate(uart_t* uart)
     return uart->baud_rate;
 }
 
-irom uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin)
+irom uart_t* __uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin)
 {
     uart_t* uart = (uart_t*) malloc(sizeof(uart_t));
     if(uart == NULL) {

@@ -78,7 +78,7 @@
 struct uart_;
 typedef struct uart_ uart_t;
 
-uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin);
+uart_t* __uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin);
 void uart_uninit(uart_t* uart);
 
 void uart_swap(uart_t* uart, int tx_pin);

@@ -35,7 +35,7 @@ irom uart_t * __serial_begin(int uart_nr, unsigned long baud)
         uart_set_debug(UART_NO);
     }
 
-    uart_t *_uart = uart_init(_uart_nr, baud, SERIAL_8N1, SERIAL_FULL, 1);
+    uart_t *_uart = __uart_init(_uart_nr, baud, SERIAL_8N1, SERIAL_FULL, 1);
     _peek_char = -1;
 	return _uart;
 }

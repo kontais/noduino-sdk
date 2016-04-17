@@ -43,7 +43,6 @@ extern "C" {
 #include "libc_replacements.h"
 #include "stdlib_noniso.h"
 
-#include "uart.h"
 #include "serial.h"
 
 #include "esp8266_peri.h"
