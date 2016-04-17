@@ -21,7 +21,6 @@
 #define __noduino_h__
 
 #define	irom	__attribute__((section(".irom0.text")))
-#define	iram	__attribute__((section(".iram1.text")))
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,10 +44,9 @@ extern "C" {
 #include "stdlib_noniso.h"
 
 #include "serial.h"
-#include "esp8266_peri.h"
 
+#include "esp8266_peri.h"
 #include "twi.h"
-#include "i2c.h"
 //#include "binary.h"
 
 #define HIGH 0x1
