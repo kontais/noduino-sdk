@@ -23,58 +23,58 @@
 irom void mjyun_stated_cb(mjyun_state_t state)
 {
     if (mjyun_state() != state)
-        serial_printf("Platform: mjyun_state error \r\n");
+        os_printf("Platform: mjyun_state error \r\n");
 
     switch (state)
     {
         case WIFI_IDLE:
-            serial_printf("Platform: WIFI_IDLE\r\n");
+            os_printf("Platform: WIFI_IDLE\r\n");
             break;
         case WIFI_SMARTLINK_LINKING:
-            serial_printf("Platform: WIFI_SMARTLINK_LINKING\r\n");
+            os_printf("Platform: WIFI_SMARTLINK_LINKING\r\n");
             break;
         case WIFI_SMARTLINK_FINDING:
-            serial_printf("Platform: WIFI_SMARTLINK_FINDING\r\n");
+            os_printf("Platform: WIFI_SMARTLINK_FINDING\r\n");
             break;
         case WIFI_SMARTLINK_TIMEOUT:
-            serial_printf("Platform: WIFI_SMARTLINK_TIMEOUT\r\n");
+            os_printf("Platform: WIFI_SMARTLINK_TIMEOUT\r\n");
             break;
         case WIFI_SMARTLINK_GETTING:
-            serial_printf("Platform: WIFI_SMARTLINK_GETTING\r\n");
+            os_printf("Platform: WIFI_SMARTLINK_GETTING\r\n");
             break;
         case WIFI_SMARTLINK_OK:
-            serial_printf("Platform: WIFI_SMARTLINK_OK\r\n");
+            os_printf("Platform: WIFI_SMARTLINK_OK\r\n");
             break;
         case WIFI_AP_OK:
-            serial_printf("Platform: WIFI_AP_OK\r\n");
+            os_printf("Platform: WIFI_AP_OK\r\n");
             break;
         case WIFI_AP_ERROR:
-            serial_printf("Platform: WIFI_AP_ERROR\r\n");
+            os_printf("Platform: WIFI_AP_ERROR\r\n");
             break;
         case WIFI_AP_STATION_OK:
-            serial_printf("Platform: WIFI_AP_STATION_OK\r\n");
+            os_printf("Platform: WIFI_AP_STATION_OK\r\n");
             break;
         case WIFI_AP_STATION_ERROR:
-            serial_printf("Platform: WIFI_AP_STATION_ERROR\r\n");
+            os_printf("Platform: WIFI_AP_STATION_ERROR\r\n");
             break;
         case WIFI_STATION_OK:
-            serial_printf("Platform: WIFI_STATION_OK\r\n");
+            os_printf("Platform: WIFI_STATION_OK\r\n");
             break;
         case WIFI_STATION_ERROR:
-            serial_printf("Platform: WIFI_STATION_ERROR\r\n");
+            os_printf("Platform: WIFI_STATION_ERROR\r\n");
             break;
         case MJYUN_CONNECTING:
-            serial_printf("Platform: MJYUN_CONNECTING\r\n");
+            os_printf("Platform: MJYUN_CONNECTING\r\n");
             break;
         case MJYUN_CONNECTING_ERROR:
-            serial_printf("Platform: MJYUN_CONNECTING_ERROR\r\n");
+            os_printf("Platform: MJYUN_CONNECTING_ERROR\r\n");
             break;
         case MJYUN_CONNECTED:
-            serial_printf("Platform: MJYUN_CONNECTED \r\n");
+            os_printf("Platform: MJYUN_CONNECTED \r\n");
 			digitalWrite(2, LOW);
             break;
         case MJYUN_DISCONNECTED:
-            serial_printf("Platform: MJYUN_DISCONNECTED\r\n");
+            os_printf("Platform: MJYUN_DISCONNECTED\r\n");
 			digitalWrite(2, HIGH);
             break;
         default:
@@ -82,22 +82,41 @@ irom void mjyun_stated_cb(mjyun_state_t state)
     }
 }
 
+void switch_on()
+{
+	os_printf("set gpio2 to low\n");
+    digitalWrite(2, LOW);
+}
+
+void switch_off()
+{
+	os_printf("set gpio2 to high\n");
+    digitalWrite(2, HIGH);
+}
+
 irom void mjyun_receive(const char *event_name, const char *event_data)
 {
-	serial_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
-	// Publish back
-	mjyun_publish(event_name, event_data);
+	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
+	if(os_strncmp(event_data, "on", 2) == 0)
+	{
+		os_printf("set switch on\r\n");
+		switch_on();
+	}
+	if(os_strncmp(event_data, "off", 3) == 0)
+	{
+		os_printf("set switch off\r\n");
+		switch_off();
+	}
 }
 
 void mjyun_connected()
 {
-    mjyun_publishstatus("device status save");
-    digitalWrite(2, LOW);
+
 }
 
 void mjyun_disconnected()
 {
-    digitalWrite(2, HIGH);
+
 }
 
 /*
@@ -105,7 +124,6 @@ void mjyun_disconnected()
  * 3708 --> 摩羯灯
  */
 const mjyun_config_t mjyun_conf = {
-	//"WotP0123456789",		/* 产品id [必填] */
 	"gh_51111441aa63",		/* 产品id [必填] */
 	"3707",					/* 产品子id (一般用于微信设备) [选填]*/
 	"Hi, I'm coming!!!",	/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
@@ -124,7 +142,8 @@ void init_yun()
 
 irom void setup()
 {
-	serial_begin(115200);
+	uart_init(115200, 115200);
+
 	pinMode(2, OUTPUT);
 
 	init_yun();
@@ -132,6 +151,6 @@ irom void setup()
 
 irom void loop()
 {
-	serial_printf("MJYUN device heart beat!\r\n");
+	os_printf("MJYUN device heart beat!\r\n");
 	delay(2000);
 }
