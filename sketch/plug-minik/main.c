@@ -108,7 +108,7 @@ void mjyun_receive(const char *event_name, const char *event_data)
 #ifdef DEBUG
 		os_printf("OTA: upgrade the firmware!\r\n");
 #endif
-		mini_ota_start("ota/dev/minik/files");
+		mjyun_mini_ota_start("ota/dev/minik/files");
 	}
 }
 

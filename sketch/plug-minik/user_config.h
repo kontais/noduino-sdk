@@ -12,7 +12,6 @@
 #include "driver/uart.h"
 
 #include "mjyun.h"
-#include "ota.h"
 
 #define	DEBUG			1
 
