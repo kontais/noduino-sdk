@@ -66,7 +66,4 @@ uint16_t bmp085_read16(uint8_t addr);
 void bmp085_write8(uint8_t addr, uint8_t data);
 
 uint8_t bmp085_oversampling;
-
-int16_t ac1, ac2, ac3, b1, b2, mb, mc, md;
-uint16_t ac4, ac5, ac6;
 #endif

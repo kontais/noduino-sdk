@@ -22,6 +22,9 @@
 
 #include "bmp085.h"
 
+int16_t ac1, ac2, ac3, b1, b2, mb, mc, md;
+uint16_t ac4, ac5, ac6;
+
 bool ICACHE_FLASH_ATTR bmp085_begin()
 {
   uint8_t mode = BMP085_ULTRAHIGHRES;
