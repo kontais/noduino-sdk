@@ -30,9 +30,19 @@ void loop()
 	char t_buf[8];
 	char h_buf[8];
 
+	sht2x_reset();
+	serial_printf("After reset, User Reg = 0x%x\r\n", sht2x_read_reg());
+
 	dtostrf(sht2x_GetTemperature(), 5, 2, t_buf),
 	dtostrf(sht2x_GetHumidity(), 5, 2, h_buf);
+	serial_printf("Temperature(C): %s\r\n", t_buf);
+	serial_printf("Humidity(%RH): %s\r\n", h_buf);
 
+	sht2x_setResolution(0x81);
+	serial_printf("After set resolution, User Reg = 0x%x\r\n", sht2x_read_reg());
+
+	dtostrf(sht2x_GetTemperature(), 5, 2, t_buf),
+	dtostrf(sht2x_GetHumidity(), 5, 2, h_buf);
 	serial_printf("Temperature(C): %s\r\n", t_buf);
 	serial_printf("Humidity(%RH): %s\r\n", h_buf);
 
