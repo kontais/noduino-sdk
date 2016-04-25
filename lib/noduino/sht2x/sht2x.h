@@ -33,6 +33,6 @@
 
 float sht2x_GetHumidity(void);
 float sht2x_GetTemperature(void);
-uint8_t sht2x_read_reg();
 void sht2x_setResolution(uint8_t r);
+uint8_t sht2x_reset(void);
 #endif
