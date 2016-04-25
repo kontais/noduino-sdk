@@ -24,7 +24,8 @@
 #include "noduino.h"
 
 uint8_t twi_dcount = 18;
-static uint8_t twi_sda = 255, twi_scl = 255;
+static uint8_t twi_sda = 4, twi_scl = 5;
+static uint32_t twi_clockStretchLimit;
 
 //Enable SDA(becomes output and since GPO is 0 for the pin, it will pull the line low)
 #define SDA_LOW()   (GPES = (1 << twi_sda))
@@ -40,29 +41,29 @@ static uint8_t twi_sda = 255, twi_scl = 255;
 #endif
 
 #if F_CPU == FCPU80
-#define TWI_CLOCK_STRETCH 800
+#define TWI_CLOCK_STRETCH_MULTIPLIER 3
 #else
-#define TWI_CLOCK_STRETCH 1600
+#define TWI_CLOCK_STRETCH_MULTIPLIER 6
 #endif
 
 void ICACHE_FLASH_ATTR twi_setClock(unsigned int freq)
 {
 #if F_CPU == FCPU80
+	//about 100 KHz
 	if (freq <= 100000)
 		twi_dcount = 19;
-	//about 100 KHz
+	//about 200 KHz
 	else if (freq <= 200000)
 		twi_dcount = 8;
-	//about 200 KHz
+	//about 300 KHz
 	else if (freq <= 300000)
 		twi_dcount = 3;
-	//about 300 KHz
+	//about 400 KHz
 	else if (freq <= 400000)
 		twi_dcount = 1;
 	//about 400 KHz
 	else
 		twi_dcount = 1;
-	//about 400 KHz
 #else
 	if (freq <= 100000)
 		twi_dcount = 32;
@@ -88,6 +89,10 @@ void ICACHE_FLASH_ATTR twi_setClock(unsigned int freq)
 #endif
 }
 
+void ICACHE_FLASH_ATTR twi_setClockStretchLimit(uint32_t limit){
+	twi_clockStretchLimit = limit * TWI_CLOCK_STRETCH_MULTIPLIER;
+}
+
 void ICACHE_FLASH_ATTR twi_init(uint8_t pin_sda, uint8_t pin_scl)
 {
 	twi_sda = pin_sda;
@@ -95,6 +100,7 @@ void ICACHE_FLASH_ATTR twi_init(uint8_t pin_sda, uint8_t pin_scl)
 	pinMode(twi_sda, INPUT_PULLUP);
 	pinMode(twi_scl, INPUT_PULLUP);
 	twi_setClock(100000);
+	twi_setClockStretchLimit(230); // default value is 230 uS
 }
 
 void ICACHE_FLASH_ATTR twi_stop(void)
@@ -118,8 +124,10 @@ static bool ICACHE_FLASH_ATTR twi_write_start(void)
 {
 	SCL_HIGH();
 	SDA_HIGH();
-	if (SDA_READ() == 0)
+	if (SDA_READ() == 0) {
+		serial_printf("twi write start sda read false\r\n");
 		return false;
+	}
 	twi_delay(twi_dcount);
 	SDA_LOW();
 	twi_delay(twi_dcount);
@@ -133,8 +141,7 @@ static bool ICACHE_FLASH_ATTR twi_write_stop(void)
 	SDA_LOW();
 	twi_delay(twi_dcount);
 	SCL_HIGH();
-	while (SCL_READ() == 0 && (i++) < TWI_CLOCK_STRETCH) ;
-	//Clock stretching(up to 100u s)
+	while (SCL_READ() == 0 && (i++) < twi_clockStretchLimit);	// Clock stretching
 	twi_delay(twi_dcount);
 	SDA_HIGH();
 	twi_delay(twi_dcount);
@@ -152,8 +159,7 @@ static bool ICACHE_FLASH_ATTR twi_write_bit(bool bit)
 		SDA_LOW();
 	twi_delay(twi_dcount + 1);
 	SCL_HIGH();
-	while (SCL_READ() == 0 && (i++) < TWI_CLOCK_STRETCH) ;
-	//Clock stretching(up to 100u s)
+	while (SCL_READ() == 0 && (i++) < twi_clockStretchLimit);	// Clock stretching
 	twi_delay(twi_dcount);
 	return true;
 }
@@ -165,8 +171,7 @@ static bool ICACHE_FLASH_ATTR twi_read_bit()
 	SDA_HIGH();
 	twi_delay(twi_dcount + 2);
 	SCL_HIGH();
-	while (SCL_READ() == 0 && (i++) < TWI_CLOCK_STRETCH) ;
-	//Clock stretching(up to 100u s)
+	while (SCL_READ() == 0 && (i++) < twi_clockStretchLimit);	// Clock stretching
 	bool bit = SDA_READ();
 	twi_delay(twi_dcount);
 	return bit;
@@ -198,16 +203,23 @@ twi_writeTo(uint8_t address, uint8_t *buf, unsigned int len,
 	    uint8_t sendStop)
 {
 	unsigned int i;
-	if (!twi_write_start())
+	if (!twi_write_start()) {
+		serial_print("I2C: bus busy\r\n");
 		return 4;
-	//line busy
-	if (!twi_write_byte(((address << 1) | 0) & 0xFF))
+	}
+	if (!twi_write_byte(((address << 1) | 0) & 0xFF)) {
+		if (sendStop)
+			twi_write_stop();
+		serial_print("I2C: received NACK on transmit of address\r\n");
 		return 2;
-	//received NACK on transmit of address
+	}
 	for (i = 0; i < len; i++) {
-		if (!twi_write_byte(buf[i]))
+		if (!twi_write_byte(buf[i])) {
+			if (sendStop)
+				twi_write_stop();
+			serial_print("I2C: received NACK on transmit of data\r\n");
 			return 3;
-		//received NACK on transmit of data
+		}
 	}
 	if (sendStop)
 		twi_write_stop();
@@ -226,12 +238,16 @@ twi_readFrom(uint8_t address, uint8_t *buf, unsigned int len,
 	     uint8_t sendStop)
 {
 	unsigned int i;
-	if (!twi_write_start())
+	if (!twi_write_start()) {
+		serial_print("I2C: bus busy\r\n");
 		return 4;
-	//line busy
-	if (!twi_write_byte(((address << 1) | 1) & 0xFF))
+	}
+	if (!twi_write_byte(((address << 1) | 1) & 0xFF)) {
+		if (sendStop)
+			twi_write_stop();
+		serial_print("I2C: received NACK on transmit of address\r\n");
 		return 2;
-	//received NACK on transmit of address
+	}
 	for (i = 0; i < (len - 1); i++)
 		buf[i] = twi_read_byte(false);
 	buf[len - 1] = twi_read_byte(true);
@@ -320,7 +336,7 @@ int ICACHE_FLASH_ATTR wire_read()
 	return value;
 }
 
-int ICACHE_FLASH_ATTR available(void)
+int ICACHE_FLASH_ATTR wire_available(void)
 {
 	int result = wire_rxBufferLength - wire_rxBufferIndex;
 
