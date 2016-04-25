@@ -36,7 +36,7 @@ size_t wire_write(uint8_t data);
 uint8_t wire_endTransmission();
 uint8_t wire_requestFrom(uint8_t addr, size_t len);
 int wire_read();
-int available(void);
+int wire_available(void);
 
 void twi_init (unsigned char sda, unsigned char scl);
 void twi_stop (void);
