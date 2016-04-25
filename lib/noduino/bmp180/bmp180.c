@@ -21,7 +21,7 @@
 
 int16_t AC1, AC2, AC3, VB1, VB2, MB, MC, MD;
 uint16_t AC4, AC5, AC6;
-double c5, c6, mc, md, x0, x1, x2, y0, y1, y2, p0, p1, p2;
+double c5, c6, mc, md, x0, x1, x2, Y0, Y1, y2, p0, p1, p2;
 char bmp180_error;
 
 irom char bmp180_begin()
@@ -90,8 +90,8 @@ irom char bmp180_begin()
 		x0 = AC1;
 		x1 = 160.0 * pow(2, -13) * AC2;
 		x2 = pow(160, 2) * pow(2, -25) * VB2;
-		y0 = c4 * pow(2, 15);
-		y1 = c4 * c3;
+		Y0 = c4 * pow(2, 15);
+		Y1 = c4 * c3;
 		y2 = c4 * b1;
 		p0 = (3791.0 - 8.0) / 1600.0;
 		p1 = 1.0 - 7357.0 * pow(2, -20);
@@ -109,8 +109,8 @@ irom char bmp180_begin()
 		   serial_printf("x0: "); serial_printf("%d\r\n", x0);
 		   serial_printf("x1: "); serial_printf("%d\r\n", x1);
 		   serial_printf("x2: "); serial_printf("%d\r\n", x2);
-		   serial_printf("y0: "); serial_printf("%d\r\n", y0);
-		   serial_printf("y1: "); serial_printf("%d\r\n", y1);
+		   serial_printf("Y0: "); serial_printf("%d\r\n", Y0);
+		   serial_printf("Y1: "); serial_printf("%d\r\n", Y1);
 		   serial_printf("y2: "); serial_printf("%d\r\n", y2);
 		   serial_printf("p0: "); serial_printf("%d\r\n", p0);
 		   serial_printf("p1: "); serial_printf("%d\r\n", p1);
@@ -134,7 +134,7 @@ irom char bmp180_readInt(char address, int16_t * value)
 
 	data[0] = address;
 	if (bmp180_readBytes(data, 2)) {
-		value = (int16_t) ((data[0] << 8) | data[1]);
+		*value = (int16_t) ((data[0] << 8) | data[1]);
 		//if (*value & 0x8000) *value |= 0xFFFF0000; // sign extend if negative
 		return (1);
 	}
@@ -151,7 +151,7 @@ irom char bmp180_readUInt(char address, uint16_t * value)
 
 	data[0] = address;
 	if (bmp180_readBytes(data, 2)) {
-		value = (((uint16_t) data[0] << 8) | (uint16_t) data[1]);
+		*value = (((uint16_t) data[0] << 8) | (uint16_t) data[1]);
 		return (1);
 	}
 	value = 0;
@@ -185,9 +185,11 @@ irom char bmp180_writeBytes(unsigned char *values, char length)
 // length: number of bytes to write
 {
 	char x;
+	int i;
 
 	wire_beginTransmission(BMP180_ADDR);
-	wire_write(values, length);
+	for (i = 0; i < length; i++) 
+		wire_write(values[i]);
 	bmp180_error = wire_endTransmission();
 	if (bmp180_error == 0)
 		return (1);
@@ -235,7 +237,7 @@ irom char bmp180_getTemperature(double *T)
 		//tu = 0x69EC;
 
 		a = c5 * (tu - c6);
-		T = a + (mc / (a + md));
+		*T = a + (mc / (a + md));
 
 		/*              
 		   serial_printf("\r\n", );
@@ -247,10 +249,10 @@ irom char bmp180_getTemperature(double *T)
 	return (result);
 }
 
-irom char bmp180_startPressure(char oversampling)
 // Begin a pressure reading.
 // Oversampling: 0 to 3, higher numbers are slower, higher-res outputs.
 // Will return delay in ms to wait, or 0 if I2C error.
+irom char bmp180_startPressure(char oversampling)
 {
 	unsigned char data[2], result, delay;
 
@@ -285,7 +287,6 @@ irom char bmp180_startPressure(char oversampling)
 		return (0);	// or return 0 if there was a problem communicating with the BMP
 }
 
-irom char bmp180_getPressure(double *P, double *T)
 // Retrieve a previously started pressure reading, calculate abolute pressure in mbars.
 // Requires begin() to be called once prior to retrieve calibration parameters.
 // Requires startPressure() to have been called prior and sufficient time elapsed.
@@ -294,6 +295,7 @@ irom char bmp180_getPressure(double *P, double *T)
 // T: previously-calculated temperature.
 // Returns 1 for success, 0 for I2C error.
 // Note that calculated pressure value is absolute mbars, to compensate for altitude call sealevel().
+irom char bmp180_getPressure(double *P, double *T)
 {
 	unsigned char data[3];
 	char result;
@@ -312,11 +314,11 @@ irom char bmp180_getPressure(double *P, double *T)
 		//example from http://wmrx00.sourceforge.net/Arduino/BMP085-Calcs.pdf, pu = 0x982FC0;   
 		//pu = (0x98 * 256.0) + 0x2F + (0xC0/256.0);
 
-		s = T - 25.0;
+		s = *T - 25.0;
 		x = (x2 * pow(s, 2)) + (x1 * s) + x0;
-		y = (y2 * pow(s, 2)) + (y1 * s) + y0;
+		y = (y2 * pow(s, 2)) + (Y1 * s) + Y0;
 		z = (pu - x) / y;
-		P = (p2 * pow(z, 2)) + (p1 * z) + p0;
+		*P = (p2 * pow(z, 2)) + (p1 * z) + p0;
 
 		/*
 		   serial_printf("\r\n");
@@ -332,29 +334,29 @@ irom char bmp180_getPressure(double *P, double *T)
 	return (result);
 }
 
-irom double bmp180_sealevel(double P, double A)
 // Given a pressure P (mb) taken at a specific altitude (meters),
 // return the equivalent pressure (mb) at sea level.
 // This produces pressure readings that can be used for weather measurements.
+irom double bmp180_sealevel(double P, double A)
 {
 	return (P / pow(1 - (A / 44330.0), 5.255));
 }
 
-irom double bmp180_altitude(double P, double P0)
 // Given a pressure measurement P (mb) and the pressure at a baseline P0 (mb),
 // return altitude (meters) above baseline.
+irom double bmp180_altitude(double P, double P0)
 {
 	return (44330.0 * (1 - pow(P / P0, 1 / 5.255)));
 }
 
+// If any library command fails, you can retrieve an extended
+// error code using this command. Errors are from the wire library: 
+// 0 = Success
+// 1 = Data too long to fit in transmit buffer
+// 2 = Received NACK on transmit of address
+// 3 = Received NACK on transmit of data
+// 4 = Other error
 irom char bmp180_getError(void)
-	// If any library command fails, you can retrieve an extended
-	// error code using this command. Errors are from the wire library: 
-	// 0 = Success
-	// 1 = Data too long to fit in transmit buffer
-	// 2 = Received NACK on transmit of address
-	// 3 = Received NACK on transmit of data
-	// 4 = Other error
 {
 	return (bmp180_error);
 }
