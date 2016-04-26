@@ -34,7 +34,7 @@ irom void setup()
 {
 	serial_begin(115200);
 
-	if (!tsl2561_begin(TSL2561_ADDR_FLOAT)) {
+	if (!tsl2561_begin(TSL2561_ADDR_LOW)) {
 		serial_print("Could not found TSL2561 sensor!\r\n");
 
 		while (1) {}
