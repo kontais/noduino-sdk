@@ -25,6 +25,7 @@ iram void xkey_long_press(void)
 #ifdef DEBUG
 	os_printf("key long pressed\r\n");
 #endif
+	mjyun_systemrecovery();
     system_restore();
     system_restart();
 }
