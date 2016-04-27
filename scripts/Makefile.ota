@@ -57,7 +57,7 @@ CONFIG_BOOT_ADDR ?= 0x00000
 
 ifeq ($(CONFIG_FLASH_SIZE), 512KB)
 CONFIG_RFINIT_ADDR	?= 0x7C000
-CONFIG_SYSCONF_ADDR	?= 0x7E000
+CONFIG_SYSCONF_ADDR	?= 0x7D000
 CONFIG_YUNCONF_ADDR	?= 0x74000
 FLASH_SIZE = 512
 
@@ -72,7 +72,7 @@ endif
 
 ifeq ($(CONFIG_FLASH_SIZE), 1MB)
 CONFIG_RFINIT_ADDR	?= 0xFC000
-CONFIG_SYSCONF_ADDR	?= 0xFE000
+CONFIG_SYSCONF_ADDR	?= 0xFD000
 CONFIG_YUNCONF_ADDR	?= 0xF4000
 FLASH_SIZE = 1024
 
@@ -88,7 +88,7 @@ endif
 
 ifeq ($(CONFIG_FLASH_SIZE), 2MB)
 CONFIG_RFINIT_ADDR ?= 0x1FC000
-CONFIG_SYSCONF_ADDR ?= 0x1FE000
+CONFIG_SYSCONF_ADDR ?= 0x1FD000
 CONFIG_YUNCONF_ADDR ?= 0x1F4000
 
 FLASH_SIZE = 2048
@@ -119,7 +119,7 @@ endif
 
 ifeq ($(CONFIG_FLASH_SIZE), 4MB)
 CONFIG_RFINIT_ADDR ?= 0x3FC000
-CONFIG_SYSCONF_ADDR ?= 0x3FE000
+CONFIG_SYSCONF_ADDR ?= 0x3FD000
 CONFIG_YUNCONF_ADDR ?= 0x3F4000
 
 FLASH_SIZE = 4096
@@ -314,9 +314,26 @@ endif
 flash: all
 	$(vecho) "Upload the bin to flash ..."
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)			\
+				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x2000))) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(CONFIG_BOOT_ADDR) -cf $(FW_BASE)/$(CONFIG_OTA_BOOTLOADER).bin		\
-				-ca $(user1_addr) -cf $(FW_BASE)/user1.bin								\
-				-ca $(user2_addr) -cf $(FW_BASE)/user2.bin
+				-ca $(user1_addr) -cf $(FW_BASE)/user1.bin
+
+user1:
+	$(vecho) "Upload the bin to flash ..."
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)			\
+				-ca $(user1_addr) -cf $(FW_BASE)/user1.bin
+
+produce: all
+	$(vecho) "Upload the bin to flash ..."
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)			\
+				-ca $(CONFIG_YUNCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin				\
+				-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin		\
+				-ca $(CONFIG_SYSCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin				\
+				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin		\
+				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x2000))) -cf $(ESPSDK_BASE)/bin/blank.bin		\
+				-ca $(CONFIG_RFINIT_ADDR) -cf $(ESPSDK_BASE)/bin/$(CONFIG_RF_INIT_DATA)	\
+				-ca $(CONFIG_BOOT_ADDR) -cf $(FW_BASE)/$(CONFIG_OTA_BOOTLOADER).bin		\
+				-ca $(user1_addr) -cf $(FW_BASE)/user1.bin
 
 rfinit:
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) 			\
