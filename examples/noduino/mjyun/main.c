@@ -17,6 +17,7 @@
 */
 #include "noduino.h"
 #include "mjyun.h"
+#include "compile.h"
 
 #define	DEBUG	1
 
@@ -141,6 +142,8 @@ void init_yun()
 	mjyun_ondisconnected(mjyun_disconnected);
 
 	mjyun_run(&mjyun_conf);
+	os_printf("Welcome to MJYUN ... \r\n");
+	os_printf("%s", noduino_banner);
 }
 
 irom void setup()

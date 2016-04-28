@@ -25,6 +25,8 @@
 #include "driver/uart.h"
 #include "mjyun.h"
 
+#include "compile.h"
+
 #define	DEBUG	1
 
 void switch_on()
@@ -167,8 +169,10 @@ void user_init(void)
 	uart_init(115200, 115200);
 #endif
 
+	os_printf("Welcome to MJYUN ... \r\n");
+	os_printf("%s", noduino_banner);
+
 	switch_init();
 
-	os_printf("\r\nSystem started ...\r\n");
 	system_init_done_cb(cos_check_ip);
 }
