@@ -141,12 +141,12 @@ endif
 vpath %.c $(SRC_DIR)
 
 define compile-objects
-$1/%.o: %.c
+$1/%.o: %.c $(SRC_DIR)/compile.h
 	$(vecho) "CC $$<"
 	$(Q) $(XCC) $(INCDIR) $(MODULE_INCDIR) $(ESPSDK_INCDIR) $(SDK_INCDIR) $(CFLAGS)  -c $$< -o $$@
 endef
 
-.PHONY: all checkdirs flash clean
+.PHONY: all checkdirs flash clean $(SRC_DIR)/compile.h
 
 all: checkdirs $(TARGET_OUT) $(FW_FILE_1) $(FW_FILE_2)
 
@@ -173,6 +173,10 @@ clean:
 	$(Q) rm -f $(FW_FILE_1)
 	$(Q) rm -f $(FW_FILE_2)
 	$(Q) rm -rf $(FW_BASE)
+	$(Q) rm -f $(SRC_DIR)/compile.h
+
+$(SRC_DIR)/compile.h:
+	$(Q)$(SDK_BASE)/scripts/mkcompile_h $@ $(XCC) $(CONFIG_CPU) $(CONFIG_VERSION)
 
 $(foreach bdir,$(BUILD_BASE),$(eval $(call compile-objects,$(bdir))))
 
