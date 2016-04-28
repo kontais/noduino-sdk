@@ -16,9 +16,9 @@
  *
 */
 #include "user_config.h"
+#include "compile.h"
 
 #define	DEBUG	1
-#define	FW_VER	"1.0"
 
 static void mjyun_stated_cb(mjyun_state_t state)
 {
@@ -155,6 +155,9 @@ void user_init(void)
 #ifdef DEBUG
 	uart_init(115200, 115200);
 #endif
+	os_printf("\r\nWelcom to Noduino Open Plug!\r\n");
+	os_printf("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
+	os_printf("%s", noduino_banner);
 
 	param_init();
 	led_init();
@@ -164,7 +167,5 @@ void user_init(void)
 	// restore the relay status quickly
 	relay_set_status(param_get_status());
 
-	os_printf("\r\nWelcom to Noduino!\r\n");
-	os_printf("Firmware Version: %s\r\n", FW_VER);
 	system_init_done_cb(init_yun);
 }
