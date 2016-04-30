@@ -42,6 +42,7 @@ fi
 TIMESTAMP=`date`
 
 UTS_VERSION="$VERSION"
+FW_VERSION="$VERSION"
 CONFIG_FLAGS=""
 UTS_VERSION="$UTS_VERSION $CONFIG_FLAGS $TIMESTAMP"
 
@@ -49,6 +50,8 @@ UTS_VERSION="$UTS_VERSION $CONFIG_FLAGS $TIMESTAMP"
 
 UTS_LEN=64
 UTS_TRUNCATE="cut -b -$UTS_LEN"
+
+FW_VERSION="$FW_VERSION-`date +%s`"
 
 # Generate a temporary compile.h
 
@@ -60,6 +63,7 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
   echo \#define UTS_MACHINE \"$CPU\"
 
   echo \#define UTS_VERSION \"`echo $UTS_VERSION | $UTS_TRUNCATE`\"
+  echo \#define FW_VERSION	\"v$FW_VERSION\"
 
   echo \#define NODUINO_COMPILE_TIME \"`date +%T`\"
   echo \#define NODUINO_COMPILE_BY \"`whoami`\"
