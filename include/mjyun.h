@@ -130,6 +130,6 @@ void mjyun_setssidprefix(const char* sPrefix); //设置物理硬件作为AP时�
 
 void mjyun_check_update(); //检查固件更新
 
+void mjyun_mini_ota_start(const char * path);
 
 #endif /*  __MJYUN_H__ */
-
