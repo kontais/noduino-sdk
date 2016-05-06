@@ -327,6 +327,11 @@ user1:
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)			\
 				-ca $(user1_addr) -cf $(FW_BASE)/user1.bin
 
+user2:
+	$(vecho) "Upload the bin to flash ..."
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)			\
+				-ca $(user2_addr) -cf $(FW_BASE)/user2.bin
+
 produce: all
 	$(vecho) "Upload the bin to flash ..."
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)			\
