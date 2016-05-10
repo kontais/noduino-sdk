@@ -113,7 +113,7 @@ irom void mjyun_receive(const char *event_name, const char *event_data)
 
 void mjyun_connected()
 {
-
+	mjyun_publishstatus("off");
 }
 
 void mjyun_disconnected()
@@ -124,13 +124,14 @@ void mjyun_disconnected()
 /*
  * 4285 --> 摩羯窗帘
  * 3707 --> 摩羯插座
+ * 8636 --> 摩羯插座2
  * 3708 --> 摩羯灯
  * 6287 --> 传感器
  */
 const mjyun_config_t mjyun_conf = {
 	"gh_51111441aa63",		/* 产品id [必填] */
-	"3707",					/* 产品子id (一般用于微信设备) [选填] */
-	"Hi, I'm coming!!!",	/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
+	"8636",					/* 产品子id (一般用于微信设备) [选填] */
+	FW_VERSION,	/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
 	"I will come back!!!"	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
 };
 
@@ -151,6 +152,7 @@ irom void setup()
 	uart_init(115200, 115200);
 
 	pinMode(2, OUTPUT);
+	digitalWrite(2, HIGH);
 
 	init_yun();
 }
