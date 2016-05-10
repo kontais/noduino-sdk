@@ -372,6 +372,15 @@ getdevid:
 	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 mjyun.bin
 	-$(Q) echo "The original mjyun data is got into mjyun.bin"
 
+getyun:
+	-$(ESPTOOL_PY) --port $(CONFIG_ESPPORT) read_flash $(CONFIG_YUNCONF_ADDR) 0x1000 mjyun.bin
+	-$(Q) echo "The original mjyun data is got into mjyun.bin"
+
+setyun:
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT)		\
+			-ca $(CONFIG_YUNCONF_ADDR) -cf mjyun.bin				\
+			-ca $(shell printf "0x%x" $$(($(CONFIG_YUNCONF_ADDR)+0x1000))) -cf mjyun.bin
+
 setdevid:
 	-$(if $(value DID),, $(error Device ID (DID) is not set!))
 	-$(if $(value PASS),, $(error Device Password (PASS) is not set!))
