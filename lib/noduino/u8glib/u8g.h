@@ -2048,6 +2048,17 @@ extern const u8g_fntpgm_uint8_t u8g_font_profont22r[] U8G_FONT_SECTION("u8g_font
 extern const u8g_fntpgm_uint8_t u8g_font_profont29[] U8G_FONT_SECTION("u8g_font_profont29");
 extern const u8g_fntpgm_uint8_t u8g_font_profont29r[] U8G_FONT_SECTION("u8g_font_profont29r");
 
+/* user font */
+extern const u8g_fntpgm_uint8_t u8g_font_agencyfb9ptr[] U8G_FONT_SECTION("u8g_font_agencyfb9ptr");
+extern const u8g_fntpgm_uint8_t u8g_font_agencyfb12pt[] U8G_FONT_SECTION("u8g_font_agencyfb12pt");
+extern const u8g_fntpgm_uint8_t u8g_font_agencyfb28pt[] U8G_FONT_SECTION("u8g_font_agencyfb28pt");
+extern const u8g_fntpgm_uint8_t u8g_font_agencyfb32ptr[] U8G_FONT_SECTION("u8g_font_agencyfb32ptr");
+extern const u8g_fntpgm_uint8_t u8g_font_rajdhani_semibold9ptr[] U8G_FONT_SECTION("u8g_font_rajdhani_semibold9ptr");
+extern const u8g_fntpgm_uint8_t u8g_font_rajdhani_semibold12pt[] U8G_FONT_SECTION("u8g_font_rajdhani_semibold12pt");
+extern const u8g_fntpgm_uint8_t u8g_font_rajdhani_semibold28pt[] U8G_FONT_SECTION("u8g_font_rajdhani_semibold28pt");
+extern const u8g_fntpgm_uint8_t u8g_font_rajdhani_semibold32ptr[] U8G_FONT_SECTION("u8g_font_rajdhani_semibold32ptr");
+extern const u8g_fntpgm_uint8_t u8g_font_arual24ptr[] U8G_FONT_SECTION("u8g_font_arual24ptr");
+
 
 #ifdef __cplusplus
 }
