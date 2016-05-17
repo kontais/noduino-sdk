@@ -176,7 +176,7 @@ clean:
 	$(Q) rm -f $(SRC_DIR)/compile.h
 
 $(SRC_DIR)/compile.h:
-	$(Q)$(SDK_BASE)/scripts/mkcompile_h $@ $(XCC) $(CONFIG_CPU) $(CONFIG_VERSION)
+	$(Q)$(SDK_BASE)/scripts/mkcompile_h $@ $(XCC) $(CONFIG_CPU) $(CONFIG_VERSION) $(CONFIG_HW_VERSION)
 
 $(foreach bdir,$(BUILD_BASE),$(eval $(call compile-objects,$(bdir))))
 
