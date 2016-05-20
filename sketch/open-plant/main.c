@@ -20,7 +20,9 @@
 #include "sht2x.h"
 #include "compile.h"
 
-#define DEBUG		1
+#define DEBUG				1
+
+static uint32_t realtime = 0;
 
 irom static void mjyun_stated_cb(mjyun_state_t state)
 {
@@ -201,15 +203,20 @@ void push_temp_humi()
 	os_printf("Humidity(%RH): %s\r\n", h_buf);
 
 	pcf8563_now();
-	mjyun_publishstatus(t_buf);
 
-	if (tmp_timer==(httprate_min*60)/mqttrate_sec) {
-		// per first luanch send temp data
+	if (1 == realtime) {
+		mjyun_publishstatus(t_buf);
+
+		if (tmp_timer==(httprate_min*60)/mqttrate_sec) {
+			// per first luanch send temp data
+			http_upload_temp(t_buf);
+			tmp_timer=1;
+		}
+
+		tmp_timer++;
+	} else {
 		http_upload_temp(t_buf);
-		tmp_timer=1;
 	}
-
-	tmp_timer++;
 }
 
 irom void time_init()
@@ -258,13 +265,12 @@ mjyun_ota_config_t mjyun_ota_conf = {
  * 3708 --> 摩羯灯
  * 6287 --> 传感器
  */
-const mjyun_config_t mjyun_conf = {
+mjyun_config_t mjyun_conf = {
 	"gh_51111441aa63",		/* MJYUN */
 	"6287",
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
 	"I will come back!",	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
 	&mjyun_ota_conf,
-	WITH_MQTT,
 };
 
 irom void init_yun()
@@ -274,6 +280,8 @@ irom void init_yun()
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
 
+	if (realtime == 1)
+		mjyun_conf.flag |= WITH_MQTT;
 	mjyun_run(&mjyun_conf);
 }
 
@@ -292,10 +300,15 @@ irom void setup()
 	xkey_init();
 
 	init_yun();
+
+	wifi_set_sleep_type(MODEM_SLEEP_T);
 }
 
 void loop()
 {
 	push_temp_humi();
-	delay(mqttrate_sec*1000);
+	if(realtime == 1)
+		delay(mqttrate_sec*1000);
+	else
+		delay(httprate_min*60*1000);
 }
