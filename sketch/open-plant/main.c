@@ -131,7 +131,7 @@ static upload_fail_cnt = 0;
 void http_upload_temp_error_handle()
 {
 	upload_fail_cnt++;
-	if(upload_fail_cnt >= 1) {
+	if(upload_fail_cnt >= 3) {
 		// failed about 5min
 		os_printf("http pushed failed %d times, reset the system\r\n", upload_fail_cnt);
 		system_restart();
