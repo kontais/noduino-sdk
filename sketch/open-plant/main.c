@@ -23,6 +23,7 @@
 #define DEBUG				1
 
 static uint32_t realtime = 0;
+static uint32_t network_state = 0;
 
 irom static void mjyun_stated_cb(mjyun_state_t state)
 {
@@ -57,15 +58,21 @@ irom static void mjyun_stated_cb(mjyun_state_t state)
             break;
         case WIFI_AP_STATION_OK:
             os_printf("Platform: WIFI_AP_STATION_OK\r\n");
+			network_state = WIFI_AP_STATION_OK;
             break;
         case WIFI_AP_STATION_ERROR:
             os_printf("Platform: WIFI_AP_STATION_ERROR\r\n");
             break;
         case WIFI_STATION_OK:
             os_printf("Platform: WIFI_STATION_OK\r\n");
+			network_state = WIFI_STATION_OK;
             break;
         case WIFI_STATION_ERROR:
             os_printf("Platform: WIFI_STATION_ERROR\r\n");
+            break;
+        case WIFI_STA_DISCONNECTED:
+            os_printf("Platform: WIFI_STA_DISCONNECTED\r\n");
+			network_state = WIFI_STA_DISCONNECTED;
             break;
         case MJYUN_CONNECTING:
             os_printf("Platform: MJYUN_CONNECTING\r\n");
@@ -306,9 +313,12 @@ irom void setup()
 
 void loop()
 {
-	push_temp_humi();
-	if(realtime == 1)
-		delay(mqttrate_sec*1000);
-	else
-		delay(httprate_min*60*1000);
+	if (network_state == WIFI_STATION_OK ||
+			network_state == WIFI_AP_STATION_OK) {
+		push_temp_humi();
+		if(realtime == 1)
+			delay(mqttrate_sec*1000);
+		else
+			delay(httprate_min*60*1000);
+	}
 }
