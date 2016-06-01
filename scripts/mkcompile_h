@@ -95,6 +95,8 @@ FW_VERSION="$FW_VERSION-`date +%y%m%d%H%M%S`"
   echo \#define NODUINO_COMPILER \"`$CC -v 2>&1 | tail -n 1`\"
 
   echo const char noduino_banner\[\] = \"Noduino version $UTS_VERSION \(`whoami`@`hostname | $UTS_TRUNCATE`\) \(`$CC -v 2>&1 | tail -n 1`\)\\r\\n\"\;
+  echo const char fw_version\[\] = \"Firmware Version $FW_VERSION\"\;
+  echo const char hw_version\[\] = \"Hardware Version $HW_VER\"\;
   echo \#endif
 ) > .tmpcompile
 
