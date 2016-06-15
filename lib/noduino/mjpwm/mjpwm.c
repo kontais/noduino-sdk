@@ -21,11 +21,11 @@
 
 #ifndef LOW
 #define LOW 							(0)
-#endif /* ifndef LOW */
+#endif				/* ifndef LOW */
 
 #ifndef HIGH
 #define HIGH 							(1)
-#endif /* ifndef HIGH */
+#endif				/* ifndef HIGH */
 
 #define MJPWM_DIRECT_GPIO(pin) 		PIN_FUNC_SELECT(pin_name[pin], pin_func[pin])
 #define MJPWM_DIRECT_READ(pin) 		(0x01 & GPIO_INPUT_GET(GPIO_ID_PIN(pin)))
@@ -36,23 +36,19 @@
 
 LOCAL mjpwm_cmd_t mjpwm_commands[GPIO_MAX_INDEX + 1];
 
-void ICACHE_FLASH_ATTR
-mjpwm_di_pulse(uint8_t pin_di, uint16_t times)
+void ICACHE_FLASH_ATTR mjpwm_di_pulse(uint8_t pin_di, uint16_t times)
 {
 	uint16_t i;
-	for (i = 0; i < times; i++)
-	{
+	for (i = 0; i < times; i++) {
 		MJPWM_DIRECT_WRITE_HIGH(pin_di);
 		MJPWM_DIRECT_WRITE_LOW(pin_di);
 	}
 }
 
-void ICACHE_FLASH_ATTR
-mjpwm_dcki_pulse(uint8_t pin_dcki, uint16_t times)
+void ICACHE_FLASH_ATTR mjpwm_dcki_pulse(uint8_t pin_dcki, uint16_t times)
 {
 	uint16_t i;
-	for (i = 0; i < times; i++)
-	{
+	for (i = 0; i < times; i++) {
 		MJPWM_DIRECT_WRITE_HIGH(pin_dcki);
 		MJPWM_DIRECT_WRITE_LOW(pin_dcki);
 	}
@@ -65,7 +61,7 @@ void ICACHE_FLASH_ATTR
 mjpwm_send_command(uint8_t pin_di, uint8_t pin_dcki, mjpwm_cmd_t command)
 {
 	uint8_t i;
-	uint8_t command_data = *(uint8_t *)(&command);
+	uint8_t command_data = *(uint8_t *) (&command);
 	mjpwm_commands[pin_dcki] = command;
 
 	// ets_intr_lock();
@@ -78,30 +74,23 @@ mjpwm_send_command(uint8_t pin_di, uint8_t pin_dcki, mjpwm_cmd_t command)
 	os_delay_us(12);
 	// Send CMD data
 
-	for (i = 0; i < 4; i++)
-	{
+	for (i = 0; i < 4; i++) {
 		// DCK = 0;
 		MJPWM_DIRECT_WRITE_LOW(pin_dcki);
-		if (command_data & 0x80)
-		{
+		if (command_data & 0x80) {
 			// DI = 1;
 			MJPWM_DIRECT_WRITE_HIGH(pin_di);
-		}
-		else
-		{
+		} else {
 			// DI = 0;
 			MJPWM_DIRECT_WRITE_LOW(pin_di);
 		}
 		// DCK = 1;
 		MJPWM_DIRECT_WRITE_HIGH(pin_dcki);
 		command_data = command_data << 1;
-		if (command_data & 0x80)
-		{
+		if (command_data & 0x80) {
 			// DI = 1;
 			MJPWM_DIRECT_WRITE_HIGH(pin_di);
-		}
-		else
-		{
+		} else {
 			// DI = 0;
 			MJPWM_DIRECT_WRITE_LOW(pin_di);
 		}
@@ -126,7 +115,8 @@ mjpwm_send_command(uint8_t pin_di, uint8_t pin_dcki, mjpwm_cmd_t command)
 // Image Data
 //-----------------------------------------------------------------------------
 void ICACHE_FLASH_ATTR
-mjpwm_send_duty(uint8_t pin_di, uint8_t pin_dcki, uint16_t duty_r, uint16_t duty_g, uint16_t duty_b, uint16_t duty_w)
+mjpwm_send_duty(uint8_t pin_di, uint8_t pin_dcki, uint16_t duty_r,
+		uint16_t duty_g, uint16_t duty_b, uint16_t duty_w)
 {
 	uint8_t i = 0;
 	uint8_t channel = 0;
@@ -134,10 +124,9 @@ mjpwm_send_duty(uint8_t pin_di, uint8_t pin_dcki, uint16_t duty_r, uint16_t duty
 	uint16_t duty_current = 0;
 
 	// Definition for RGBW channels
-	uint16_t duty[4] = {duty_r, duty_g, duty_b, duty_w};
+	uint16_t duty[4] = { duty_r, duty_g, duty_b, duty_w };
 
-	switch (mjpwm_commands[pin_dcki].bit_width)
-	{
+	switch (mjpwm_commands[pin_dcki].bit_width) {
 	case MJPWM_CMD_BIT_WIDTH_16:
 		bit_length = 16;
 		break;
@@ -159,35 +148,28 @@ mjpwm_send_duty(uint8_t pin_di, uint8_t pin_dcki, uint16_t duty_r, uint16_t duty
 	// TStop > 12us.
 	os_delay_us(12);
 
-	for (channel = 0; channel < 4; channel++) //RGBW 4CH
+	for (channel = 0; channel < 4; channel++)	//RGBW 4CH
 	{
 		// RGBW Channel
 		duty_current = duty[channel];
 		// Send 8bit/12bit/14bit/16bit Data
-		for (i = 0; i < bit_length / 2; i++)
-		{
+		for (i = 0; i < bit_length / 2; i++) {
 			// DCK = 0;
 			MJPWM_DIRECT_WRITE_LOW(pin_dcki);
-			if (duty_current & (0x01 << (bit_length - 1)))
-			{
+			if (duty_current & (0x01 << (bit_length - 1))) {
 				// DI = 1;
 				MJPWM_DIRECT_WRITE_HIGH(pin_di);
-			}
-			else
-			{
+			} else {
 				// DI = 0;
 				MJPWM_DIRECT_WRITE_LOW(pin_di);
 			}
 			// DCK = 1;
 			MJPWM_DIRECT_WRITE_HIGH(pin_dcki);
 			duty_current = duty_current << 1;
-			if (duty_current & (0x01 << (bit_length - 1)))
-			{
+			if (duty_current & (0x01 << (bit_length - 1))) {
 				// DI = 1;
 				MJPWM_DIRECT_WRITE_HIGH(pin_di);
-			}
-			else
-			{
+			} else {
 				// DI = 0;
 				MJPWM_DIRECT_WRITE_LOW(pin_di);
 			}
@@ -221,4 +203,3 @@ mjpwm_init(uint8_t pin_di, uint8_t pin_dcki, mjpwm_cmd_t command)
 	mjpwm_dcki_pulse(pin_dcki, 64 / 2);
 	mjpwm_send_command(pin_di, pin_dcki, command);
 }
-

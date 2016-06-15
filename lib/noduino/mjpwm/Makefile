@@ -50,4 +50,4 @@ LIB_INCDIR	:= $(SDK_BASE)/include/noduino
 install: all
 	mv .output/lib/*.a ../../
 	mkdir -p $(LIB_INCDIR)/
-	cp -a *.h $(LIB_INCDIR)/
+	cp -a mjpwm.h $(LIB_INCDIR)/
