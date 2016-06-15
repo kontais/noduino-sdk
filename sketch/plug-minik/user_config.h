@@ -15,6 +15,12 @@
 
 #define	DEBUG			1
 
+#ifdef DEBUG
+#define INFO( format, ... ) os_printf( format, ## __VA_ARGS__ )
+#else
+#define INFO( format, ... )
+#endif
+
 #define	XKEY_NUM		1
 
 #define XKEY_IO_MUX		PERIPHS_IO_MUX_MTDI_U
