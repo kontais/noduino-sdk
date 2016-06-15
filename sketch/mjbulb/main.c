@@ -102,12 +102,12 @@ platform_init(void)
 	gpio16_output_conf();
 	gpio16_output_set(1);
 
-	mjyun_run(&mjyun_conf);
 	mjyun_statechanged(mjyun_stated_cb);
 	espnow_create();
 	network_system_timer_callback_register(app_start_check);
 	app_start_check(0);
 	mjyun_ondata(mjyun_receive);
+	mjyun_run(&mjyun_conf);
 }
 
 irom void system_init_done()
@@ -123,11 +123,7 @@ irom void user_init()
 {
 #define DEV_MODE 1
 #if defined(DEV_MODE)
-	// Set the port to print log info.
-	UART_SetPrintPort(UART0);
-	// Set RS485 and LOG baudrate
 	uart_init(BIT_RATE_115200, BIT_RATE_115200);
-
 #else
 	// Set the port to print log info.
 	UART_SetPrintPort(UART1);

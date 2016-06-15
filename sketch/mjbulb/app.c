@@ -74,6 +74,11 @@ mjyun_receive(const char * event_name, const char * event_data)
 	if (0 == os_strcmp(event_name, "get")) {
 		INFO("GET DATA\r\n");
 	}
+
+	if(os_strncmp(event_data, "ota", 3) == 0) {
+		INFO("OTA: upgrade the firmware!\r\n");
+		mjyun_mini_ota_start("ota/dev/bulb/files");
+	}
 }
 
 void ICACHE_FLASH_ATTR
