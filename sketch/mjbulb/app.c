@@ -32,9 +32,8 @@ fast_log2(float val)
 void ICACHE_FLASH_ATTR
 mjyun_receive(const char * event_name, const char * event_data)
 {
-	//INFO("RECEIVED: key=%s,value=%s\r\n", event_name, event_data);
-	// Publish back
-	//mjyun_publish(event_name, event_data);
+	INFO("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
+
 	if (0 == os_strcmp(event_name, "set")) {
 		//INFO("SET DATA\r\n");
 		cJSON * pD = cJSON_Parse(event_data);
@@ -311,10 +310,10 @@ app_start_check(uint32_t system_start_seconds)
 	} else if (local_system_status.start_continue >= 3) {
 		mjyun_forceentersmartlinkmode();
 	}
-	if ((WIFI_SMARTLINK_START == network_current_state()) ||
-	    (WIFI_SMARTLINK_LINKING == network_current_state()) ||
-	    (WIFI_SMARTLINK_FINDING == network_current_state()) ||
-	    (WIFI_SMARTLINK_GETTING == network_current_state())) {
+	if ((WIFI_SMARTLINK_START == mjyun_state()) ||
+	    (WIFI_SMARTLINK_LINKING == mjyun_state()) ||
+	    (WIFI_SMARTLINK_FINDING == mjyun_state()) ||
+	    (WIFI_SMARTLINK_GETTING == mjyun_state())) {
 		if (app_state_smart != app_state) {
 			INFO("Mjyun APP: begin smart config effect\r\n");
 			app_state = app_state_smart;
@@ -323,7 +322,8 @@ app_start_check(uint32_t system_start_seconds)
 			os_timer_arm(&app_smart_timer, 20, 1);
 		}
 	} else {
-		if (app_state_smart == app_state) {
+		if (app_state_smart == app_state ||
+				mjyun_state() == MJYUN_CONNECTED) {
 			app_state = app_state_normal;
 			app_apply_settings();
 			os_timer_disarm(&app_smart_timer);
