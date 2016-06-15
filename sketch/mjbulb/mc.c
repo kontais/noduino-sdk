@@ -1,9 +1,4 @@
-
-#include "ets_sys.h"
-#include "osapi.h"
-#include "os_type.h"
-#include "mem.h"
-#include "limits.h"
+#include "user_config.h"
 
 int ICACHE_FLASH_ATTR isalnum(int c)
 {
