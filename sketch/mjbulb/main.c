@@ -94,6 +94,19 @@ const mjyun_config_t mjyun_conf = {
 	WITH_MQTT
 };
 
+void mjyun_connected()
+{
+	// need to update the status in cloud
+	app_push_status();
+
+	// stop to show the wifi status
+}
+
+void mjyun_disconnected()
+{
+	//show the wifi status
+}
+
 void ICACHE_FLASH_ATTR
 platform_init(void)
 {
@@ -107,6 +120,8 @@ platform_init(void)
 	network_system_timer_callback_register(app_start_check);
 	app_start_check(0);
 	mjyun_ondata(mjyun_receive);
+	mjyun_onconnected(mjyun_connected);
+	mjyun_ondisconnected(mjyun_disconnected);
 	mjyun_run(&mjyun_conf);
 }
 

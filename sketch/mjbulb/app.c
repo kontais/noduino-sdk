@@ -1,6 +1,6 @@
 #include "user_config.h"
 
-static system_status_t local_system_status = {
+static system_status_t sys_status = {
 	.init_flag = 0,
 	.start_count = 0,
 	.start_continue = 0,
@@ -29,9 +29,25 @@ fast_log2(float val)
 	return (val + log_2);
 }
 
+void ICACHE_FLASH_ATTR app_push_status()
+{
+	char msg[48];
+	os_memset(msg, 0, 48);
+	os_sprintf(msg, "{\"r\":%d,\"g\":%d,\"b\":%d,\"w\":%d,\"s\":%d}",
+				sys_status.mcu_status.r,
+				sys_status.mcu_status.g,
+				sys_status.mcu_status.b,
+				sys_status.mcu_status.w,
+				sys_status.mcu_status.s
+			);
+	mjyun_publishstatus(msg);
+	INFO("Pushed status = %s\r\n", msg);
+}
+
 void ICACHE_FLASH_ATTR
 mjyun_receive(const char * event_name, const char * event_data)
 {
+	/* {"m":"set", "d":{"r":18,"g":100,"b":7,"w":0,"s":1000}} */
 	INFO("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 
 	if (0 == os_strcmp(event_name, "set")) {
@@ -45,25 +61,26 @@ mjyun_receive(const char * event_name, const char * event_data)
 			cJSON * pS = cJSON_GetObjectItem(pD, "s");
 			if ((NULL != pR) && (cJSON_Number == pR->type)) {
 				INFO("SET R = %d\r\n", pR->valueint);
-				local_system_status.mcu_status.r = pR->valueint;
+				sys_status.mcu_status.r = pR->valueint;
 			}
 			if ((NULL != pG) && (cJSON_Number == pG->type)) {
 				INFO("SET G = %d\r\n", pG->valueint);
-				local_system_status.mcu_status.g = pG->valueint;
+				sys_status.mcu_status.g = pG->valueint;
 			}
 			if ((NULL != pB) && (cJSON_Number == pB->type)) {
 				INFO("SET B = %d\r\n", pB->valueint);
-				local_system_status.mcu_status.b = pB->valueint;
+				sys_status.mcu_status.b = pB->valueint;
 			}
 			if ((NULL != pW) && (cJSON_Number == pW->type)) {
 				INFO("SET W = %d\r\n", pW->valueint);
-				local_system_status.mcu_status.w = pW->valueint;
+				sys_status.mcu_status.w = pW->valueint;
 			}
 			if ((NULL != pS) && (cJSON_Number == pS->type)) {
 				INFO("SET S = %d\r\n", pS->valueint);
-				local_system_status.mcu_status.s = pS->valueint;
+				sys_status.mcu_status.s = pS->valueint;
 			}
 			app_apply_settings();
+			app_push_status();
 		} else {
 			INFO("%s: Error when parse JSON\r\n", __func__);
 		}
@@ -71,7 +88,8 @@ mjyun_receive(const char * event_name, const char * event_data)
 	}
 
 	if (0 == os_strcmp(event_name, "get")) {
-		INFO("GET DATA\r\n");
+		INFO("RX Get status Request!\r\n");
+		app_push_status();
 	}
 
 	if(os_strncmp(event_data, "ota", 3) == 0) {
@@ -83,14 +101,14 @@ mjyun_receive(const char * event_name, const char * event_data)
 void ICACHE_FLASH_ATTR
 app_apply_settings(void)
 {
-	if (local_system_status.mcu_status.s) {
+	if (sys_status.mcu_status.s) {
 		mjpwm_send_duty(
 		    PIN_DI,
 		    PIN_DCKI,
-		    (uint16_t)(4095) * local_system_status.mcu_status.r / 255,
-		    (uint16_t)(4095) * local_system_status.mcu_status.g / 255,
-		    (uint16_t)(4095) * local_system_status.mcu_status.b / 255,
-		    (uint16_t)(4095) * local_system_status.mcu_status.w / 255
+		    (uint16_t)(4095) * sys_status.mcu_status.r / 255,
+		    (uint16_t)(4095) * sys_status.mcu_status.g / 255,
+		    (uint16_t)(4095) * sys_status.mcu_status.b / 255,
+		    (uint16_t)(4095) * sys_status.mcu_status.w / 255
 		);
 	} else {
 		mjpwm_send_duty(
@@ -110,29 +128,29 @@ app_load(void)
 	system_param_load(
 	    (APP_START_SEC),
 	    0,
-	    (void *)(&local_system_status),
-	    sizeof(local_system_status));
-	if (local_system_status.init_flag) {
-		local_system_status.mcu_status.s = 1;
-		// local_mcu_status = local_system_status.mcu_status;
+	    (void *)(&sys_status),
+	    sizeof(sys_status));
+	if (sys_status.init_flag) {
+		sys_status.mcu_status.s = 1;
+		// local_mcu_status = sys_status.mcu_status;
 	} else {
-		local_system_status.init_flag = 1;
+		sys_status.init_flag = 1;
 	}
-	local_system_status.start_count += 1;
-	local_system_status.start_continue += 1;
+	sys_status.start_count += 1;
+	sys_status.start_continue += 1;
 	INFO("Mjyun APP: start count:%d, start continue:%d\r\n",
-			local_system_status.start_count, local_system_status.start_continue);
+			sys_status.start_count, sys_status.start_continue);
 	app_save();
 }
 
 void ICACHE_FLASH_ATTR
 app_save(void)
 {
-	// local_system_status.mcu_status = local_mcu_status;
+	// sys_status.mcu_status = local_mcu_status;
 	system_param_save_with_protect(
 	    (APP_START_SEC),
-	    (void *)(&local_system_status),
-	    sizeof(local_system_status));
+	    (void *)(&sys_status),
+	    sizeof(sys_status));
 }
 
 void ICACHE_FLASH_ATTR
@@ -220,17 +238,17 @@ app_smart_timer_tick()
 void ICACHE_FLASH_ATTR
 app_start_check(uint32_t system_start_seconds)
 {
-	if ((local_system_status.start_continue != 0) && (system_start_seconds > 5)) {
-		local_system_status.start_continue = 0;
+	if ((sys_status.start_continue != 0) && (system_start_seconds > 5)) {
+		sys_status.start_continue = 0;
 		app_save();
 	}
 
 #if defined(APP_AGEING)
-	if (local_system_status.start_count >= 65535) {
+	if (sys_status.start_count >= 65535) {
 		INFO("Mjyun APP: clean ageing\r\n");
-		local_system_status.start_count = 65534;
+		sys_status.start_count = 65534;
 		app_save();
-	} else if (local_system_status.start_count <= 1) {
+	} else if (sys_status.start_count <= 1) {
 		INFO("Mjyun APP: begin ageing\r\n");
 		mjpwm_send_duty(
 		    PIN_DI,
@@ -243,13 +261,13 @@ app_start_check(uint32_t system_start_seconds)
 	}
 #endif
 
-	if (local_system_status.start_continue >= 10) {
+	if (sys_status.start_continue >= 10) {
 		if (app_state_restore != app_state) {
 			INFO("Mjyun APP: system restore\r\n");
 			app_state = app_state_restore;
 			// Init flag and counter
-			local_system_status.init_flag = 0;
-			local_system_status.start_continue = 0;
+			sys_status.init_flag = 0;
+			sys_status.start_continue = 0;
 			// Save param
 			app_save();
 			// Restore system
@@ -257,7 +275,7 @@ app_start_check(uint32_t system_start_seconds)
 			// Restart system
 			system_restart();
 		}
-	} else if (local_system_status.start_continue >= 9) {
+	} else if (sys_status.start_continue >= 9) {
 		os_timer_disarm(&app_smart_timer);
 		mjpwm_send_duty(
 		    PIN_DI,
@@ -268,7 +286,7 @@ app_start_check(uint32_t system_start_seconds)
 		    0
 		);
 
-	} else if (local_system_status.start_continue >= 8) {
+	} else if (sys_status.start_continue >= 8) {
 		os_timer_disarm(&app_smart_timer);
 		mjpwm_send_duty(
 		    PIN_DI,
@@ -278,7 +296,7 @@ app_start_check(uint32_t system_start_seconds)
 		    0,
 		    0
 		);
-	} else if (local_system_status.start_continue >= 7) {
+	} else if (sys_status.start_continue >= 7) {
 		os_timer_disarm(&app_smart_timer);
 		mjpwm_send_duty(
 		    PIN_DI,
@@ -289,7 +307,7 @@ app_start_check(uint32_t system_start_seconds)
 		    0
 		);
 
-	} else if (local_system_status.start_continue >= 6) {
+	} else if (sys_status.start_continue >= 6) {
 		os_timer_disarm(&app_smart_timer);
 		mjpwm_send_duty(
 		    PIN_DI,
@@ -299,7 +317,7 @@ app_start_check(uint32_t system_start_seconds)
 		    4095,
 		    4095
 		);
-	} else if (local_system_status.start_continue >= 5) {
+	} else if (sys_status.start_continue >= 5) {
 		if (MJYUN_CONNECTED == mjyun_state()) {
 			if (app_state_upgrade != app_state) {
 				INFO("Mjyun APP: OTA update\r\n");
@@ -307,7 +325,7 @@ app_start_check(uint32_t system_start_seconds)
 				mjyun_check_update();
 			}
 		}
-	} else if (local_system_status.start_continue >= 3) {
+	} else if (sys_status.start_continue >= 3) {
 		mjyun_forceentersmartlinkmode();
 	}
 	if ((WIFI_SMARTLINK_START == mjyun_state()) ||

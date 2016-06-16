@@ -33,6 +33,7 @@ void mjyun_receive(const char * event_name, const char * event_data);
 void app_apply_settings(void);
 void app_load(void);
 void app_save(void);
+void app_push_status(void);
 void app_start_check(uint32_t system_start_seconds);
 void app_set_smart_effect(uint8_t effect);
 void ICACHE_FLASH_ATTR
