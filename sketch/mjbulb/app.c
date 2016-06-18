@@ -110,6 +110,9 @@ app_apply_settings(void)
 		    (uint16_t)(4095) * sys_status.mcu_status.b / 255,
 		    (uint16_t)(4095) * sys_status.mcu_status.w / 255
 		);
+
+		// we only save the status when user setup apparently
+		app_save();
 	} else {
 		mjpwm_send_duty(
 		    PIN_DI,
