@@ -14,6 +14,7 @@ static system_status_t sys_status = {
 };
 
 static os_timer_t app_smart_timer;
+static os_timer_t delay_timer;
 static app_state_t app_state = APP_STATE_NORMAL;
 static uint8_t smart_effect = 0;
 
@@ -330,7 +331,11 @@ app_start_check(uint32_t system_start_seconds)
 			}
 		}
 	} else if (sys_status.start_continue >= 3) {
-		mjyun_forceentersmartlinkmode();
+		INFO("Mjyun APP: force into smart config mode\r\n");
+		/* wait the network_init is ok */
+		os_timer_disarm(&delay_timer);
+		os_timer_setfn(&delay_timer, (os_timer_func_t *)mjyun_forceentersmartlinkmode, NULL);
+		os_timer_arm(&delay_timer, 2000, 0);
 	}
 	if ((WIFI_SMARTLINK_START == mjyun_state()) ||
 	    (WIFI_SMARTLINK_LINKING == mjyun_state()) ||
