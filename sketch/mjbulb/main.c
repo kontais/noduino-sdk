@@ -16,6 +16,7 @@
  *
 */
 #include "user_config.h"
+#include "compile.h"
 
 LOCAL void ICACHE_FLASH_ATTR
 mjyun_stated_cb(mjyun_state_t state)
@@ -86,11 +87,11 @@ mjyun_stated_cb(mjyun_state_t state)
 }
 
 const mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63", /* 产品id [必填] (摩羯云管理界面添加的微信原始ID)*/
-	"3708",/*产品子id(一般用于微信设备) [选填] (摩羯智能灯)*/
-	"Hi, I'm coming!!!",/*设备上线时，给app发送online消息中的附加数据，[选填]*/
-	"I will come back!!!",/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
-	NULL,
+	"MJP9040252280",
+	HW_VERSION,
+	FW_VERSION,
+	FW_VERSION,
+	"Device Offline",
 	WITH_MQTT
 };
 
@@ -154,7 +155,7 @@ irom void user_init()
 	// Set Wi-Fi mode
 	wifi_set_opmode(STATIONAP_MODE);
 
-	mjyun_setssidprefix("MJLIGHT_");
+	mjyun_setssidprefix("MJY_");
 
 	mjpwm_cmd_t command = {
 		.scatter = MJPWM_CMD_SCATTER_APDM,
