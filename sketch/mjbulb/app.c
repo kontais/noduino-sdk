@@ -274,6 +274,7 @@ app_start_check(uint32_t system_start_seconds)
 			// Save param
 			app_save();
 			// Restore system
+			mjyun_systemrecovery();
 			system_restore();
 			// Restart system
 			system_restart();
