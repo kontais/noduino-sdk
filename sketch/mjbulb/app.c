@@ -14,7 +14,7 @@ static system_status_t sys_status = {
 };
 
 static os_timer_t app_smart_timer;
-static app_state_t app_state = app_state_normal;
+static app_state_t app_state = APP_STATE_NORMAL;
 static uint8_t smart_effect = 0;
 
 float ICACHE_FLASH_ATTR
@@ -265,9 +265,9 @@ app_start_check(uint32_t system_start_seconds)
 #endif
 
 	if (sys_status.start_continue >= 10) {
-		if (app_state_restore != app_state) {
+		if (APP_STATE_RESTORE != app_state) {
 			INFO("Mjyun APP: system restore\r\n");
-			app_state = app_state_restore;
+			app_state = APP_STATE_RESTORE;
 			// Init flag and counter
 			sys_status.init_flag = 0;
 			sys_status.start_continue = 0;
@@ -323,9 +323,9 @@ app_start_check(uint32_t system_start_seconds)
 		);
 	} else if (sys_status.start_continue >= 5) {
 		if (MJYUN_CONNECTED == mjyun_state()) {
-			if (app_state_upgrade != app_state) {
+			if (APP_STATE_UPGRADE != app_state) {
 				INFO("Mjyun APP: OTA update\r\n");
-				app_state = app_state_upgrade;
+				app_state = APP_STATE_UPGRADE;
 				mjyun_check_update();
 			}
 		}
@@ -336,17 +336,17 @@ app_start_check(uint32_t system_start_seconds)
 	    (WIFI_SMARTLINK_LINKING == mjyun_state()) ||
 	    (WIFI_SMARTLINK_FINDING == mjyun_state()) ||
 	    (WIFI_SMARTLINK_GETTING == mjyun_state())) {
-		if (app_state_smart != app_state) {
+		if (APP_STATE_SMART != app_state) {
 			INFO("Mjyun APP: begin smart config effect\r\n");
-			app_state = app_state_smart;
+			app_state = APP_STATE_SMART;
 			os_timer_disarm(&app_smart_timer);
 			os_timer_setfn(&app_smart_timer, (os_timer_func_t *)app_smart_timer_tick, NULL);
 			os_timer_arm(&app_smart_timer, 20, 1);
 		}
 	} else {
-		if (app_state_smart == app_state ||
+		if (APP_STATE_SMART == app_state ||
 				mjyun_state() == MJYUN_CONNECTED) {
-			app_state = app_state_normal;
+			app_state = APP_STATE_NORMAL;
 			app_apply_settings();
 			os_timer_disarm(&app_smart_timer);
 		}

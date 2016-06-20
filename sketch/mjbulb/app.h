@@ -23,10 +23,10 @@ typedef struct system_status_t {
 } __attribute__((aligned(4), packed)) system_status_t;
 
 typedef enum app_state_t {
-	app_state_normal,
-	app_state_smart,
-	app_state_upgrade,
-	app_state_restore,
+	APP_STATE_NORMAL,
+	APP_STATE_SMART,
+	APP_STATE_UPGRADE,
+	APP_STATE_RESTORE,
 } app_state_t;
 
 void mjyun_receive(const char * event_name, const char * event_data);

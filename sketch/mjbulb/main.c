@@ -118,8 +118,12 @@ platform_init(void)
 
 	mjyun_statechanged(mjyun_stated_cb);
 	espnow_create();
+
+	// execute app_start_check() every one second
 	network_system_timer_callback_register(app_start_check);
+
 	app_start_check(0);
+
 	mjyun_ondata(mjyun_receive);
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
