@@ -124,6 +124,8 @@ platform_init(void)
 
 	app_start_check(0);
 
+	mjyun_setssidprefix("MJY_");
+
 	mjyun_ondata(mjyun_receive);
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
@@ -132,8 +134,10 @@ platform_init(void)
 
 irom void system_init_done()
 {
-	INFO("\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n");
-	INFO("\r\nSDK version:%s\r\n", system_get_sdk_version());
+	INFO("\r\n\r\n\r\n\r\n\r\n\r\n");
+	INFO("\r\nWelcom to Noduino Open Bulb!\r\n");
+	INFO("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
+	INFO("%s", noduino_banner);
 
 	// Init platform
 	platform_init();
@@ -157,9 +161,7 @@ irom void user_init()
 	os_delay_us(100);
 
 	// Set Wi-Fi mode
-	wifi_set_opmode(STATIONAP_MODE);
-
-	mjyun_setssidprefix("MJY_");
+	//wifi_set_opmode(STATIONAP_MODE);
 
 	mjpwm_cmd_t command = {
 		.scatter = MJPWM_CMD_SCATTER_APDM,
