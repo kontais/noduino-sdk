@@ -240,6 +240,15 @@ app_smart_timer_tick()
 }
 
 void ICACHE_FLASH_ATTR
+factory_reset()
+{
+	mjyun_systemrecovery();
+	system_restore();
+	os_delay_us(2000);
+	system_restart();
+}
+
+void ICACHE_FLASH_ATTR
 app_start_check(uint32_t system_start_seconds)
 {
 	if ((sys_status.start_continue != 0) && (system_start_seconds > 5)) {
@@ -265,7 +274,7 @@ app_start_check(uint32_t system_start_seconds)
 	}
 #endif
 
-	if (sys_status.start_continue >= 10) {
+	if (sys_status.start_continue >= 6) {
 		if (APP_STATE_RESTORE != app_state) {
 			INFO("Mjyun APP: system restore\r\n");
 			app_state = APP_STATE_RESTORE;
@@ -274,68 +283,46 @@ app_start_check(uint32_t system_start_seconds)
 			sys_status.start_continue = 0;
 			// Save param
 			app_save();
-			// Restore system
-			mjyun_systemrecovery();
-			system_restore();
-			// Restart system
-			system_restart();
+
+			// waitting the mjyun_storage init is ok
+			os_timer_disarm(&delay_timer);
+			os_timer_setfn(&delay_timer, (os_timer_func_t *)factory_reset, NULL);
+			os_timer_arm(&delay_timer, 2000, 0);
 		}
-	} else if (sys_status.start_continue >= 9) {
-		os_timer_disarm(&app_smart_timer);
-		mjpwm_send_duty(
-		    PIN_DI,
-		    PIN_DCKI,
-		    0,
-		    0,
-		    4095,
-		    0
-		);
-
-	} else if (sys_status.start_continue >= 8) {
-		os_timer_disarm(&app_smart_timer);
-		mjpwm_send_duty(
-		    PIN_DI,
-		    PIN_DCKI,
-		    0,
-		    4095,
-		    0,
-		    0
-		);
-	} else if (sys_status.start_continue >= 7) {
-		os_timer_disarm(&app_smart_timer);
-		mjpwm_send_duty(
-		    PIN_DI,
-		    PIN_DCKI,
-		    4095,
-		    0,
-		    0,
-		    0
-		);
-
-	} else if (sys_status.start_continue >= 6) {
-		os_timer_disarm(&app_smart_timer);
-		mjpwm_send_duty(
-		    PIN_DI,
-		    PIN_DCKI,
-		    4095,
-		    4095,
-		    4095,
-		    4095
-		);
 	} else if (sys_status.start_continue >= 5) {
-		if (MJYUN_CONNECTED == mjyun_state()) {
-			if (APP_STATE_UPGRADE != app_state) {
-				INFO("Mjyun APP: OTA update\r\n");
-				app_state = APP_STATE_UPGRADE;
-				mjyun_check_update();
-			}
-		}
+		os_timer_disarm(&app_smart_timer);
+		mjpwm_send_duty(
+		    PIN_DI,
+		    PIN_DCKI,
+		    4095,
+		    0,
+		    0,
+		    0
+		);
+	} else if (sys_status.start_continue >= 4) {
+		os_timer_disarm(&app_smart_timer);
+		mjpwm_send_duty(
+		    PIN_DI,
+		    PIN_DCKI,
+		    0,
+		    4095,
+		    0,
+		    0
+		);
 	} else if (sys_status.start_continue >= 3) {
-		INFO("Mjyun APP: force into smart config mode\r\n");
-		/* wait the network_init is ok */
-		os_timer_disarm(&delay_timer);
-		os_timer_setfn(&delay_timer, (os_timer_func_t *)mjyun_forceentersmartlinkmode, NULL);
-		os_timer_arm(&delay_timer, 2000, 0);
+		if (APP_STATE_SMART != app_state) {
+			INFO("Mjyun APP: force into smart config mode\r\n");
+			app_state = APP_STATE_SMART;
+
+			/* wait the network_init is ok */
+			os_timer_disarm(&delay_timer);
+			os_timer_setfn(&delay_timer, (os_timer_func_t *)mjyun_forceentersmartlinkmode, NULL);
+			os_timer_arm(&delay_timer, 200, 0);
+
+			os_timer_disarm(&app_smart_timer);
+			os_timer_setfn(&app_smart_timer, (os_timer_func_t *)app_smart_timer_tick, NULL);
+			os_timer_arm(&app_smart_timer, 20, 1);
+		}
 	}
 	if ((WIFI_SMARTLINK_START == mjyun_state()) ||
 	    (WIFI_SMARTLINK_LINKING == mjyun_state()) ||
