@@ -62,7 +62,7 @@ UTS_LEN=64
 UTS_TRUNCATE="cut -b -$UTS_LEN"
 
 #FW_VERSION="$FW_VERSION-`date +%s`"
-FW_VERSION="$FW_VERSION-`date +%y%m%d%H%M%S`"
+FW_VERSION="`date +%y%m%d%H%M%S`"
 
 # Generate a temporary compile.h
 
