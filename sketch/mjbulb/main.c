@@ -111,8 +111,6 @@ void mjyun_disconnected()
 void ICACHE_FLASH_ATTR
 platform_init(void)
 {
-	app_load();
-	app_apply_settings();
 	gpio16_output_conf();
 	gpio16_output_set(1);
 
@@ -122,7 +120,7 @@ platform_init(void)
 	// execute app_start_check() every one second
 	network_system_timer_callback_register(app_start_check);
 
-	app_start_check(0);
+	//app_start_check(0);
 
 	mjyun_setssidprefix("MJY_");
 
@@ -134,10 +132,14 @@ platform_init(void)
 
 irom void system_init_done()
 {
+	/* wait for uart is ok */
+	os_delay_us(100);
 	INFO("\r\n\r\n\r\n\r\n\r\n\r\n");
 	INFO("\r\nWelcom to Noduino Open Bulb!\r\n");
 	INFO("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
 	INFO("%s", noduino_banner);
+
+	app_start_status();
 
 	// Init platform
 	platform_init();
@@ -145,6 +147,8 @@ irom void system_init_done()
 
 irom void user_init()
 {
+	app_load();
+
 #define DEV_MODE 1
 #if defined(DEV_MODE)
 	uart_init(BIT_RATE_115200, BIT_RATE_115200);
@@ -157,12 +161,6 @@ irom void user_init()
 	uart_init(BIT_RATE_9600, BIT_RATE_115200);
 #endif
 
-	// Wait serial port OK
-	os_delay_us(100);
-
-	// Set Wi-Fi mode
-	//wifi_set_opmode(STATIONAP_MODE);
-
 	mjpwm_cmd_t command = {
 		.scatter = MJPWM_CMD_SCATTER_APDM,
 		.frequency = MJPWM_CMD_FREQUENCY_DIVIDE_1,
@@ -173,6 +171,9 @@ irom void user_init()
 	};
 
 	mjpwm_init(PIN_DI, PIN_DCKI, command);
+
+	/* Light the led ASAP */
+	app_apply_settings();
 
 	system_init_done_cb(system_init_done);
 }

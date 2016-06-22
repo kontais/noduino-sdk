@@ -142,9 +142,13 @@ app_load(void)
 	}
 	sys_status.start_count += 1;
 	sys_status.start_continue += 1;
+	app_save();
+}
+
+void ICACHE_FLASH_ATTR app_start_status()
+{
 	INFO("Mjyun APP: start count:%d, start continue:%d\r\n",
 			sys_status.start_count, sys_status.start_continue);
-	app_save();
 }
 
 void ICACHE_FLASH_ATTR
