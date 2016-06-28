@@ -98,7 +98,7 @@ const mjyun_config_t mjyun_conf = {
 void mjyun_connected()
 {
 	// need to update the status in cloud
-	app_push_status();
+	app_push_status(NULL);
 
 	// stop to show the wifi status
 }
@@ -173,7 +173,7 @@ irom void user_init()
 	mjpwm_init(PIN_DI, PIN_DCKI, command);
 
 	/* Light the led ASAP */
-	app_apply_settings();
+	app_apply_settings(NULL);
 
 	system_init_done_cb(system_init_done);
 }

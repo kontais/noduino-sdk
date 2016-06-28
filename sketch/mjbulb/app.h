@@ -20,6 +20,7 @@ typedef struct system_status_t {
 	uint16 start_count;
 	uint8 start_continue;
 	mcu_status_t mcu_status;
+	uint8 packed[3];
 } __attribute__((aligned(4), packed)) system_status_t;
 
 typedef enum app_state_t {
@@ -30,10 +31,11 @@ typedef enum app_state_t {
 } app_state_t;
 
 void mjyun_receive(const char * event_name, const char * event_data);
-void app_apply_settings(void);
+void app_apply_settings(mcu_status_t *pst);
 void app_load(void);
 void app_save(void);
-void app_push_status(void);
+void app_push_status(mcu_status_t *pst);
+void app_check_mcu_save(mcu_status_t *st);
 void app_start_check(uint32_t system_start_seconds);
 void app_set_smart_effect(uint8_t effect);
 void ICACHE_FLASH_ATTR

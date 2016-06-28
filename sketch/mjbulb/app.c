@@ -30,17 +30,22 @@ fast_log2(float val)
 	return (val + log_2);
 }
 
-void ICACHE_FLASH_ATTR app_push_status()
+void ICACHE_FLASH_ATTR app_push_status(mcu_status_t *st)
 {
 	char msg[48];
 	os_memset(msg, 0, 48);
+
+	if (st == NULL)
+		st = &(sys_status.mcu_status);
+
 	os_sprintf(msg, "{\"r\":%d,\"g\":%d,\"b\":%d,\"w\":%d,\"s\":%d}",
-				sys_status.mcu_status.r,
-				sys_status.mcu_status.g,
-				sys_status.mcu_status.b,
-				sys_status.mcu_status.w,
-				sys_status.mcu_status.s
+				st->r,
+				st->g,
+				st->b,
+				st->w,
+				st->s
 			);
+
 	mjyun_publishstatus(msg);
 	INFO("Pushed status = %s\r\n", msg);
 }
@@ -52,7 +57,6 @@ mjyun_receive(const char * event_name, const char * event_data)
 	INFO("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 
 	if (0 == os_strcmp(event_name, "set")) {
-		//INFO("SET DATA\r\n");
 		cJSON * pD = cJSON_Parse(event_data);
 		if ((NULL != pD) && (cJSON_Object == pD->type)) {
 			cJSON * pR = cJSON_GetObjectItem(pD, "r");
@@ -60,28 +64,45 @@ mjyun_receive(const char * event_name, const char * event_data)
 			cJSON * pB = cJSON_GetObjectItem(pD, "b");
 			cJSON * pW = cJSON_GetObjectItem(pD, "w");
 			cJSON * pS = cJSON_GetObjectItem(pD, "s");
+
+			mcu_status_t mst;
+			mst.r = sys_status.mcu_status.r;
+			mst.g = sys_status.mcu_status.g;
+			mst.b = sys_status.mcu_status.b;
+			mst.w = sys_status.mcu_status.w;
+			mst.s = sys_status.mcu_status.s;
+
 			if ((NULL != pR) && (cJSON_Number == pR->type)) {
-				INFO("SET R = %d\r\n", pR->valueint);
-				sys_status.mcu_status.r = pR->valueint;
+				if (mst.r != pR->valueint) {
+					mst.r = pR->valueint;
+				}
 			}
 			if ((NULL != pG) && (cJSON_Number == pG->type)) {
-				INFO("SET G = %d\r\n", pG->valueint);
-				sys_status.mcu_status.g = pG->valueint;
+				if (mst.g != pG->valueint) {
+					mst.g = pG->valueint;
+				}
 			}
 			if ((NULL != pB) && (cJSON_Number == pB->type)) {
-				INFO("SET B = %d\r\n", pB->valueint);
-				sys_status.mcu_status.b = pB->valueint;
+				if (mst.b != pB->valueint) {
+					mst.b = pB->valueint;
+				}
 			}
 			if ((NULL != pW) && (cJSON_Number == pW->type)) {
-				INFO("SET W = %d\r\n", pW->valueint);
-				sys_status.mcu_status.w = pW->valueint;
+				if (mst.w != pW->valueint) {
+					mst.w = pW->valueint;
+				}
 			}
 			if ((NULL != pS) && (cJSON_Number == pS->type)) {
-				INFO("SET S = %d\r\n", pS->valueint);
-				sys_status.mcu_status.s = pS->valueint;
+				if (mst.s != pS->valueint) {
+					mst.s = pS->valueint;
+				}
 			}
-			app_apply_settings();
-			app_push_status();
+
+			app_apply_settings(&mst);
+			app_check_mcu_save(&mst);
+
+			// notify the other users
+			app_push_status(&mst);
 		} else {
 			INFO("%s: Error when parse JSON\r\n", __func__);
 		}
@@ -90,7 +111,7 @@ mjyun_receive(const char * event_name, const char * event_data)
 
 	if (0 == os_strcmp(event_name, "get")) {
 		INFO("RX Get status Request!\r\n");
-		app_push_status();
+		app_push_status(NULL);
 	}
 
 	if(os_strncmp(event_data, "ota", 3) == 0) {
@@ -100,20 +121,21 @@ mjyun_receive(const char * event_name, const char * event_data)
 }
 
 void ICACHE_FLASH_ATTR
-app_apply_settings(void)
+app_apply_settings(mcu_status_t *st)
 {
-	if (sys_status.mcu_status.s) {
+	if (st == NULL) {
+		st = &(sys_status.mcu_status);
+	}
+	if (st->s) {
+		// we only change the led color when user setup apparently
 		mjpwm_send_duty(
 		    PIN_DI,
 		    PIN_DCKI,
-		    (uint16_t)(4095) * sys_status.mcu_status.r / 255,
-		    (uint16_t)(4095) * sys_status.mcu_status.g / 255,
-		    (uint16_t)(4095) * sys_status.mcu_status.b / 255,
-		    (uint16_t)(4095) * sys_status.mcu_status.w / 255
+		    (uint16_t)(4095) * st->r / 255,
+		    (uint16_t)(4095) * st->g / 255,
+		    (uint16_t)(4095) * st->b / 255,
+		    (uint16_t)(4095) * st->w / 255
 		);
-
-		// we only save the status when user setup apparently
-		app_save();
 	} else {
 		mjpwm_send_duty(
 		    PIN_DI,
@@ -154,11 +176,36 @@ void ICACHE_FLASH_ATTR app_start_status()
 void ICACHE_FLASH_ATTR
 app_save(void)
 {
+	INFO("Flash Saved !\r\n");
 	// sys_status.mcu_status = local_mcu_status;
 	system_param_save_with_protect(
 	    (APP_START_SEC),
 	    (void *)(&sys_status),
 	    sizeof(sys_status));
+}
+
+inline void ICACHE_FLASH_ATTR
+app_check_mcu_save(mcu_status_t *st)
+{
+	if(st == NULL)
+		return;
+
+	if(st->s == 1 && (sys_status.mcu_status.r != st->r ||
+			sys_status.mcu_status.g != st->g ||
+			sys_status.mcu_status.b != st->b ||
+			sys_status.mcu_status.w != st->w)) {
+
+		INFO("mcu_status changed when led is on, need to save the new status into flash\r\n");
+		sys_status.mcu_status.r = st->r;
+		sys_status.mcu_status.g = st->g;
+		sys_status.mcu_status.b = st->b;
+		sys_status.mcu_status.w = st->w;
+
+		app_save();
+	}
+
+	if(sys_status.mcu_status.s != st->s)
+		sys_status.mcu_status.s = st->s;
 }
 
 void ICACHE_FLASH_ATTR
@@ -343,7 +390,7 @@ app_start_check(uint32_t system_start_seconds)
 		if (APP_STATE_SMART == app_state ||
 				mjyun_state() == MJYUN_CONNECTED) {
 			app_state = APP_STATE_NORMAL;
-			app_apply_settings();
+			app_apply_settings(NULL);
 			os_timer_disarm(&app_smart_timer);
 		}
 	}
