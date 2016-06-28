@@ -54,7 +54,7 @@ void ICACHE_FLASH_ATTR
 mjyun_receive(const char * event_name, const char * event_data)
 {
 	/* {"m":"set", "d":{"r":18,"g":100,"b":7,"w":0,"s":1000}} */
-	INFO("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
+	INFO("RECEIVED: key:value [%s]:[%s]\r\n", event_name, event_data);
 
 	if (0 == os_strcmp(event_name, "set")) {
 		cJSON * pD = cJSON_Parse(event_data);
@@ -156,9 +156,21 @@ app_load(void)
 	    0,
 	    (void *)(&sys_status),
 	    sizeof(sys_status));
+
+	uint32_t warm_boot = 0;
+	system_rtc_mem_read(64+20, (void *)&warm_boot, sizeof(warm_boot));
+	//INFO("rtc warm_boot = %X\r\n", warm_boot);
+
 	if (sys_status.init_flag) {
-		sys_status.mcu_status.s = 1;
-		// local_mcu_status = sys_status.mcu_status;
+		if (warm_boot != 0x66AA) {
+			INFO("Cold boot up, set the switch on!\r\n");
+			sys_status.mcu_status.s = 1;
+
+			warm_boot = 0x66AA;
+			system_rtc_mem_write(64+20, (void *)&warm_boot, sizeof(warm_boot));
+		} else {
+			INFO("Warm boot up, use the status saved in flash!\r\n");
+		}
 	} else {
 		sys_status.init_flag = 1;
 	}
@@ -184,28 +196,30 @@ app_save(void)
 	    sizeof(sys_status));
 }
 
-inline void ICACHE_FLASH_ATTR
+void ICACHE_FLASH_ATTR
 app_check_mcu_save(mcu_status_t *st)
 {
 	if(st == NULL)
 		return;
 
-	if(st->s == 1 && (sys_status.mcu_status.r != st->r ||
+	if(sys_status.mcu_status.r != st->r ||
 			sys_status.mcu_status.g != st->g ||
 			sys_status.mcu_status.b != st->b ||
-			sys_status.mcu_status.w != st->w)) {
+			sys_status.mcu_status.w != st->w ||
+			sys_status.mcu_status.s != st->s) {
 
-		INFO("mcu_status changed when led is on, need to save the new status into flash\r\n");
-		sys_status.mcu_status.r = st->r;
-		sys_status.mcu_status.g = st->g;
-		sys_status.mcu_status.b = st->b;
-		sys_status.mcu_status.w = st->w;
+		if(st->s == 1) {
+			INFO("saved the new status into flash when mcu_status changed when led is on\r\n");
+			sys_status.mcu_status.r = st->r;
+			sys_status.mcu_status.g = st->g;
+			sys_status.mcu_status.b = st->b;
+			sys_status.mcu_status.w = st->w;
+		}
+
+		sys_status.mcu_status.s = st->s;
 
 		app_save();
 	}
-
-	if(sys_status.mcu_status.s != st->s)
-		sys_status.mcu_status.s = st->s;
 }
 
 void ICACHE_FLASH_ATTR
