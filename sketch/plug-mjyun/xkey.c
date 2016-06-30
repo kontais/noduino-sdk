@@ -24,7 +24,7 @@ LOCAL void ICACHE_FLASH_ATTR
 xkey_long_press(void)
 {
 #ifdef DEBUG
-	os_printf("key long pressed\r\n");
+	INFO("key long pressed\r\n");
 #endif
     system_restore();
     system_restart();
@@ -36,7 +36,7 @@ xkey_short_press(void)
 	// reverse the status of relay
 	uint8_t st = (~relay_get_status()) & 0x1;
 #ifdef DEBUG
-	os_printf("key short pressed\r\n");
+	INFO("key short pressed\r\n");
 #endif
 
 	param_set_status(st);

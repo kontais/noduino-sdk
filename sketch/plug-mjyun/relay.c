@@ -20,7 +20,7 @@
 void relay_on()
 {
 #ifdef DEBUG
-	os_printf("set gpio4 to high\n");
+	INFO("set gpio4 to high\n");
 #endif
 	gpio_output_set(BIT4, 0, BIT4, 0);
 }
@@ -28,7 +28,7 @@ void relay_on()
 void relay_off()
 {
 #ifdef DEBUG
-	os_printf("set gpio4 to low\n");
+	INFO("set gpio4 to low\n");
 #endif
 	gpio_output_set(0, BIT4, BIT4, 0);
 }
