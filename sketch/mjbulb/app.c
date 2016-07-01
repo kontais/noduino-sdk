@@ -400,12 +400,14 @@ app_start_check(uint32_t system_start_seconds)
 			os_timer_setfn(&app_smart_timer, (os_timer_func_t *)app_smart_timer_tick, NULL);
 			os_timer_arm(&app_smart_timer, 20, 1);
 		}
-	} else {
-		if (APP_STATE_SMART == app_state ||
-				mjyun_state() == MJYUN_CONNECTED) {
-			app_state = APP_STATE_NORMAL;
-			app_apply_settings(NULL);
-			os_timer_disarm(&app_smart_timer);
-		}
+	} else if (APP_STATE_SMART == app_state &&
+			(mjyun_state() == WIFI_SMARTLINK_OK ||
+			 mjyun_state() == WIFI_AP_STATION_OK ||
+			 mjyun_state() == WIFI_STATION_OK ||
+			 mjyun_state() == MJYUN_CONNECTED)) {
+		app_state = APP_STATE_NORMAL;
+		app_apply_settings(NULL);
+		app_push_status(NULL);
+		os_timer_disarm(&app_smart_timer);
 	}
 }
