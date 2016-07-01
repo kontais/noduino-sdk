@@ -128,6 +128,7 @@ platform_init(void)
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
 	mjyun_run(&mjyun_conf);
+	wifi_set_sleep_type(MODEM_SLEEP_T);
 }
 
 irom void system_init_done()
