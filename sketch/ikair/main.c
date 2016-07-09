@@ -251,27 +251,17 @@ void mjyun_disconnected()
 	wifi_led_enable();
 }
 
-
-mjyun_ota_config_t mjyun_ota_conf = {
-	HW_VERSION,	/* hardware version */
-	FW_VERSION,	/* firmware version */
-	"user1",	/* firmware id1 */
-	"user2",	/* firmware id2 */
-};
-
-/*
- * 4285 --> 摩羯窗帘
- * 3707 --> 摩羯插座
- * 3708 --> 摩羯灯
- * 6287 --> 传感器
- */
 mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63",		/* MJYUN */
-	"6287",
+	"MJP2024657532",		/* MAIKE Sensor */
+	HW_VERSION,				/* 产品子id (一般用于微信设备) [选填]*/
+	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
-	"I will come back!",	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
-	&mjyun_ota_conf,
-	WITH_MQTT
+	"Device Offline",		/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+#ifdef LOW_POWER
+	0,
+#else
+	WITH_MQTT,
+#endif
 };
 
 irom void init_yun()
@@ -282,7 +272,7 @@ irom void init_yun()
 	mjyun_ondisconnected(mjyun_disconnected);
 
 	if (realtime == 1)
-		mjyun_conf.flag |= WITH_MQTT;
+		mjyun_conf.run_flag |= WITH_MQTT;
 	mjyun_run(&mjyun_conf);
 }
 
