@@ -28,7 +28,7 @@ sinclude .config
 SDK_INCDIR	+=
 
 # libraries used in this project
-LIBS		+= airkiss mqtt mjyun
+LIBS		+=
 
 # compiler flags using during compilation of source files
 CFLAGS		+=

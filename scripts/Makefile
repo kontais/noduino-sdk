@@ -19,7 +19,7 @@ ESPSDK_LDDIR	= ld
 # libraries used in this project, mainly provided by the ESPSDK
 LIBS		+= gcc
 LIBS		+= crypto espnow json lwip_536 lwip mesh net80211 phy pp pwm smartconfig ssl upgrade wpa wps main
-LIBS		+= driver
+LIBS		+= driver mjyun airkiss
 
 # toolchain
 XCC		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
