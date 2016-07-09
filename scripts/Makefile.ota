@@ -284,7 +284,7 @@ $(FW_BASE)/%.bin: $(USER1_OUT) $(USER2_OUT)
 
 	$(vecho) "Generate the bootloader bin..."
 	python $(FW_TOOL) $(USER1_OUT) 9 $(flash_mode) $(flash_freqdiv) $(flash_map) 1
-	@cp -f $(ESPSDK_BASE)/bin/$(CONFIG_OTA_BOOTLOADER).bin $(FW_BASE)/
+	@cp -f $(SDK_BASE)/bootloader/bin/$(CONFIG_OTA_BOOTLOADER).bin $(FW_BASE)/
 	@dd if=.boothead.bin of=$(FW_BASE)/$(CONFIG_OTA_BOOTLOADER).bin bs=1 conv=notrunc
 
 ifeq ($(CONFIG_OTA_BOOTLOADER), boot_v1.1)
