@@ -90,6 +90,7 @@ typedef unsigned char   bool;
 #define TRUE            true
 #define FALSE           false
 
+#define STORE_ATTR __attribute__((aligned(4)))
 
 #endif /* !__cplusplus */
 
