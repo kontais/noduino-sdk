@@ -187,7 +187,7 @@ void http_upload_temp(char *tt)
 	os_sprintf( URL,
 	            HTTP_UPLOAD_URL,
 	            mjyun_getdeviceid(),
-				mjyun_get_produce_id(),
+				mjyun_get_product_id(),
 	            str_trim(tt),
 	            cs);
 	http_get((const char *) URL , "", http_upload_temp_cb);
