@@ -252,7 +252,7 @@ void mjyun_disconnected()
 }
 
 mjyun_config_t mjyun_conf = {
-	"MJP2024657532",		/* Maike Noduino iKair */
+	"MJP2090591473",		/* Maike Noduino iKair */
 	HW_VERSION,				/* 产品子id (一般用于微信设备) [选填]*/
 	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
