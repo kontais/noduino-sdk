@@ -141,7 +141,7 @@ void http_upload_temp_error_handle()
 	if(upload_fail_cnt >= 3) {
 		// failed about 5min
 		os_printf("http pushed failed %d times, reset the system\r\n", upload_fail_cnt);
-		system_restart();
+		//system_restart();
 	}
 
 	//TODO: store the data in flash
@@ -172,7 +172,7 @@ void http_upload_temp(char *tt)
 {
 	uint8_t * URL = (uint8_t *) os_zalloc( os_strlen(HTTP_UPLOAD_URL) +
 	                  os_strlen( mjyun_getdeviceid() ) +
-	                  os_strlen( "gh_8356436e6809" ) +
+	                  os_strlen( mjyun_get_product_id() ) +
 	                  os_strlen( tt ) +
 	                  12);
 	if ( URL == NULL ) {
@@ -187,7 +187,7 @@ void http_upload_temp(char *tt)
 	os_sprintf( URL,
 	            HTTP_UPLOAD_URL,
 	            mjyun_getdeviceid(),
-				"gh_8356436e6809",
+				mjyun_get_produce_id(),
 	            str_trim(tt),
 	            cs);
 	http_get((const char *) URL , "", http_upload_temp_cb);
@@ -252,7 +252,7 @@ void mjyun_disconnected()
 }
 
 mjyun_config_t mjyun_conf = {
-	"MJP2024657532",		/* MAIKE Sensor */
+	"MJP2024657532",		/* Maike Noduino iKair */
 	HW_VERSION,				/* 产品子id (一般用于微信设备) [选填]*/
 	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
