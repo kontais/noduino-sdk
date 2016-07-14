@@ -28,7 +28,7 @@ sinclude .config
 SDK_INCDIR	+= include/noduino
 
 # libraries used in this project
-LIBS		+= mjpwm
+LIBS		+= mjpwm cirom
 
 # compiler flags using during compilation of source files
 CFLAGS		+=
