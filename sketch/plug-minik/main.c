@@ -121,8 +121,8 @@ void mjyun_disconnected()
 }
 
 const mjyun_config_t mjyun_conf = {
-	"MJP1004353832",		/* 产品id [必填] */
-	HW_VERSION,				/* 产品子id (一般用于微信设备) [选填]*/
+	"MJP1004353832",		/* MK WiFi Plug, use WiFi Ctrl of WXMP */
+	HW_VERSION,
 	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
 	"Device Offline",		/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
