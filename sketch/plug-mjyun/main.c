@@ -129,7 +129,7 @@ void mjyun_disconnected()
 }
 
 const mjyun_config_t mjyun_conf = {
-	"MJP1744417709",		/* DL plug */
+	"MJP1004353832",		/* MK WiFi Plug, use WiFi Ctrl of WXMP */
 	HW_VERSION,				/* 产品子id (一般用于微信设备) [选填]*/
 	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
