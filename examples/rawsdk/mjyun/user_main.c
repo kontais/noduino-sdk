@@ -15,41 +15,36 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
 */
-#include "ets_sys.h"
 #include "osapi.h"
-#include "os_type.h"
+#include "user_interface.h"
 #include "mem.h"
 #include "gpio.h"
 
-#include "noduino/esp8266_peri.h"
 #include "driver/uart.h"
 #include "mjyun.h"
 
 #include "compile.h"
 
-#define	DEBUG	1
+// GPIO2 control the onboard blue LED
 
-void switch_on()
+void led_on()
 {
-#ifdef DEBUG
 	os_printf("set gpio2 to low\n");
-#endif
 	gpio_output_set(0, BIT2, BIT2, 0);
 }
 
-void switch_off()
+void led_off()
 {
-#ifdef DEBUG
 	os_printf("set gpio2 to high\n");
-#endif
 	gpio_output_set(BIT2, 0, BIT2, 0);
 }
 
-void switch_init()
+void led_init()
 {
+	//Initialize the GPIO subsystem.
 	gpio_init();
 
-	//PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_GPIO15);
+	//Set GPIO2 to output mode
 	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
 }
 
@@ -118,42 +113,39 @@ void mjyun_receive(const char *event_name, const char *event_data)
 	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 	if(os_strncmp(event_data, "on", 2) == 0)
 	{
-#ifdef DEBUG
-		os_printf("set switch on\r\n");
-#endif
-		switch_on();
+		os_printf("set led on\r\n");
+		led_on();
+		mjyun_publishstatus("on");
 	}
 	if(os_strncmp(event_data, "off", 3) == 0)
 	{
-#ifdef DEBUG
-		os_printf("set switch off\r\n");
-#endif
-		switch_off();
+		os_printf("set led off\r\n");
+		led_off();
+		mjyun_publishstatus("off");
 	}
 }
 
 void mjyun_connected()
 {
+	// set the led off and notify the app
+	led_off();
+	mjyun_publishstatus("off");
 }
 
 void mjyun_disconnected()
 {
 }
 
-/*
- * 4285 --> 摩羯窗帘
- * 3707 --> 摩羯插座
- * 3708 --> 摩羯灯
- * 6287 --> 传感器
- */
 const mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63",				/* 产品id [必填]*/
-	"3707",							/*产品子id(一般用于微信设备) [选填]*/
-	"Hi, I'm coming!!!",			/*设备上线时，给app发送online消息中的附加数据，[选填]*/
-	"I will come back!!!"			/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
+	"MJP1251131669",		/* 产品 ID, MK MJYUN demo */
+	HW_VERSION,				/* Hardware Version */
+	FW_VERSION,				/* Firmware Version */
+	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
+	"Device Offline",		/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+	WITH_MQTT
 };
 
-void cos_check_ip()
+void init_yun()
 {
 	mjyun_statechanged(mjyun_stated_cb);
 	mjyun_ondata(mjyun_receive);
@@ -161,18 +153,19 @@ void cos_check_ip()
 	mjyun_ondisconnected(mjyun_disconnected);
 
 	mjyun_run(&mjyun_conf);
+	wifi_set_sleep_type(MODEM_SLEEP_T);
 }
 
 void user_init(void)
 {
-#ifdef DEBUG
 	uart_init(115200, 115200);
-#endif
 
-	os_printf("Welcome to MJYUN ... \r\n");
+	os_printf("\r\nWelcom to Noduino MJYUN Demo!\r\n");
 	os_printf("%s", noduino_banner);
 
-	switch_init();
+	led_init();
 
-	system_init_done_cb(cos_check_ip);
+	wifi_set_opmode(STATION_MODE);
+
+	system_init_done_cb(init_yun);
 }
