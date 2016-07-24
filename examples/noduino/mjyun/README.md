@@ -22,7 +22,13 @@ The target file is at build/ directory.
 Using following command to upload the firmware into hardware board:
 
 ```bash
-$ make flash
+$ make produce ESPPORT=COM6
+
+or:
+
+$ make produce ESPPORT=/dev/ttyUSB2
+...
+
 ```
 
 It use the ```/dev/ttyUSB0``` serial device to upload the firmware into board.
