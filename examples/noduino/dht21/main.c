@@ -20,14 +20,12 @@
 
 DHT21 dht21(D1);
 
-void ICACHE_FLASH_ATTR
-setup()
+irom void setup()
 {
 	serial_begin(115200);
 }
 
-void ICACHE_FLASH_ATTR
-loop()
+void loop()
 {
     char t_buf[8];
     char h_buf[8];
