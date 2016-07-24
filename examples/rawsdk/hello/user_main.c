@@ -16,7 +16,7 @@
  *
 */
 #include "osapi.h"
-#include "os_type.h"
+#include "user_interface.h"
 
 #include "driver/uart.h"
 
@@ -24,7 +24,7 @@ static volatile os_timer_t hello_timer;
 
 void hello_timerfunc(void *arg)
 {
-	os_printf("%s\n", "Hello World!");
+	os_printf("%s\r\n", "Hello World!");
 }
 
 //user_init is the user entry point of the Espressif SDK
@@ -32,6 +32,9 @@ void ICACHE_FLASH_ATTR user_init()
 {
 	//Initialize the uart0 and uart1 in 115200 bitrate
 	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+
+	//disable the wifi
+	wifi_set_opmode(NULL_MODE);
 
 	//Disable the timer
 	os_timer_disarm(&hello_timer);

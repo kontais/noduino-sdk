@@ -15,10 +15,8 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
 */
-#include "ets_sys.h"
 #include "osapi.h"
 #include "user_interface.h"
-#include "os_type.h"
 
 #include "driver/uart.h"
 
@@ -36,6 +34,9 @@ void *adc_timefunc()
 
 void ICACHE_FLASH_ATTR user_init(void)
 {
+	//disable the wifi
+	wifi_set_opmode(NULL_MODE);
+
 	uart_init(115200, 115200);
 
 	os_printf("\r\nSystem started ...\r\n");

@@ -9,7 +9,6 @@
  *
 */
 #include "osapi.h"
-#include "os_type.h"
 #include "user_interface.h"
 #include "driver/uart.h"
 #include "espnow.h"
