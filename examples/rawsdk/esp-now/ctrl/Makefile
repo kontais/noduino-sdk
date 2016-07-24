@@ -13,7 +13,7 @@ BUILD_DIR	= build
 FW_BASE		= build
 
 # base directory of the SDK package, absolute
-SDK_BASE		?= ../../..
+SDK_BASE		?= ../../../..
 
 # read the configuration file
 include $(SDK_BASE)/.config
