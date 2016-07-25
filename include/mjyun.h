@@ -10,18 +10,9 @@
 #define MJYUN_DEBUG(format, ...)
 #endif
 
-/*
- * 如果需要使用OTA功能，则使用mjyun_ota_config配置，否则忽略
- * OTA功能可能是平台相关的，不同硬件上该接口的实现可能不一致
- * 以下是ESP8266平台进行OTA所需要的必要参数
- */
-typedef struct
-{
-	const char* hardware_version;	/*设置硬件的当前版本，需要在云端新建硬件，然后获得该版本号 [选填]*/
-	const char* firmware_version;	/*设置固件的当前版本，需要在云端新建固件，然后获得该版本号 [选填]*/
-	const char* firmware_id_1;		/*设置运行在保护分区1的固件ID，该ID需要从云端后台获得。这两个ID对应的固件版本相同。 [选填]*/
-	const char* firmware_id_2;		/*设置运行在保护分区2的固件ID，该ID需要从云端后台获得。这两个ID对应的固件版本相同。 [选填]*/
-} mjyun_ota_config_t;
+/* mjyun flag */
+#define	WITH_MQTT				0x1
+#define	WITH_HTTPS				0x2
 
 /*
  * 对mjyun库进行配置
@@ -29,16 +20,13 @@ typedef struct
 typedef struct
 {
 	const char* product_id; 		/* 产品id, 可从mjyun官网后台获得 [必填]*/
-	const char* sub_pid; 			/*产品子id(一般用于微信设备) [选填]*/
+	const char* hardware_version;	/*设置硬件版本号[必填]*/
+	const char* firmware_version;	/*设置固件版本号[必填]*/
 	const char* online_words; 		/*设置mjyun服务器发送给app的设备上线(online)的附加数据 [该数据缺省为设备id] [选填]*/
 	const char* offline_words; 		/*设置mjyun服务器发送给app的设备离线消息(offline)的附加数据 [该数据缺省为设备id] [选填]*/
-	mjyun_ota_config_t *ota_conf;
-	uint32_t flag;
+	uint32_t run_flag;				/* WITH_MQTT WITH_HTTPS */
 } mjyun_config_t;
 
-/* mjyun flag */
-#define	WITH_MQTT				0x1
-#define	WITH_HTTPS				0x2
 
 typedef enum {
 	WIFI_IDLE, 						/*Wi-Fi空闲，常出现在设备刚刚启动且没有连接过任何SSID时*/
@@ -83,7 +71,6 @@ typedef void (*mjyun_state_callback)(/* mjyun_msgtype_t type ,*/mjyun_state_t st
  * Returns      : return 0 success, others fails
  *******************************************************************************/
 int mjyun_run(const mjyun_config_t* conf);
-int mjyun_ota_config(const mjyun_ota_config_t* conf);
 void mjyun_onconnected(mjyun_callback connectedCb);
 void mjyun_ondisconnected(mjyun_callback disconnectedCb);
 /*

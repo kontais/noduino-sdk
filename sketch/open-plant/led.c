@@ -21,8 +21,7 @@ static int led_status = 0;
 
 irom void led_init()
 {
-	led_off();
-
+	pinMode(3, OUTPUT);
 	// GPIO3: the wifi status led
 	wifi_status_led_install (3, PERIPHS_IO_MUX_U0RXD_U, FUNC_GPIO3);
 }
@@ -41,20 +40,18 @@ irom void wifi_led_disable()
 irom void led_on()
 {
 #ifdef DEBUG
-	os_printf("led on\r\n");
-	os_printf("set gpio3 to high\r\n");
+	INFO("led on\r\n");
 #endif
-	gpio_output_set(BIT3, 0, BIT3, 0);
+	digitalWrite(3, LOW);
 	led_status = 1;
 }
 
 irom void led_off()
 {
 #ifdef DEBUG
-	os_printf("led off\r\n");
-	os_printf("set gpio3 to low\r\n");
+	INFO("led off\r\n");
 #endif
-	gpio_output_set(0, BIT3, BIT3, 0);
+	digitalWrite(3, HIGH);
 	led_status = 0;
 }
 

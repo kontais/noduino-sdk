@@ -16,6 +16,7 @@
  *
 */
 #include "user_config.h"
+#include "compile.h"
 
 LOCAL void ICACHE_FLASH_ATTR
 mjyun_stated_cb(mjyun_state_t state)
@@ -86,18 +87,18 @@ mjyun_stated_cb(mjyun_state_t state)
 }
 
 const mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63", /* 产品id [必填] (摩羯云管理界面添加的微信原始ID)*/
-	"3708",/*产品子id(一般用于微信设备) [选填] (摩羯智能灯)*/
-	"Hi, I'm coming!!!",/*设备上线时，给app发送online消息中的附加数据，[选填]*/
-	"I will come back!!!",/*设备掉线时，给app发送offline消中的附加数据，[选填]*/
-	NULL,
+	"MJP9040252280",
+	HW_VERSION,
+	FW_VERSION,
+	FW_VERSION,
+	"Device Offline",
 	WITH_MQTT
 };
 
 void mjyun_connected()
 {
 	// need to update the status in cloud
-	app_push_status();
+	app_push_status(NULL);
 
 	// stop to show the wifi status
 }
@@ -110,25 +111,36 @@ void mjyun_disconnected()
 void ICACHE_FLASH_ATTR
 platform_init(void)
 {
-	app_load();
-	app_apply_settings();
 	gpio16_output_conf();
 	gpio16_output_set(1);
 
 	mjyun_statechanged(mjyun_stated_cb);
 	espnow_create();
+
+	// execute app_start_check() every one second
 	network_system_timer_callback_register(app_start_check);
-	app_start_check(0);
+
+	//app_start_check(0);
+
+	mjyun_setssidprefix("MJY_");
+
 	mjyun_ondata(mjyun_receive);
 	mjyun_onconnected(mjyun_connected);
 	mjyun_ondisconnected(mjyun_disconnected);
 	mjyun_run(&mjyun_conf);
+	wifi_set_sleep_type(MODEM_SLEEP_T);
 }
 
 irom void system_init_done()
 {
-	INFO("\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n");
-	INFO("\r\nSDK version:%s\r\n", system_get_sdk_version());
+	/* wait for uart is ok */
+	os_delay_us(100);
+	INFO("\r\n\r\n\r\n\r\n\r\n\r\n");
+	INFO("\r\nWelcom to Noduino Open Bulb!\r\n");
+	INFO("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
+	INFO("%s", noduino_banner);
+
+	app_start_status();
 
 	// Init platform
 	platform_init();
@@ -136,6 +148,8 @@ irom void system_init_done()
 
 irom void user_init()
 {
+	app_load();
+
 #define DEV_MODE 1
 #if defined(DEV_MODE)
 	uart_init(BIT_RATE_115200, BIT_RATE_115200);
@@ -148,14 +162,6 @@ irom void user_init()
 	uart_init(BIT_RATE_9600, BIT_RATE_115200);
 #endif
 
-	// Wait serial port OK
-	os_delay_us(100);
-
-	// Set Wi-Fi mode
-	wifi_set_opmode(STATIONAP_MODE);
-
-	mjyun_setssidprefix("MJLIGHT_");
-
 	mjpwm_cmd_t command = {
 		.scatter = MJPWM_CMD_SCATTER_APDM,
 		.frequency = MJPWM_CMD_FREQUENCY_DIVIDE_1,
@@ -166,6 +172,9 @@ irom void user_init()
 	};
 
 	mjpwm_init(PIN_DI, PIN_DCKI, command);
+
+	/* Light the led ASAP */
+	app_apply_settings(NULL);
 
 	system_init_done_cb(system_init_done);
 }

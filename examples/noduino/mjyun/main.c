@@ -19,8 +19,6 @@
 #include "mjyun.h"
 #include "compile.h"
 
-#define	DEBUG	1
-
 irom void mjyun_stated_cb(mjyun_state_t state)
 {
 	if (mjyun_state() != state)
@@ -82,13 +80,15 @@ irom void mjyun_stated_cb(mjyun_state_t state)
 	}
 }
 
-void switch_on()
+
+// GPIO2 control the onboard LED
+void led_on()
 {
 	os_printf("set gpio2 to low\n");
 	digitalWrite(2, LOW);
 }
 
-void switch_off()
+void led_off()
 {
 	os_printf("set gpio2 to high\n");
 	digitalWrite(2, HIGH);
@@ -98,22 +98,27 @@ irom void mjyun_receive(const char *event_name, const char *event_data)
 {
 	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 	if (os_strncmp(event_data, "on", 2) == 0) {
-		os_printf("set switch on\r\n");
-		switch_on();
+		os_printf("set led on\r\n");
+		led_on();
+
+		// notify the app
+		mjyun_publishstatus("on");
 	}
 	if (os_strncmp(event_data, "off", 3) == 0) {
-		os_printf("set switch off\r\n");
-		switch_off();
-	}
-	if (os_strncmp(event_data, "ota", 3) == 0) {
-		os_printf("OTA: upgrade the firmware!\r\n");
-		mjyun_mini_ota_start("ota/demo/files");
+		os_printf("set led off\r\n");
+		led_off();
+
+		// notify the app
+		mjyun_publishstatus("off");
 	}
 }
 
 void mjyun_connected()
 {
-	mjyun_publishstatus("off");
+	led_on();
+
+	// notify the app
+	mjyun_publishstatus("on");
 }
 
 void mjyun_disconnected()
@@ -121,21 +126,16 @@ void mjyun_disconnected()
 
 }
 
-/*
- * 4285 --> 摩羯窗帘
- * 3707 --> 摩羯插座
- * 8636 --> 摩羯插座2
- * 3708 --> 摩羯灯
- * 6287 --> 传感器
- */
 const mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63",		/* 产品id [必填] */
-	"8636",					/* 产品子id (一般用于微信设备) [选填] */
-	FW_VERSION,	/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
-	"I will come back!!!"	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+	"MJP1251131669",		/* 产品 ID, MK MJYUN demo */
+	HW_VERSION,				/* Hardware Version */
+	FW_VERSION,				/* Firmware Version */
+	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
+	"Device Offline",		/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+	WITH_MQTT
 };
 
-void init_yun()
+irom void init_yun()
 {
 	mjyun_statechanged(mjyun_stated_cb);
 	mjyun_ondata(mjyun_receive);
@@ -143,21 +143,31 @@ void init_yun()
 	mjyun_ondisconnected(mjyun_disconnected);
 
 	mjyun_run(&mjyun_conf);
-	os_printf("Welcome to MJYUN ... \r\n");
-	os_printf("%s", noduino_banner);
+
+	// For saving power
+	wifi_set_sleep_type(MODEM_SLEEP_T);
+}
+
+irom led_init()
+{
+	pinMode(2, OUTPUT);
 }
 
 irom void setup()
 {
 	uart_init(115200, 115200);
 
-	pinMode(2, OUTPUT);
-	digitalWrite(2, HIGH);
+	os_printf("\r\nWelcom to Noduino MJYUN Demo!\r\n");
+	os_printf("%s", noduino_banner);
+
+	led_init();
+
+	wifi_set_opmode(STATION_MODE);
 
 	init_yun();
 }
 
-irom void loop()
+void loop()
 {
 	os_printf("MJYUN device heart beat!\r\n");
 	delay(2000);

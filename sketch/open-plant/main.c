@@ -22,69 +22,69 @@
 
 #define DEBUG				1
 
-static uint32_t realtime = 0;
+static uint32_t realtime = 1;
 static uint32_t network_state = 0;
 
 irom static void mjyun_stated_cb(mjyun_state_t state)
 {
     if (mjyun_state() != state)
-        os_printf("Platform: mjyun_state error \r\n");
+        INFO("Platform: mjyun_state error \r\n");
 
     switch (state)
     {
         case WIFI_IDLE:
-            os_printf("Platform: WIFI_IDLE\r\n");
+            INFO("Platform: WIFI_IDLE\r\n");
             break;
         case WIFI_SMARTLINK_LINKING:
-            os_printf("Platform: WIFI_SMARTLINK_LINKING\r\n");
+            INFO("Platform: WIFI_SMARTLINK_LINKING\r\n");
             break;
         case WIFI_SMARTLINK_FINDING:
-            os_printf("Platform: WIFI_SMARTLINK_FINDING\r\n");
+            INFO("Platform: WIFI_SMARTLINK_FINDING\r\n");
             break;
         case WIFI_SMARTLINK_TIMEOUT:
-            os_printf("Platform: WIFI_SMARTLINK_TIMEOUT\r\n");
+            INFO("Platform: WIFI_SMARTLINK_TIMEOUT\r\n");
             break;
         case WIFI_SMARTLINK_GETTING:
-            os_printf("Platform: WIFI_SMARTLINK_GETTING\r\n");
+            INFO("Platform: WIFI_SMARTLINK_GETTING\r\n");
             break;
         case WIFI_SMARTLINK_OK:
-            os_printf("Platform: WIFI_SMARTLINK_OK\r\n");
+            INFO("Platform: WIFI_SMARTLINK_OK\r\n");
             break;
         case WIFI_AP_OK:
-            os_printf("Platform: WIFI_AP_OK\r\n");
+            INFO("Platform: WIFI_AP_OK\r\n");
             break;
         case WIFI_AP_ERROR:
-            os_printf("Platform: WIFI_AP_ERROR\r\n");
+            INFO("Platform: WIFI_AP_ERROR\r\n");
             break;
         case WIFI_AP_STATION_OK:
-            os_printf("Platform: WIFI_AP_STATION_OK\r\n");
+            INFO("Platform: WIFI_AP_STATION_OK\r\n");
 			network_state = WIFI_AP_STATION_OK;
             break;
         case WIFI_AP_STATION_ERROR:
-            os_printf("Platform: WIFI_AP_STATION_ERROR\r\n");
+            INFO("Platform: WIFI_AP_STATION_ERROR\r\n");
             break;
         case WIFI_STATION_OK:
-            os_printf("Platform: WIFI_STATION_OK\r\n");
+            INFO("Platform: WIFI_STATION_OK\r\n");
 			network_state = WIFI_STATION_OK;
             break;
         case WIFI_STATION_ERROR:
-            os_printf("Platform: WIFI_STATION_ERROR\r\n");
+            INFO("Platform: WIFI_STATION_ERROR\r\n");
             break;
         case WIFI_STA_DISCONNECTED:
-            os_printf("Platform: WIFI_STA_DISCONNECTED\r\n");
+            INFO("Platform: WIFI_STA_DISCONNECTED\r\n");
 			network_state = WIFI_STA_DISCONNECTED;
             break;
         case MJYUN_CONNECTING:
-            os_printf("Platform: MJYUN_CONNECTING\r\n");
+            INFO("Platform: MJYUN_CONNECTING\r\n");
             break;
         case MJYUN_CONNECTING_ERROR:
-            os_printf("Platform: MJYUN_CONNECTING_ERROR\r\n");
+            INFO("Platform: MJYUN_CONNECTING_ERROR\r\n");
             break;
         case MJYUN_CONNECTED:
-            os_printf("Platform: MJYUN_CONNECTED \r\n");
+            INFO("Platform: MJYUN_CONNECTED \r\n");
             break;
         case MJYUN_DISCONNECTED:
-            os_printf("Platform: MJYUN_DISCONNECTED\r\n");
+            INFO("Platform: MJYUN_DISCONNECTED\r\n");
             break;
         default:
             break;
@@ -94,15 +94,15 @@ irom static void mjyun_stated_cb(mjyun_state_t state)
 irom void mjyun_receive(const char *event_name, const char *event_data)
 {
 #ifdef DEBUG
-	os_printf("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
+	INFO("RECEIVED: key:value [%s]:[%s]", event_name, event_data);
 #endif
 
 	if(os_strncmp(event_data, "ota", 3) == 0)
 	{
 #ifdef DEBUG
-		os_printf("OTA: upgrade the firmware!\r\n");
+		INFO("OTA: upgrade the firmware!\r\n");
 #endif
-		mjyun_mini_ota_start("ota/dev/temp/files");
+		mjyun_mini_ota_start("ota/dev/open-plant/files");
 	}
 }
 
@@ -140,7 +140,7 @@ void http_upload_temp_error_handle()
 	upload_fail_cnt++;
 	if(upload_fail_cnt >= 3) {
 		// failed about 5min
-		os_printf("http pushed failed %d times, reset the system\r\n", upload_fail_cnt);
+		INFO("http pushed failed %d times, reset the system\r\n", upload_fail_cnt);
 		system_restart();
 	}
 
@@ -152,9 +152,9 @@ void http_upload_temp_cb(char *response, int http_status, char *full_response)
 	if ( HTTP_STATUS_GENERIC_ERROR != http_status )
 	{
 #ifdef DEBUG
-		os_printf( "%s: strlen(full_response)=%d\r\n", __func__, strlen( full_response ) );
-		os_printf( "%s: response=%s<EOF>\r\n", __func__, response );
-		os_printf( "%s: memory left=%d\r\n", __func__, system_get_free_heap_size() );
+		INFO( "%s: strlen(full_response)=%d\r\n", __func__, strlen( full_response ) );
+		INFO( "%s: response=%s<EOF>\r\n", __func__, response );
+		INFO( "%s: memory left=%d\r\n", __func__, system_get_free_heap_size() );
 #endif
 
 		if(os_strncmp(response, "ok", 2) != 0)
@@ -163,7 +163,7 @@ void http_upload_temp_cb(char *response, int http_status, char *full_response)
 	} else {
 		http_upload_temp_error_handle();
 #ifdef DEBUG
-		os_printf( "%s: http_status=%d\r\n", __func__, http_status );
+		INFO( "%s: http_status=%d\r\n", __func__, http_status );
 #endif
 	}
 }
@@ -177,7 +177,7 @@ void http_upload_temp(char *tt)
 	                  12);
 	if ( URL == NULL ) {
 #ifdef DEBUG
-		os_printf( "%s: not enough memory\r\n", __func__ );
+		INFO( "%s: not enough memory\r\n", __func__ );
 #endif
 		return;
 	}
@@ -187,12 +187,12 @@ void http_upload_temp(char *tt)
 	os_sprintf( URL,
 	            HTTP_UPLOAD_URL,
 	            mjyun_getdeviceid(),
-				"gh_8356436e6809",
+				"gh_95fae1ba6fa0",
 	            str_trim(tt),
 	            cs);
 	http_get((const char *) URL , "", http_upload_temp_cb);
 #ifdef DEBUG
-	os_printf("%s\r\n", (char *)URL);
+	INFO("%s\r\n", (char *)URL);
 #endif
 	os_free( URL );
 }
@@ -206,8 +206,8 @@ void push_temp_humi()
 	dtostrf(sht2x_GetTemperature(), 5, 2, t_buf),
 	dtostrf(sht2x_GetHumidity(), 5, 2, h_buf);
 
-	os_printf("Temperature(C): %s\r\n", t_buf);
-	os_printf("Humidity(%RH): %s\r\n", h_buf);
+	INFO("Temperature(C): %s\r\n", t_buf);
+	INFO("Humidity(%RH): %s\r\n", h_buf);
 
 	pcf8563_now();
 
@@ -230,15 +230,15 @@ irom void time_init()
 {
 	//struct tm *tblock;
 	uint32_t cs = time(NULL);
-	os_printf("Current timestamp: %d\r\n", cs);
+	INFO("Current timestamp: %d\r\n", cs);
 
 	time_t timer = cs;
-	os_printf("%s @ %d\r\n", __func__, __LINE__);
+	INFO("%s @ %d\r\n", __func__, __LINE__);
 
 	set_dt_from_seconds(cs);
-	os_printf("%s @ %d\r\n", __func__, __LINE__);
+	INFO("%s @ %d\r\n", __func__, __LINE__);
 	pcf8563_set(NULL);
-	os_printf("Update the latest time to RTC PCF8563!\r\n");
+	INFO("Update the latest time to RTC PCF8563!\r\n");
 	pcf8563_now();
 }
 
@@ -259,25 +259,13 @@ void mjyun_disconnected()
 }
 
 
-mjyun_ota_config_t mjyun_ota_conf = {
-	HW_VERSION,	/* hardware version */
-	FW_VERSION,	/* firmware version */
-	"user1",	/* firmware id1 */
-	"user2",	/* firmware id2 */
-};
-
-/*
- * 4285 --> 摩羯窗帘
- * 3707 --> 摩羯插座
- * 3708 --> 摩羯灯
- * 6287 --> 传感器
- */
 mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63",		/* MJYUN */
-	"6287",
-	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
-	"I will come back!",	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
-	&mjyun_ota_conf,
+	"MJP1841706138",	/* MAIKE WiFi Soil Sensor */
+	HW_VERSION,
+	FW_VERSION,
+	FW_VERSION,
+	"Device Offline",
+	0
 };
 
 irom void init_yun()
@@ -288,7 +276,7 @@ irom void init_yun()
 	mjyun_ondisconnected(mjyun_disconnected);
 
 	if (realtime == 1)
-		mjyun_conf.flag |= WITH_MQTT;
+		mjyun_conf.run_flag |= WITH_MQTT;
 	mjyun_run(&mjyun_conf);
 }
 
@@ -297,8 +285,11 @@ irom void setup()
 #ifdef DEBUG
 	uart_init(115200, 115200);
 #endif
-	os_printf("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
-	os_printf("%s", noduino_banner);
+	os_delay_us(100);
+	INFO("\r\n\r\n\r\n\r\n\r\n\r\n");
+	INFO("\r\nWelcom to Noduino Open Plant!\r\n");
+	INFO("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
+	INFO("%s", noduino_banner);
 
 	pcf8563_init();
 	pcf8563_now();

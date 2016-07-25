@@ -120,27 +120,15 @@ void mjyun_disconnected()
 	wifi_led_enable();
 }
 
-mjyun_ota_config_t mjyun_ota_conf = {
-	HW_VERSION,	/* hardware version */
-	FW_VERSION,	/* firmware version */
-	"user1",	/* firmware id1 */
-	"user2",	/* firmware id2 */
-};
-
-/*
- * 3707 --> 摩羯插座
- * 8636 --> 摩羯插座2
- */
 const mjyun_config_t mjyun_conf = {
-	"gh_51111441aa63",		/* 产品id [必填] */
-	"3707",					/* 产品子id (一般用于微信设备) [选填]*/
+	"MJP1004353832",		/* MK WiFi Plug, use WiFi Ctrl of WXMP */
+	HW_VERSION,
+	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
-	"Device Offline",	/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
+	"Device Offline",		/* 设备掉线时，给app发送 offline 消息中的附加数据，[选填] */
 #ifdef LOW_POWER
-	&mjyun_ota_conf,
 	0,
 #else
-	&mjyun_ota_conf,
 	WITH_MQTT,
 #endif
 };

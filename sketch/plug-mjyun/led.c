@@ -20,8 +20,8 @@
 void ICACHE_FLASH_ATTR red_led_on()
 {
 #ifdef DEBUG
-	os_printf("led on\r\n");
-	os_printf("set gpio12 to low\r\n");
+	INFO("led on\r\n");
+	INFO("set gpio12 to low\r\n");
 #endif
 	gpio_output_set(0, BIT12, BIT12, 0);
 }
@@ -29,8 +29,8 @@ void ICACHE_FLASH_ATTR red_led_on()
 void ICACHE_FLASH_ATTR red_led_off()
 {
 #ifdef DEBUG
-	os_printf("led off\r\n");
-	os_printf("set gpio12 to high\r\n");
+	INFO("led off\r\n");
+	INFO("set gpio12 to high\r\n");
 #endif
 	gpio_output_set(BIT12, 0, BIT12, 0);
 }

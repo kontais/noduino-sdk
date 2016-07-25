@@ -21,6 +21,13 @@
 #include "httpclient.h"
 
 #define	DEBUG			    1
+
+#ifdef DEBUG
+#define INFO( format, ... ) os_printf( format, ## __VA_ARGS__ )
+#else
+#define INFO( format, ... )
+#endif
+
 #define	MQTT_SEND_RATE_SEC	2
 #define	HTTP_SEND_RATE_MIN	3
 

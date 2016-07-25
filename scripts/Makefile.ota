@@ -19,7 +19,7 @@ ESPSDK_LDDIR	= ld
 # libraries used in this project, mainly provided by the ESPSDK
 LIBS		+= gcc
 LIBS		+= crypto espnow json lwip_536 lwip mesh net80211 phy pp pwm smartconfig ssl upgrade wpa wps main
-LIBS		+= driver
+LIBS		+= driver mjyun airkiss
 
 # toolchain
 XCC		?= $(TOOLCHAIN_DIR)/xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc
@@ -56,6 +56,7 @@ ESPTOOL_PY	?= $(TOOLCHAIN_DIR)/bin/esptool.py
 CONFIG_BOOT_ADDR ?= 0x00000
 
 ifeq ($(CONFIG_FLASH_SIZE), 512KB)
+CONFIG_RFCAL_ADDR	?= 0x7B000
 CONFIG_RFINIT_ADDR	?= 0x7C000
 CONFIG_SYSCONF_ADDR	?= 0x7D000
 CONFIG_YUNCONF_ADDR	?= 0x74000
@@ -71,6 +72,7 @@ user2_addr = 0x41000
 endif
 
 ifeq ($(CONFIG_FLASH_SIZE), 1MB)
+CONFIG_RFCAL_ADDR	?= 0xFB000
 CONFIG_RFINIT_ADDR	?= 0xFC000
 CONFIG_SYSCONF_ADDR	?= 0xFD000
 CONFIG_YUNCONF_ADDR	?= 0xF4000
@@ -87,6 +89,7 @@ user2_addr = 0x81000
 endif
 
 ifeq ($(CONFIG_FLASH_SIZE), 2MB)
+CONFIG_RFCAL_ADDR ?= 0x1FB000
 CONFIG_RFINIT_ADDR ?= 0x1FC000
 CONFIG_SYSCONF_ADDR ?= 0x1FD000
 CONFIG_YUNCONF_ADDR ?= 0x1F4000
@@ -118,6 +121,7 @@ endif
 endif
 
 ifeq ($(CONFIG_FLASH_SIZE), 4MB)
+CONFIG_RFCAL_ADDR ?= 0x3FB000
 CONFIG_RFINIT_ADDR ?= 0x3FC000
 CONFIG_SYSCONF_ADDR ?= 0x3FD000
 CONFIG_YUNCONF_ADDR ?= 0x3F4000
@@ -340,12 +344,14 @@ produce: all
 				-ca $(CONFIG_SYSCONF_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin				\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x1000))) -cf $(ESPSDK_BASE)/bin/blank.bin		\
 				-ca $(shell printf "0x%x" $$(($(CONFIG_SYSCONF_ADDR)+0x2000))) -cf $(ESPSDK_BASE)/bin/blank.bin		\
+				-ca $(CONFIG_RFCAL_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin				\
 				-ca $(CONFIG_RFINIT_ADDR) -cf $(ESPSDK_BASE)/bin/$(CONFIG_RF_INIT_DATA)	\
 				-ca $(CONFIG_BOOT_ADDR) -cf $(FW_BASE)/$(CONFIG_OTA_BOOTLOADER).bin		\
 				-ca $(user1_addr) -cf $(FW_BASE)/user1.bin
 
 rfinit:
 	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) 			\
+				-ca $(CONFIG_RFCAL_ADDR) -cf $(ESPSDK_BASE)/bin/blank.bin				\
 				-ca $(CONFIG_RFINIT_ADDR) -cf $(ESPSDK_BASE)/bin/$(CONFIG_RF_INIT_DATA)
 
 sysclean:
