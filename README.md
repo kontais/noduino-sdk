@@ -9,7 +9,7 @@ This project brings support for ESP8266 chip to the professional embeded environ
 
 It has a lot of cool examples and reference sketches. You can make a smart IoT devices quickly based on these sketches.
 
-It's based on Espressif SDK 1.4.0
+It's based on Espressif SDK 1.5.4.1
 
 
 ### Quick Start
@@ -27,7 +27,6 @@ $ ./gen.py
 
 # try the first example
 $ cd ../example/noduino/blink
-$ make
 
 # upload the example to dev board through serial
 $ make flash
@@ -38,4 +37,4 @@ You can try other cool examples in example directory
 ### Reference
 
 * [Noduino](http://noduino.org)
-* [ESP8266 WIKI](http://wiki.jackslab.org/ESP8266)
+* [WIKI](http://wiki.jackslab.org/Noduino)
