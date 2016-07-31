@@ -5,7 +5,7 @@ Open Plug Reference Firmware
 
 Open Plug used resource:
 
-1. GPIO14 control the relay
+1. GPIO12 control the relay
 2. GPIO0 related to the key (pull up, pressed is low)
 3. GPIO3 (U0RX) control the blue LED
 4. Red LED show the state of the relay (no related gpio)
