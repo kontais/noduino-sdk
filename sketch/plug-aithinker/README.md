@@ -1,7 +1,18 @@
-Small K mini Smart Plug Reference Firmware
-===========================================
+Old Ai-Thinker Smart Plug Reference Firmware
+=============================================
 
 ### Overview
+
+![Plug Ai-Thinker](plug-aithinker-1.jpg)
+
+
+![Plug Ai-Thinker](plug-aithinker-2.jpg)
+
+
+![Plug Ai-Thinker](plug-aithinker-3.jpg)
+
+
+### Pin Resource
 
 Old Smart Plug of Ai-Thinker:
 
@@ -28,8 +39,21 @@ The target file is at build/ directory.
 
 ### Upload
 
+Using a FT232RL USB to Serial Board, and connect:
+
+* FT232_RXD -----> Plug_TX
+* FT232_TXD -----> Plug_RX
+* FT232_GND -----> Plug_GND
+* FT232_GND ------> Plug_GPIO0
+
+* FT232_VCC3.3 ---> Plug_3.3V (Must 3.3V Power supply!)
+
+
+![Plug Ai-Thinker](plug-aithinker-4.jpg)
+
+
 ```bash
-$ make flash
+$ make produce ESPPORT=/dev/ttyUSB0
 ```
 
 It use the ```/dev/ttyUSB0``` serial device to upload the firmware into board.
