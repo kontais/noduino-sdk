@@ -3,6 +3,17 @@ Small K mini Smart Plug Reference Firmware
 
 ### Overview
 
+![Plug miniK](plug-minik-1.jpg)
+
+
+![Plug miniK](plug-minik-2.jpg)
+
+
+![Plug miniK](plug-minik-3.jpg)
+
+
+### Pin Resource
+
 Small K mini resource:
 
 1. GPIO15 control the relay
@@ -28,8 +39,24 @@ The target file is at build/ directory.
 
 ### Upload
 
+Using a FT232RL USB to Serial Board, and connect:
+
+* FT232_GND -----> minik_GND
+* FT232_RXD -----> minik_TX
+* FT232_TXD -----> minik_RX
+* FT232_GND ------> minik_GPIO0
+
+And then connect the 3.3V to power up the board:
+
+* FT232_VCC3.3 ---> Plug_3.3V (Must 3.3V Power supply!)
+
+
+![Plug miniK Upload](plug-minik-4.jpg)
+
+
+
 ```bash
-$ make flash
+$ make produce ESPPORT=/dev/ttyUSB0
 ```
 
 It use the ```/dev/ttyUSB0``` serial device to upload the firmware into board.
