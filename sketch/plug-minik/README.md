@@ -48,7 +48,7 @@ Using a FT232RL USB to Serial Board, and connect:
 
 And then connect the 3.3V to power up the board:
 
-* FT232_VCC3.3 ---> Plug_3.3V (Must 3.3V Power supply!)
+* FT232_VCC3.3 ---> Plug_3.3V (Power supply must be 3.3V!)
 
 
 ![Plug miniK Upload](plug-minik-4.jpg)

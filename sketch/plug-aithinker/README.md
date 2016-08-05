@@ -46,7 +46,9 @@ Using a FT232RL USB to Serial Board, and connect:
 * FT232_GND -----> Plug_GND
 * FT232_GND ------> Plug_GPIO0
 
-* FT232_VCC3.3 ---> Plug_3.3V (Must 3.3V Power supply!)
+Then connect the 3.3V to power up the board:
+
+* FT232_VCC3.3 ---> Plug_3.3V (Power supply must be 3.3V!)
 
 
 ![Plug Ai-Thinker](plug-aithinker-4.jpg)

@@ -3,6 +3,17 @@ Open Plug Reference Firmware
 
 ### Overview
 
+![Open Plug](doc/open-plug-1.jpg)
+
+
+![Open Plug](doc/open-plug-2.jpg)
+
+
+![Open Plug](doc/open-plug-layout.jpg)
+
+
+### Pin Resource
+
 Open Plug used resource:
 
 1. GPIO12 control the relay
@@ -28,8 +39,20 @@ The target file is at build/ directory.
 
 ### Upload
 
+Using a FT232RL USB to Serial Board, and connect:
+
+* FT232_RXD -----> Plug_TX
+* FT232_TXD -----> Plug_RX
+* FT232_GND -----> Plug_GND
+* FT232_GND ------> Plug_GPIO0
+
+Then connect the 3.3V to power up the board:
+
+* FT232_VCC3.3 ---> Plug_3.3V (Power supply must be 3.3V!)
+
+
 ```bash
-$ make produce
+$ make produce ESPPORT=/dev/ttyUSB0
 ```
 
 It use the ```/dev/ttyUSB0``` serial device to upload the firmware into board.
