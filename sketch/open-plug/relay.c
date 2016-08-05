@@ -18,7 +18,7 @@
 #include "user_config.h"
 
 //uint8_t relay_pin = 4;	/* For v0.2 HEX-Relay board, D8(GPIO4) */
-uint8_t relay_pin = 12;		/* D6(GPIO14) control the relay */
+uint8_t relay_pin = 12;		/* D5(GPIO12) control the relay */
 
 void relay_init()
 {
