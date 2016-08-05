@@ -9,7 +9,7 @@ Open Plug Reference Firmware
 ![Open Plug](doc/open-plug-2.jpg)
 
 
-![Open Plug](doc/open-plug-layout.jpg)
+![Open Plug](doc/open-plug-layout.png)
 
 
 ### Pin Resource
