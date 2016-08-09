@@ -3,6 +3,15 @@
 
 ### Overview
 
+![iBaihe](../ctrl5relay/doc/ibaihe-v0.8-top.jpg)
+
+
+![iBaihe](../ctrl5relay/doc/ibaihe-v0.8-pcb.jpg)
+
+
+### Pin Resource
+
+
 1. GPIO13 control the 1st relay
 2. GPIO12 control the 2nd relay (pull up, pressed is low)
 3. GPIO14 control the 3rd relay
@@ -27,7 +36,7 @@ The target file is at build/ directory.
 ### Upload
 
 ```bash
-$ make flash
+$ make produce ESPPORT=/dev/ttyUSB0 
 ```
 
 It use the ```/dev/ttyUSB0``` serial device to upload the firmware into board.
