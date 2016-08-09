@@ -3,6 +3,17 @@
 
 ### Overview
 
+![iBaihe](doc/ibaihe-v0.8-top.jpg)
+
+
+![iBaihe](doc/ibaihe-v0.8-bottom.jpg)
+
+
+![iBaihe](doc/ibaihe-v0.8-pcb.jpg)
+
+
+### Pin Resource
+
 1. GPIO13(D4) control the 1st relay
 2. GPIO12(D5) control the 2nd relay (pull up, pressed is low)
 3. GPIO14(D6) control the 3rd relay
