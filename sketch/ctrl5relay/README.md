@@ -1,4 +1,4 @@
-4-way relay controller Reference Firmware
+5-way relay controller Reference Firmware
 ===========================================
 
 ### Overview
