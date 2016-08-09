@@ -37,4 +37,6 @@ void param_save(void);
 void app_push_status(relay_status_t *st);
 void app_check_set_push_save(relay_status_t *st);
 
+void toggle_status();
+
 #endif
