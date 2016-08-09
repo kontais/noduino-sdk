@@ -43,6 +43,8 @@ void relay_init();
 void relay_set_status(relay_status_t *st);
 void relay_get_status(relay_status_t *st);
 
+void toggle_status();
+
 void led_init();
 void wifi_led_enable();
 void wifi_led_disable();

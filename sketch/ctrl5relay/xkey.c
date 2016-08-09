@@ -31,6 +31,7 @@ irom void xkey_long_press(void)
 irom void xkey_short_press(void)
 {
 	// reverse the status of relay
+	toggle_status();
 	INFO("key short pressed\r\n");
 }
 

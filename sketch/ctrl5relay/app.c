@@ -88,3 +88,16 @@ irom void app_check_set_push_save(relay_status_t *st)
 		param_save();
 	}
 }
+
+irom void toggle_status()
+{
+	ctrl_st.relay_status.r1 = (~ctrl_st.relay_status.r1) & 0x1;
+	ctrl_st.relay_status.r2 = (~ctrl_st.relay_status.r2) & 0x1;
+	ctrl_st.relay_status.r3 = (~ctrl_st.relay_status.r3) & 0x1;
+	ctrl_st.relay_status.r4 = (~ctrl_st.relay_status.r4) & 0x1;
+	ctrl_st.relay_status.r5 = (~ctrl_st.relay_status.r5) & 0x1;
+
+	relay_set_status(NULL);
+	app_push_status(NULL);
+	param_save();
+}
