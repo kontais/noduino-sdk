@@ -1,7 +1,11 @@
 4-way relay controller Reference Firmware
 ===========================================
 
+
 ### Overview
+
+* [Quick Start in Chinese](http://wiki.jackslab.org/IBaihe_QuickStart)
+
 
 ![iBaihe](../ctrl5relay/doc/ibaihe-v0.8-top.jpg)
 

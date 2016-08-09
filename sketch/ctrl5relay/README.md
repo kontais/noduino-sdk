@@ -3,6 +3,9 @@
 
 ### Overview
 
+* [Quick Start in Chinese](http://wiki.jackslab.org/IBaihe_QuickStart)
+
+
 ![iBaihe](doc/ibaihe-v0.8-top.jpg)
 
 
