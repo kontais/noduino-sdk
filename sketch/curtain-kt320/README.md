@@ -3,10 +3,10 @@ Dooya Curtain Motor (KT320) Reference Firmware
 
 ### Overview
 
-1. GPIO15 (D3) control the open
-2. GPIO13 (D4) control the close
-3. GPIO12 (D5) count the open encoder
-4. GPIO14 (D6) count the close encoder
+1. GPIO15 (D3) control the open (CW)
+2. GPIO13 (D4) control the close (CCW)
+3. GPIO4 (D8) count the open encoder (CW)
+4. GPIO5 (D9) count the close encoder (CCW)
 
 
 ### Build
