@@ -44,4 +44,4 @@ include $(SDK_BASE)/scripts/Makefile
 endif
 
 recover:
-	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) -ca 0x0 -cf ./fw/miniK-25l80.bin
+	-$(ESPTOOL) -cd $(CONFIG_BOARD) -cb $(CONFIG_ESPBAUD) -cp $(CONFIG_ESPPORT) -ca 0x0 -cf ./target.bin
