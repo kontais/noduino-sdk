@@ -17,32 +17,27 @@
 */
 #include "user_config.h"
 
+/*
+ * pos = 0 is closed
+ * pos = 100 is opened
+ *
+ */
+static os_timer_t check_pos_timer;
+
 void curtain_open()
 {
 	INFO("curtain open switch\n");
-#if 1
 	digitalWrite(D3, HIGH);
 	delayMicroseconds(100000);
 	digitalWrite(D3, LOW);
-#else
-	gpio_output_set(BIT13, 0, BIT13, 0);
-	os_delay_us(100000);
-	gpio_output_set(0, BIT13, BIT13, 0);
-#endif
 }
 
 void curtain_close()
 {
 	INFO("curtain close switch\n");
-#if 1
 	digitalWrite(D4, HIGH);
 	delayMicroseconds(100000);
 	digitalWrite(D4, LOW);
-#else
-	gpio_output_set(BIT12, 0, BIT12, 0);
-	os_delay_us(100000);
-	gpio_output_set(0, BIT12, BIT12, 0);
-#endif
 }
 
 void curtain_stop()
@@ -50,14 +45,14 @@ void curtain_stop()
 	INFO("curtain stop\n");
 	switch (param_get_status())
 	{
-   		case 0:	
-			// re-enter to stop the close process
-			// need to check the runing state!
+		case 0: 
+			//re-enter to stop the close process
+			// set the runing state in encoder interrupt!
 			curtain_close();
 			break;
 		case 2:
 			// re-enter to stop the open process
-			// need to check the runing state!
+			// set the runing state in encoder interrupt!
 			curtain_open();
 			break;
 	}
@@ -65,15 +60,44 @@ void curtain_stop()
 
 irom void curtain_init()
 {
+	/* Init the ctrl pin */
 	pinMode(D3, OUTPUT);
 	pinMode(D4, OUTPUT);
 
-	digitalWrite(D3, LOW);
-	digitalWrite(D4, LOW);
+	//digitalWrite(D3, HIGH);
+	//digitalWrite(D4, HIGH);
 }
+
+void check_encoder_pos(void *parm)
+{
+	uint32_t target_pos = *((uint32_t *) parm);
+
+	INFO("check encoder pos timer: target_pos = %d\r\n", target_pos);
+	INFO("current pos = %d\r\n", param_get_position());
+
+	int epos = encoder_pos();
+
+	if (encoder_direction()) {
+		if (epos >= target_pos) {
+			os_timer_disarm(&check_pos_timer);
+			param_set_position(epos);
+			curtain_stop();
+		}
+	} else {
+		if (epos <= target_pos) {
+			os_timer_disarm(&check_pos_timer);
+			param_set_position(epos);
+			curtain_stop();
+		}
+	}
+}
+
+static uint32_t tt_pos; 
 
 void curtain_set_status(int status, int pos)
 {
+	tt_pos = (uint32_t) pos;
+
 	int delta;
 
 	// only need to process the stop status
@@ -86,17 +110,26 @@ void curtain_set_status(int status, int pos)
 		if(delta > 0) {
 			// open
 			curtain_open();
-			INFO("set curtain open (100%)\r\n");
 			param_set_status(2);
+			INFO("set curtain open\r\n");
+			// need to start a timer to check the encoder
+			// when meetting the pos, call the curtain_stop() 
+			os_timer_disarm(&check_pos_timer);
+			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
+			os_timer_arm(&check_pos_timer, encoder_circle()/2 + 5, 1);
+
 		} else if (delta < 0) {
 			// close
 			curtain_close();
-			INFO("set curtain close (0%)\r\n");
 			param_set_status(0);
+			INFO("set curtain close\r\n");
+			// need to start a timer to check the encoder
+			os_timer_disarm(&check_pos_timer);
+			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
+			os_timer_arm(&check_pos_timer, encoder_circle()/2 + 5, 1);
 		}
 	}
 
-	param_set_position(pos);
 	param_save();
 }
 
@@ -107,7 +140,7 @@ void curtain_set_status_and_publish(int status, int pos)
 
 	curtain_set_status(status, pos);
 
-	os_sprintf(msg, "{\"status\":%d,\"position\":%d}", status, pos);
+	os_sprintf(msg, "{\"status\":%d,\"position\":%d}", param_get_status(), param_get_position());
 	mjyun_publishstatus(msg);
 }
 

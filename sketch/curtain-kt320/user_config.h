@@ -47,9 +47,15 @@ void curtain_publish_status();
 void param_set_status(int status);
 void param_set_positon(int pos);
 int param_get_status(void);
-int param_get_postion(void);
+int param_get_position(void);
 void param_save(void);
 void param_init();
+
+bool encoder_direction();
+int encoder_pos();
+void encoder_reset();
+void encoder_init();
+uint32_t encoder_circle();
 
 //void led_init();
 //void wifi_led_enable();

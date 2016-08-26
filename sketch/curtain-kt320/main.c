@@ -168,6 +168,7 @@ irom void setup(void)
 
 	param_init();
 	curtain_init();
+	encoder_init();
 
 	curtain_set_status(param_get_status(), param_get_position());
 

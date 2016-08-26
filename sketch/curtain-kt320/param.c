@@ -20,9 +20,21 @@
 struct dooya_saved_param {
 	int status;
 	int position;
+	int cw_pos_max;
+	int ccw_pos_min;
 };
 
 LOCAL struct dooya_saved_param dooya_param;
+
+int param_get_pos_max(void)
+{
+	return dooya_param.cw_pos_max;
+}
+
+int param_get_pos_min(void)
+{
+	return dooya_param.ccw_pos_min;
+}
 
 int param_get_status(void)
 {
@@ -32,6 +44,16 @@ int param_get_status(void)
 int param_get_position(void)
 {
 	return dooya_param.position;
+}
+
+void param_set_pos_max(int s)
+{
+	dooya_param.cw_pos_max = s;
+}
+
+void param_set_pos_min(int s)
+{
+	dooya_param.ccw_pos_min = s;
 }
 
 void param_set_status(int st)
@@ -59,13 +81,21 @@ void ICACHE_FLASH_ATTR param_init()
 		       sizeof(struct dooya_saved_param));
 
 	// init data of spi flash
-	if (dooya_param.status == 0xff) {
+	if (dooya_param.status == 0xffffffff) {
 		INFO("Invalid status value, reset to 0!\n");
 		dooya_param.status = 0;
 	}
-	if (dooya_param.position == 0xff) {
+	if (dooya_param.position == 0xffffffff) {
 		INFO("Invalid position value, reset to 0!\n");
 		dooya_param.position = 0;
+	}
+	if (dooya_param.cw_pos_max == 0xffffffff) {
+		INFO("Invalid pos max value, reset to 8000!\n");
+		dooya_param.cw_pos_max = 8000;
+	}
+	if (dooya_param.ccw_pos_min == 0xffffffff) {
+		INFO("Invalid pos min value, reset to 8000!\n");
+		dooya_param.ccw_pos_min = 8000;
 	}
 
 	INFO("Saved Status is: %d\n", param_get_status());
