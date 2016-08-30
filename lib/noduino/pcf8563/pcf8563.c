@@ -74,7 +74,7 @@ irom static uint8_t conv2d(const char *p)
 	return 10 * v + *++p - '0';
 }
 
-irom void set_dt_from_int (uint16_t y, uint8_t m, uint8_t d,
+irom static void set_dt_from_int (uint16_t y, uint8_t m, uint8_t d,
 		uint8_t hh, uint8_t mm, uint8_t ss)
 {
 	if (y >= 2000)
@@ -91,7 +91,7 @@ irom void set_dt_from_int (uint16_t y, uint8_t m, uint8_t d,
  * DateTime implementation - ignores time zones and DST changes
  * NOTE: also ignores leap seconds, see http://en.wikipedia.org/wiki/Leap_second
  */
-irom void set_dt_from_seconds(uint32_t t)
+irom static void set_dt_from_seconds(uint32_t t)
 {
 	t -= SECONDS_FROM_1970_TO_2000;	// bring to 2000 timestamp from 1970
 
@@ -123,7 +123,7 @@ irom void set_dt_from_seconds(uint32_t t)
 }
 
 /* sample input: date = "Dec 26 2009", time = "12:34:56" */
-irom void set_dt_from_str(const char *date, const char *time)
+irom static void set_dt_from_str(const char *date, const char *time)
 {
 	dt.yOff = conv2d(date + 9);
 
@@ -158,12 +158,6 @@ irom void set_dt_from_str(const char *date, const char *time)
 	dt.hh = conv2d(time);
 	dt.mm = conv2d(time + 3);
 	dt.ss = conv2d(time + 6);
-}
-
-irom void print_dt()
-{
-	os_printf("PCF8563 Time: %04d-%02d-%02d %02d:%02d:%02d\r\n",
-			dt.yOff+2000, dt.m, dt.d, dt.hh, dt.mm, dt.ss);
 }
 
 irom uint8_t day_of_week(const DateTime_t *pdt)
@@ -217,6 +211,32 @@ irom void pcf8563_set(const DateTime_t *pdt)
 	wire_endTransmission();
 }
 
+irom void pcf8563_set_from_int(uint16_t y, uint8_t m, uint8_t d,
+							uint8_t hh, uint8_t mm, uint8_t ss)
+{
+	set_dt_from_int(y, m, d, hh, mm, ss);
+	pcf8563_set(NULL);
+}
+
+/* sample input: date = "Dec 26 2009", time = "12:34:56" */
+irom void pcf8563_set_from_str(const char *date, const char *time)
+{
+	set_dt_from_str(date, time);
+	pcf8563_set(NULL);
+}
+
+irom void pcf8563_set_from_seconds(uint32_t t)
+{
+	set_dt_from_seconds(t);
+	pcf8563_set(NULL);
+}
+
+irom void pcf8563_print()
+{
+	os_printf("PCF8563 Time: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+			dt.yOff+2000, dt.m, dt.d, dt.hh, dt.mm, dt.ss);
+}
+
 irom uint32_t pcf8563_now()
 {
 	wire_beginTransmission(PCF8563_ADDR);
@@ -233,6 +253,5 @@ irom uint32_t pcf8563_now()
 	uint16_t y = bcd2bin(wire_read()) + 2000;
 
 	set_dt_from_int(y, m, d, hh, mm, ss);
-	print_dt();
 	return unixtime(&dt);
 }

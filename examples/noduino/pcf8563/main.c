@@ -1,7 +1,16 @@
 /*
- *  Copyright (c) 2016 - 2026 MaiKe Labs
+ *  Copyright (c) 2015 - 2025 MaiKe Labs
  *
- *  Library for PCF8563 RTC Chip
+ *  Example of BH1750 digital light library usage.
+ *
+ *  Using the default high resolution mode and then makes
+ *   a light level reading every second.
+ *
+ *  Connect VCC of the BH1750 sensor to 3.3V (NOT 5.0V!)
+ *  Connect GND to Ground
+ *  Connect SCL to i2c clock - GPIO4
+ *  Connect SDA to i2c data  - GPIO5
+ *  Connect ADD-NC or GND
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -17,29 +26,22 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
 */
-#ifndef __PCF8563_H__
-#define __PCF8563_H__
 
-typedef struct DateTime {
-	uint8_t yOff;
-	uint8_t m;
-	uint8_t d;
-	uint8_t hh;
-	uint8_t mm;
-	uint8_t ss;
-} DateTime_t;
+#include "noduino.h"
+#include "pcf8563.h"
 
-// 32-bit times as seconds since 1/1/1970
-uint32_t dt_unixtime(void);
+irom void setup()
+{
+	serial_begin(115200);
+	pcf8563_init();
+	pcf8563_set_from_int(2016, 8, 28, 12, 0, 0);
 
-void pcf8563_init();
-void pcf8563_set(const DateTime_t *dt);
-void pcf8563_set_from_seconds(uint32_t t);
-void pcf8563_set_from_str(const char* date, const char* time);
-void pcf8563_set_from_int(uint16_t y, uint8_t m, uint8_t d,
-							uint8_t hh, uint8_t mm, uint8_t ss);
+	serial_printf("PCF8563 RTC Example!\r\n");
+}
 
-uint32_t pcf8563_now();
-void pcf8563_print();
-
-#endif
+void loop()
+{
+	pcf8563_now();
+	pcf8563_print();
+	delay(2000);
+}
