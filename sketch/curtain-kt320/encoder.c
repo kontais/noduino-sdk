@@ -90,12 +90,16 @@ uint32_t encoder_circle(void)
 		if (circtime[i] != 0) {
 			acc += circtime[i];	
 		} else {
-			encoder_circle_time = acc / i / 1000;
-			return encoder_circle_time;
+			goto COMP;
 		}
 	}
 
-	encoder_circle_time = acc / i / 1000;
+COMP:
+	if (i != 0) {
+		encoder_circle_time = acc / i / 1000;
+	} else {
+		encoder_circle_time = 70;
+	}
 
 	if (encoder_circle_time <= 0 ||
 			encoder_circle_time > 1500) {
