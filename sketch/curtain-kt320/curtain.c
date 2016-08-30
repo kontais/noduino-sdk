@@ -116,7 +116,7 @@ void curtain_set_status(int status, int pos)
 			// when meetting the pos, call the curtain_stop() 
 			os_timer_disarm(&check_pos_timer);
 			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
-			os_timer_arm(&check_pos_timer, encoder_circle()/2 + 5, 1);
+			os_timer_arm(&check_pos_timer, 6 * encoder_circle(), 1);
 
 		} else if (delta < 0) {
 			// close
@@ -126,7 +126,7 @@ void curtain_set_status(int status, int pos)
 			// need to start a timer to check the encoder
 			os_timer_disarm(&check_pos_timer);
 			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
-			os_timer_arm(&check_pos_timer, encoder_circle()/2 + 5, 1);
+			os_timer_arm(&check_pos_timer, 6 * encoder_circle(), 1);
 		}
 	}
 
