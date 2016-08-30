@@ -65,6 +65,11 @@ bool encoder_direction()
  */
 int encoder_pos()
 {
+	if (cw_pos_max == ccw_pos_min) {
+		// encoder init state
+		return 0;
+	}
+
 	int t = 100 * (cnt - ccw_pos_min) / (cw_pos_max - ccw_pos_min);
 
 	if (t < 0)
@@ -135,7 +140,7 @@ static void do_encoder_a()
 	}
 }
 
-void check_encoder()
+static void check_encoder()
 {
 	static int test = 0;
 	
@@ -174,5 +179,5 @@ irom void encoder_init()
 
 	os_timer_disarm(&check_encoder_timer);
 	os_timer_setfn(&check_encoder_timer, (os_timer_func_t *)check_encoder, NULL);
-	os_timer_arm(&check_encoder_timer, 70/2 + 5, 1);
+	os_timer_arm(&check_encoder_timer, 560, 1); /* 70ms a count, 8 counts is a motor circle */
 }
