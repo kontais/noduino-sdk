@@ -118,8 +118,10 @@ void encoder_reset()
 	ccw_pos_min = 8000;
 }
 
-static void do_encoder_a()
+void do_encoder_a()
 {
+	noInterrupts();
+
 	static uint32_t ts = 0;
 
 	if (ts != 0) {
@@ -142,14 +144,16 @@ static void do_encoder_a()
 		if (cnt < ccw_pos_min)
 			ccw_pos_min = cnt;
 	}
+
+	interrupts();
 }
 
-static void check_encoder()
+void check_encoder()
 {
-	static int test = 0;
+	static int test = -9999;
 	static bool need_pub= true;
 	
-	if (test != 0) {
+	if (test != -9999) {
 		if (cnt > test) {
 			/* cw go */
 			param_set_status(2);
