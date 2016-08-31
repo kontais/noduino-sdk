@@ -27,17 +27,17 @@ static os_timer_t check_pos_timer;
 void curtain_open()
 {
 	INFO("curtain open switch\n");
-	digitalWrite(D3, HIGH);
+	digitalWrite(D4, HIGH);
 	delayMicroseconds(100000);
-	digitalWrite(D3, LOW);
+	digitalWrite(D4, LOW);
 }
 
 void curtain_close()
 {
 	INFO("curtain close switch\n");
-	digitalWrite(D4, HIGH);
+	digitalWrite(D5, HIGH);
 	delayMicroseconds(100000);
-	digitalWrite(D4, LOW);
+	digitalWrite(D5, LOW);
 }
 
 void curtain_stop()
@@ -61,29 +61,32 @@ void curtain_stop()
 irom void curtain_init()
 {
 	/* Init the ctrl pin */
-	pinMode(D3, OUTPUT);
 	pinMode(D4, OUTPUT);
+	pinMode(D5, OUTPUT);
 
-	//digitalWrite(D3, HIGH);
 	//digitalWrite(D4, HIGH);
+	//digitalWrite(D5, HIGH);
 }
 
 void check_encoder_pos(void *parm)
 {
 	uint32_t target_pos = *((uint32_t *) parm);
 
-	INFO("check encoder pos timer: target_pos = %d\r\n", target_pos);
-	INFO("current pos = %d\r\n", param_get_position());
+	INFO("check encoder pos: target_pos = %d\r\n", target_pos);
+	INFO("param pos = %d\r\n", param_get_position());
 
 	int epos = encoder_pos();
+	INFO("encoder pos = %d\r\n", epos);
 
 	if (encoder_direction()) {
+		/* cw */
 		if (epos >= target_pos) {
 			os_timer_disarm(&check_pos_timer);
 			param_set_position(epos);
 			curtain_stop();
 		}
 	} else {
+		/* ccw */
 		if (epos <= target_pos) {
 			os_timer_disarm(&check_pos_timer);
 			param_set_position(epos);
@@ -111,7 +114,7 @@ void curtain_set_status(int status, int pos)
 			// open
 			curtain_open();
 			param_set_status(2);
-			INFO("set curtain open\r\n");
+			INFO("set curtain open to %d position\r\n", pos);
 			// need to start a timer to check the encoder
 			// when meetting the pos, call the curtain_stop() 
 			os_timer_disarm(&check_pos_timer);
@@ -122,7 +125,7 @@ void curtain_set_status(int status, int pos)
 			// close
 			curtain_close();
 			param_set_status(0);
-			INFO("set curtain close\r\n");
+			INFO("set curtain close to %d position\r\n", pos);
 			// need to start a timer to check the encoder
 			os_timer_disarm(&check_pos_timer);
 			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
