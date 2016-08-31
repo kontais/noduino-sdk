@@ -64,8 +64,8 @@ irom void curtain_init()
 	pinMode(D4, OUTPUT);
 	pinMode(D5, OUTPUT);
 
-	//digitalWrite(D4, HIGH);
-	//digitalWrite(D5, HIGH);
+	digitalWrite(D4, LOW);
+	digitalWrite(D5, LOW);
 }
 
 void check_encoder_pos(void *parm)
@@ -127,8 +127,6 @@ void curtain_set_status(int status, int pos)
 			os_timer_arm(&check_pos_timer, 6 * encoder_circle(), 1);
 		}
 	}
-
-	param_save();
 }
 
 void curtain_set_status_and_publish(int status, int pos)
@@ -137,9 +135,6 @@ void curtain_set_status_and_publish(int status, int pos)
 	os_memset(msg, 0, 32);
 
 	curtain_set_status(status, pos);
-
-	os_sprintf(msg, "{\"status\":%d,\"position\":%d}", param_get_status(), param_get_position());
-	mjyun_publishstatus(msg);
 }
 
 void curtain_publish_status()
