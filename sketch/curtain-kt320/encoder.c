@@ -147,19 +147,30 @@ static void do_encoder_a()
 static void check_encoder()
 {
 	static int test = 0;
+	static bool need_pub= true;
 	
 	if (test != 0) {
 		if (cnt > test) {
 			/* cw go */
 			param_set_status(2);
+			param_set_position(encoder_pos());
+			need_pub = true;
 		} else if (cnt < test) {
 			/* ccw go */
 			param_set_status(0);
+			param_set_position(encoder_pos());
+			need_pub = true;
 		} else {
 			/* do not move */
 			param_set_status(1);
+			param_set_position(encoder_pos());
+			if (need_pub) {
+				curtain_publish_status();
+				need_pub = false;
+			}
 		}
-		param_set_position(encoder_pos());
+		//param_set_position(encoder_pos());
+		//curtain_publish_status();
 	}
 
 	test = cnt;
