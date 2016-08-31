@@ -82,14 +82,12 @@ void check_encoder_pos(void *parm)
 		/* cw */
 		if (epos >= target_pos) {
 			os_timer_disarm(&check_pos_timer);
-			param_set_position(epos);
 			curtain_stop();
 		}
 	} else {
 		/* ccw */
 		if (epos <= target_pos) {
 			os_timer_disarm(&check_pos_timer);
-			param_set_position(epos);
 			curtain_stop();
 		}
 	}
@@ -107,13 +105,11 @@ void curtain_set_status(int status, int pos)
 	if(status == 1) {
 		INFO("set curtain stop\r\n");
 		curtain_stop();
-		param_set_status(1);
 	} else {
 		delta = pos - param_get_position();
 		if(delta > 0) {
 			// open
 			curtain_open();
-			param_set_status(2);
 			INFO("set curtain open to %d position\r\n", pos);
 			// need to start a timer to check the encoder
 			// when meetting the pos, call the curtain_stop() 
@@ -124,7 +120,6 @@ void curtain_set_status(int status, int pos)
 		} else if (delta < 0) {
 			// close
 			curtain_close();
-			param_set_status(0);
 			INFO("set curtain close to %d position\r\n", pos);
 			// need to start a timer to check the encoder
 			os_timer_disarm(&check_pos_timer);
