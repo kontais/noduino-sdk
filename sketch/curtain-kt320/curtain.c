@@ -107,7 +107,7 @@ void curtain_set_status(int status, int pos)
 		curtain_stop();
 	} else {
 		delta = pos - param_get_position();
-		if(delta > 0 && param_get_status() != 2) {
+		if((pos == 100 || delta > 0) && param_get_status() != 2) {
 			// open
 			curtain_open();
 			INFO("set curtain open to %d position\r\n", pos);
@@ -117,7 +117,7 @@ void curtain_set_status(int status, int pos)
 			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
 			os_timer_arm(&check_pos_timer, 6 * encoder_circle(), 1);
 
-		} else if (delta < 0 && param_get_status() != 0) {
+		} else if ((pos == 0 || delta < 0) && param_get_status() != 0) {
 			// close
 			curtain_close();
 			INFO("set curtain close to %d position\r\n", pos);
