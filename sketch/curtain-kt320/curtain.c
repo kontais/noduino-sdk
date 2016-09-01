@@ -45,7 +45,7 @@ void curtain_stop()
 	INFO("curtain stop\n");
 	switch (param_get_status())
 	{
-		case 0: 
+		case 0:
 			//re-enter to stop the close process
 			// set the runing state in encoder interrupt!
 			curtain_close();
@@ -70,34 +70,48 @@ irom void curtain_init()
 
 void check_encoder_pos(void *parm)
 {
-	uint32_t target_pos = *((uint32_t *) parm);
+	int target_pos = *((int *) parm);
 
 	INFO("check encoder pos: target_pos = %d\r\n", target_pos);
-	INFO("param pos = %d\r\n", param_get_position());
+	//INFO("param pos = %d\r\n", param_get_position());
 
-	int epos = encoder_pos();
-	INFO("encoder pos = %d\r\n", epos);
+	//int epos = encoder_pos();
+	INFO("epos = %d\r\n", encoder_pos());
 
-	if (encoder_direction()) {
-		/* cw */
-		if (epos >= target_pos) {
+	int epos = param_get_position();
+	INFO("param pos = %d\r\n", epos);
+
+	switch (param_get_status())
+	{
+		case 2:
+			/* cw running */
+			if (epos >= target_pos) {
+				os_timer_disarm(&check_pos_timer);
+				INFO("cw, epos >= target_pos, disarm!\r\n");
+				curtain_stop();
+			}
+			break;
+		case 0:
+			/* ccw running */
+			if (epos <= target_pos) {
+				os_timer_disarm(&check_pos_timer);
+				INFO("ccw, epos <= target_pos, disarm!\r\n");
+				curtain_stop();
+			}
+			break;
+		case 1:
+			/* stopped */
+			INFO("stopped, disarm!\r\n");
 			os_timer_disarm(&check_pos_timer);
-			curtain_stop();
-		}
-	} else {
-		/* ccw */
-		if (epos <= target_pos) {
-			os_timer_disarm(&check_pos_timer);
-			curtain_stop();
-		}
+			break;
 	}
 }
 
-static uint32_t tt_pos; 
+static int tt_pos;
 
 void curtain_set_status(int status, int pos)
 {
-	tt_pos = (uint32_t) pos;
+	tt_pos = pos;
 
 	int delta;
 
@@ -112,19 +126,21 @@ void curtain_set_status(int status, int pos)
 			curtain_open();
 			INFO("set curtain open to %d position\r\n", pos);
 			// need to start a timer to check the encoder
-			// when meetting the pos, call the curtain_stop() 
+			// when meetting the pos, call the curtain_stop()
+			delayMicroseconds(500000);
 			os_timer_disarm(&check_pos_timer);
 			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
-			os_timer_arm(&check_pos_timer, 6 * encoder_circle(), 1);
+			os_timer_arm(&check_pos_timer, 20 * encoder_circle(), 1);
 
 		} else if ((pos == 0 || delta < 0) && param_get_status() != 0) {
 			// close
 			curtain_close();
 			INFO("set curtain close to %d position\r\n", pos);
 			// need to start a timer to check the encoder
+			delayMicroseconds(500000);
 			os_timer_disarm(&check_pos_timer);
 			os_timer_setfn(&check_pos_timer, (os_timer_func_t *)check_encoder_pos, &tt_pos);
-			os_timer_arm(&check_pos_timer, 6 * encoder_circle(), 1);
+			os_timer_arm(&check_pos_timer, 20 * encoder_circle(), 1);
 		}
 	}
 }

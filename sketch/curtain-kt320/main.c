@@ -95,7 +95,7 @@ void mjyun_receive(const char *event_name, const char *event_data)
 				int st = pS->valueint;
 				int pos = pP->valueint;
 
-				INFO("set curtain\r\n");
+				INFO("rx mqtt, set curtain\r\n");
 				curtain_set_status_and_publish(st, pos);
 			}
 		} else {
@@ -170,7 +170,7 @@ irom void setup(void)
 	curtain_init();
 	encoder_init();
 
-	curtain_set_status(param_get_status(), param_get_position());
+	//curtain_set_status(param_get_status(), param_get_position());
 
 	init_yun();
 }

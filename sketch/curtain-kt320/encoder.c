@@ -67,17 +67,56 @@ int encoder_pos()
 {
 	if (cw_pos_max == ccw_pos_min) {
 		// encoder init state
-		return 0;
+		switch (param_get_status())
+		{
+			case 0:
+				return 100;
+				break;
+			case 2:
+				return 0;
+				break;
+			case 1:
+				return 0;
+				break;
+		}
 	}
 
-	int t = 100 * (cnt - ccw_pos_min) / (cw_pos_max - ccw_pos_min);
+	int t = (100 * (cnt - ccw_pos_min)) / (cw_pos_max - ccw_pos_min);
+	INFO("ecoder_pos t = %d\r\n", t);
 
-	if (t < 0)
-		t = 0;
-
-	if (t > 100)
-		t = 100;
-
+	if (t <= 0) {
+		/*
+		 * cnt <= ccw_pos_min
+		 * In the state of computing the min pos of encoder
+		 *
+		 */
+		switch (param_get_status())
+		{
+			case 0:
+			case 2:
+				t = 100;
+				break;
+			case 1:
+				t = 0;
+				break;
+		}
+	} else if (t >= 100) {
+		/*
+		 * cnt >= cw_pos_max
+		 * In the state of computing the max pos of encoder
+		 *
+		 */
+		switch (param_get_status())
+		{
+			case 0:
+			case 2:
+				t = 0;
+				break;
+			case 1:
+				t = 100;
+				break;
+		}
+	}
 	return t;
 }
 
@@ -102,7 +141,7 @@ COMP:
 	}
 
 	if (encoder_circle_time <= 0 ||
-			encoder_circle_time > 1500) {
+			encoder_circle_time > 100) {
 		encoder_circle_time = 70;
 	} 
 
@@ -122,6 +161,8 @@ void do_encoder_a()
 {
 	noInterrupts();
 
+	cw = digitalRead(D9);
+
 	static uint32_t ts = 0;
 
 	if (ts != 0) {
@@ -129,8 +170,6 @@ void do_encoder_a()
 		ci = (ci + 1) % 30;
 	}
 	ts = system_get_time();
-
-	cw = digitalRead(D9);
 
 	if (cw == 1) {
 		cnt++;
@@ -153,19 +192,31 @@ void check_encoder()
 	static int test = -9999;
 	static bool need_pub= true;
 	
+	INFO("check_encoder, pos_max = %d, pos_min = %d, cnt = %d\r\n",
+			cw_pos_max, ccw_pos_min, cnt);
+
 	if (test != -9999) {
-		if (cnt > test) {
+		if (cnt - test >= 10) {
 			/* cw go */
+
+			cw = true;
+
+			INFO("cw, cnt - test >=10\r\n");
 			param_set_status(2);
 			param_set_position(encoder_pos());
 			need_pub = true;
-		} else if (cnt < test) {
+		} else if (test - cnt >= 10) {
 			/* ccw go */
+
+			cw = false;
+
+			INFO("ccw go, test -cnt >=4\r\n");
 			param_set_status(0);
 			param_set_position(encoder_pos());
 			need_pub = true;
 		} else {
 			/* do not move */
+			INFO("stoped go!!\r\n");
 			param_set_status(1);
 			param_set_position(encoder_pos());
 			if (need_pub) {
@@ -198,5 +249,5 @@ irom void encoder_init()
 
 	os_timer_disarm(&check_encoder_timer);
 	os_timer_setfn(&check_encoder_timer, (os_timer_func_t *)check_encoder, NULL);
-	os_timer_arm(&check_encoder_timer, 560, 1); /* 70ms a count, 8 counts is a motor circle */
+	os_timer_arm(&check_encoder_timer, 1100, 1); /* 70ms a count, 8 counts is a motor circle */
 }
