@@ -1,5 +1,5 @@
-Noduino SDK - Smart bulb Reference Design
-===========================================
+Open Bulb Reference Design
+============================
 
 
 ### Build
