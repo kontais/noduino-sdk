@@ -162,7 +162,7 @@ irom void setup(void)
 #endif
 	os_delay_us(100);
 	INFO("\r\n\r\n\r\n\r\n\r\n\r\n");
-	INFO("\r\nWelcom to Noduino Curtain KT320!\r\n");
+	INFO("\r\nWelcom to Noduino Open Curtain!\r\n");
 	INFO("Current firmware is user%d.bin\r\n", system_upgrade_userbin_check()+1);
 	INFO("%s", noduino_banner);
 
