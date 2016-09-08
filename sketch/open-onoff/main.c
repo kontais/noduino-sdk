@@ -30,20 +30,28 @@ static void mjyun_stated_cb(mjyun_state_t state)
         case WIFI_IDLE:
             INFO("Platform: WIFI_IDLE\r\n");
             break;
+		case WIFI_SMARTLINK_START:
+			INFO("Platform: WIFI_SMARTLINK_START\r\n");
+			led_set_effect(0);
+			break;
         case WIFI_SMARTLINK_LINKING:
             INFO("Platform: WIFI_SMARTLINK_LINKING\r\n");
+			led_set_effect(1);
             break;
         case WIFI_SMARTLINK_FINDING:
             INFO("Platform: WIFI_SMARTLINK_FINDING\r\n");
+			led_set_effect(0);
             break;
         case WIFI_SMARTLINK_TIMEOUT:
             INFO("Platform: WIFI_SMARTLINK_TIMEOUT\r\n");
             break;
         case WIFI_SMARTLINK_GETTING:
             INFO("Platform: WIFI_SMARTLINK_GETTING\r\n");
+			led_set_effect(1);
             break;
         case WIFI_SMARTLINK_OK:
             INFO("Platform: WIFI_SMARTLINK_OK\r\n");
+			led_set_effect(1);
             break;
         case WIFI_AP_OK:
             INFO("Platform: WIFI_AP_OK\r\n");
@@ -58,6 +66,7 @@ static void mjyun_stated_cb(mjyun_state_t state)
             INFO("Platform: WIFI_AP_STATION_ERROR\r\n");
             break;
         case WIFI_STATION_OK:
+			led_set_effect(1);
             INFO("Platform: WIFI_STATION_OK\r\n");
             break;
         case WIFI_STATION_ERROR:

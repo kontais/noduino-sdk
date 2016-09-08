@@ -52,5 +52,6 @@ void wifi_led_enable();
 void wifi_led_disable();
 void led_on();
 void led_off();
+void led_set(uint8_t st);
 
 #endif
