@@ -1,4 +1,4 @@
-Open Bulb Reference Design
+Open Light Reference Design
 ============================
 
 
