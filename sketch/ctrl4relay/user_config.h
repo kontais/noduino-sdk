@@ -46,5 +46,7 @@ void relay_get_status(relay_status_t *st);
 void led_init();
 void wifi_led_enable();
 void wifi_led_disable();
+void led_set_effect(uint8_t ef);
+void led_set(uint8_t st);
 
 #endif
