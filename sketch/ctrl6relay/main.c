@@ -145,7 +145,7 @@ void mjyun_receive(const char *event_name, const char *event_data)
 	if(os_strncmp(event_data, "ota", 3) == 0)
 	{
 		INFO("OTA: upgrade the firmware!\r\n");
-		mjyun_mini_ota_start("ota/dev/ctrl6relay/files");
+		mjyun_mini_ota_start("ota/dev/nodec/files");
 	}
 	if(os_strncmp(event_data, "reset", 5) == 0)
 	{
@@ -171,6 +171,7 @@ void mjyun_disconnected()
 
 const mjyun_config_t mjyun_conf = {
 	"MJP1032524580",		/* MK Ctrl6relay */
+	//"MJP1923825656",		/* MK Noduino NodeC */
 	HW_VERSION,
 	FW_VERSION,
 	FW_VERSION,				/* 设备上线时，给app发送 online 消息中的附加数据，[选填] */
