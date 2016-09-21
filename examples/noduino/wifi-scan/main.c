@@ -58,5 +58,6 @@ void setup()
 void loop()
 {
 	wifi_station_scan(NULL, ap_scan_done);
+	serial_printf("------------ Delay 10s to start a new scan ... --------------\r\n");
 	delay(10*1000);
 }
