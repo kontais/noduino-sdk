@@ -34,6 +34,14 @@ $ make flash
 
 You can try other cool examples in example directory
 
+
+### Sketch Design
+
+* [OpenPlug](sketch/open-plug/README.md) Open Smart Plug
+* [OpenOnoff](sketch/open-onoff/README.md) Open Power Switch
+* [OpenLight](sketch/open-light/README.md) Open Smart LED Lighting
+* [OpenCurtain](sketch/open-curtain/README.md) Open Smart Curtain Control
+
 ### Reference
 
 * [Noduino](http://noduino.org)
