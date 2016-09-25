@@ -122,7 +122,7 @@ platform_init(void)
 
 	//app_start_check(0);
 
-	mjyun_setssidprefix("MJY_");
+	mjyun_setssidprefix("NOD_");
 
 	mjyun_ondata(mjyun_receive);
 	mjyun_onconnected(mjyun_connected);
