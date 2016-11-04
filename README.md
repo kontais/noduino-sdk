@@ -3,9 +3,9 @@ Noduino SDK
 [![Build Status](https://travis-ci.org/icamgo/noduino-sdk.svg)](https://travis-ci.org/icamgo/noduino-sdk) 
 
 
-This is a Professional SDK developed by MaiKe Labs for ESP8266 WiFi SoC
+This is a Professional SDK developed by MaiKe Labs for ESP8266/ESP8285 WiFi SoC
 
-This project brings support for ESP8266 chip to the professional embeded environment. It lets you write sketches using C language quickly, and run them directly on ESP8266, no external microcontroller required.
+This project brings support for ESP8266/ESP8285 chip to the professional embeded environment. It lets you write sketches using C language quickly, and run them directly on ESP8266, no external microcontroller required.
 
 It has a lot of cool examples and reference sketches. You can make a smart IoT devices quickly based on these sketches.
 
@@ -31,7 +31,7 @@ Supported Boards
 
 [*DDD V1.0*](http://wiki.jackslab.org/Noduino)
 
-![Noduino Falcon V2.4](doc/Falcon-v2.4.jpg)
+![Noduino DDD V1.0](doc/DDD-v1.0.jpg)
 
 
 Quick Start
