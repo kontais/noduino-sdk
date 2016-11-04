@@ -12,7 +12,30 @@ It has a lot of cool examples and reference sketches. You can make a smart IoT d
 It's based on Espressif SDK 1.5.4.1
 
 
-### Quick Start
+Supported Boards
+------------------
+
+[*Falcon V1.0*](http://wiki.jackslab.org/Noduino)
+
+![Noduino Falcon V1.0](doc/Falcon-v1.0.jpg)
+
+
+[*Falcon V2.4*](http://wiki.jackslab.org/Noduino)
+
+![Noduino Falcon V2.4](doc/Falcon-v2.4.jpg)
+
+![Noduino Falcon V2.4](doc/Falcon-v2.4p-1.jpg)
+
+![Noduino Falcon V2.4](doc/Falcon-v2.4p-2.jpg)
+
+
+[*DDD V1.0*](http://wiki.jackslab.org/Noduino)
+
+![Noduino Falcon V2.4](doc/Falcon-v2.4.jpg)
+
+
+Quick Start
+------------------
 
 - Noduino Falcon board / NodeMCU v1.0 board
 - Git
@@ -35,14 +58,17 @@ $ make flash
 You can try other cool examples in example directory
 
 
-### Sketch Design
+Sketch Design
+------------------
 
 * [OpenPlug](sketch/open-plug/README.md) Open Smart Plug
 * [OpenOnoff](sketch/open-onoff/README.md) Open Power Switch
 * [OpenLight](sketch/open-light/README.md) Open Smart LED Lighting
 * [OpenCurtain](sketch/open-curtain/README.md) Open Smart Curtain Control
 
-### Reference
+
+Reference
+------------------
 
 * [Noduino](http://noduino.org)
-* [WIKI](http://wiki.jackslab.org/Noduino)
+* [Noduino WIKI](http://wiki.jackslab.org/Noduino)
