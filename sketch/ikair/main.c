@@ -231,15 +231,13 @@ irom void time_init()
 	//struct tm *tblock;
 	uint32_t cs = time(NULL);
 	os_printf("Current timestamp: %d\r\n", cs);
-
-	set_dt_from_seconds(cs);
 }
 
 void mjyun_connected()
 {
 	time_init();
 
-	mjyun_setssidprefix("MJY_");
+	mjyun_setssidprefix("NOD_");
 
 	// stop to show the wifi status
 	wifi_led_disable();
