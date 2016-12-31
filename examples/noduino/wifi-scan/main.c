@@ -41,9 +41,11 @@ static void ap_scan_done(void *arg, STATUS status)
 
 			bss_link = bss_link->next.stqe_next;
 		}
+		serial_printf("\r\n");
 	} else {
 		serial_printf("Scan Failed\r\n");
 	}
+	serial_printf("------------ Delay 6s to start a new scan ... --------------\r\n");
 }
 
 void setup()
@@ -58,6 +60,5 @@ void setup()
 void loop()
 {
 	wifi_station_scan(NULL, ap_scan_done);
-	serial_printf("------------ Delay 10s to start a new scan ... --------------\r\n");
-	delay(10*1000);
+	delay(6*1000);
 }
