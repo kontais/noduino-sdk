@@ -26,29 +26,29 @@ unsigned char _cf_pin;
 unsigned char _cf1_pin;
 unsigned char _sel_pin;
 
-double _current_resistor;
-double _voltage_resistor;
+double _current_resistor = R_CURRENT;
+double _voltage_resistor = R_VOLTAGE;
 
 double _current_multiplier;
 double _voltage_multiplier;
 double _power_multiplier;
 
-unsigned long _pulse_timeout;
-unsigned long _voltage_pulse_width;
-unsigned long _current_pulse_width;
-unsigned long _power_pulse_width;
+unsigned long _pulse_timeout = PULSE_TIMEOUT;
+unsigned long _voltage_pulse_width = 0;
+unsigned long _current_pulse_width = 0;
+unsigned long _power_pulse_width = 0;
 
-double _current;
-unsigned int _voltage;
-unsigned int _power;
+double _current = 0;
+unsigned int _voltage = 0;
+unsigned int _power = 0;
 
-unsigned char _current_mode;
+unsigned char _current_mode = HIGH;
 unsigned char _mode;
 
-bool _use_interrupts;
-unsigned long _last_cf_interrupt;
-unsigned long _last_cf1_interrupt;
-unsigned long _first_cf1_interrupt;
+bool _use_interrupts = true;
+unsigned long _last_cf_interrupt = 0;
+unsigned long _last_cf1_interrupt = 0;
+unsigned long _first_cf1_interrupt = 0;
 
 irom void hlw8012_begin(
     unsigned char cf_pin,
@@ -75,22 +75,6 @@ irom void hlw8012_begin(
 
     _mode = _current_mode;
     digitalWrite(_sel_pin, _mode);
-
-	_current_resistor = R_CURRENT;
-	_voltage_resistor = R_VOLTAGE;
-    _pulse_timeout = PULSE_TIMEOUT;
-	_voltage_pulse_width = 0;
-	_current_pulse_width = 0;
-	_power_pulse_width = 0;
-
-	_current = 0;
-	_voltage = 0;
-	_power = 0;
-	_current_mode = HIGH;
-	_use_interrupts = true;
-	_last_cf_interrupt = 0;
-	_last_cf1_interrupt = 0;
-	_first_cf1_interrupt = 0;
 }
 
 irom double hlw8012_getCurrentMultiplier() { return _current_multiplier; };
