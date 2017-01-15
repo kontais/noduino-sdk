@@ -4,9 +4,7 @@
 #
 
 ESPSDK_BASE		?= $(SDK_BASE)/sdk
-#TOOLCHAIN_DIR	?= $(SDK_BASE)/toolchain
-#TOOLCHAIN_DIR   ?= ~/NodeMCU/xtensa-toolchain/
-TOOLCHAIN_DIR	?= /opt
+TOOLCHAIN_DIR	?= $(SDK_BASE)/toolchain
 
 # paths from the SDK used in this project
 SDK_INCDIR	+= include include/driver
