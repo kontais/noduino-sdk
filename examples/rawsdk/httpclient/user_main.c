@@ -27,8 +27,8 @@
 #include "uart.h"
 #include "httpclient.h"
 
-#define AP_NAME               "YOUR_ROUTER_AP_NAME"
-#define AP_PASS               "YOUR_ROUTER_AP_PASSWORD"
+#define AP_NAME               "Xiaomi_504"
+#define AP_PASS               "qwerasdf"
 
 void wifi_enter_sta()
 {
