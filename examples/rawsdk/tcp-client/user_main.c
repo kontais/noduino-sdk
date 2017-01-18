@@ -23,14 +23,18 @@
 
 #include "espconn.h"
 
-#define NET_DOMAIN "cn.bing.com"
-#define pheadbuffer "GET / HTTP/1.1\r\nUser-Agent: curl/7.37.0\r\nHost: %s\r\nAccept: */*\r\n\r\n"
+void uart_debug_init();
+
+#define DNS_ENABLE
+
+#define NET_DOMAIN "un.net"
+#define pheadbuffer "{\"M\":\"checkin\",\"ID\":\"9\",\"K\":\"0xa913\"}\n"
 
 #define packet_size		(2 * 1024)
 
-#define	REMOTE_PORT		80
-#define	SSID			"YOUR_ROUTER_SSID"
-#define PASSWORD		"YOUR_ROUTER_PASSWD"
+#define	REMOTE_PORT		8181
+#define	SSID			"ChinaNet"
+#define PASSWORD		"87654321"
 
 LOCAL os_timer_t test_timer;
 LOCAL struct espconn user_tcp_conn;
@@ -38,7 +42,7 @@ LOCAL struct _esp_tcp user_tcp;
 ip_addr_t tcp_server_ip;
 
 // remote IP of TCP server
-const char remote_server_ip[4] = { 1, 1, 1, 1 };
+const char remote_server_ip[4] = { 210, 209, 70, 57 };
 
 LOCAL void ICACHE_FLASH_ATTR
 user_tcp_recv_cb(void *arg, char *pusrdata, unsigned short length)
@@ -63,7 +67,8 @@ LOCAL void ICACHE_FLASH_ATTR user_sent_data(struct espconn *pespconn)
 {
 	char *pbuf = (char *)os_zalloc(packet_size);
 
-	os_sprintf(pbuf, pheadbuffer, NET_DOMAIN);
+	//os_sprintf(pbuf, pheadbuffer, NET_DOMAIN);
+	os_sprintf(pbuf, "%s", pheadbuffer);
 
 	espconn_sent(pespconn, pbuf, os_strlen(pbuf));
 
@@ -228,8 +233,7 @@ void ICACHE_FLASH_ATTR user_set_station_config(void)
 
 void user_init(void)
 {
-	uart_init(115200, 115200);
-	os_printf("SDK version:%s\n", system_get_sdk_version());
+	uart_debug_init();
 
 	//Set softAP + station mode
 	wifi_set_opmode(STATIONAP_MODE);
