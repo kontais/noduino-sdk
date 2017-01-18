@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015 - 2025 MaiKe Labs
+ *  Copyright (c) 2016 kontais@aliyun.com
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -17,42 +17,15 @@
 */
 #include "osapi.h"
 #include "os_type.h"
-#include "user_interface.h"
 #include "driver/uart.h"
 
-void uart_debug_init();
-
-/*
- * struct softap_config {
- *   uint8 ssid[32];
- *   uint8 password[64];
- *   uint8 ssid_len;
- *   uint8 channel;
- *   uint8 authmode;
- *   uint8 ssid_hidden;
- *   uint8 max_connection;
- * }
- *
-*/
-
-// user entry
-void ICACHE_FLASH_ATTR user_init()
+void ICACHE_FLASH_ATTR uart_debug_init()
 {
-	struct softap_config config;
-	char ssid[] = "Noduino";
+	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+	os_delay_us(1000);
 
-	uart_debug_init();
+	UART_SetPrintPort(1);
 
-	// switch to softp ap mode
-	wifi_set_opmode(SOFTAP_MODE);
-
-	// get old softap config
-	wifi_softap_get_config(&config);
-
-	os_memcpy(config.ssid, ssid, os_strlen(ssid));
-	config.ssid_len = os_strlen(ssid);
-
-	// set the new ssid
-	wifi_softap_set_config(&config);
+	os_printf("\n\nSDK version:%s\n", system_get_sdk_version());
 }
 
