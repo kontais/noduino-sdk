@@ -18,6 +18,7 @@
 #include "osapi.h"
 #include "user_interface.h"
 #include "gpio.h"
+#include "driver/uart.h"
 
 static volatile os_timer_t blink_timer;
 
@@ -35,6 +36,11 @@ void blink_timerfunc(void *arg)
 //user_init is the user entry point of the Espressif SDK
 void ICACHE_FLASH_ATTR user_init()
 {
+	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+	os_delay_us(1000);
+	UART_SetPrintPort(1);
+	os_printf("\n\nSDK version:%s\n", system_get_sdk_version());
+    
 	//disable the wifi
 	wifi_set_opmode(NULL_MODE);
 
