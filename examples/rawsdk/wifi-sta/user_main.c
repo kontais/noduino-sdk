@@ -21,15 +21,17 @@
 #include "user_interface.h"
 #include "driver/uart.h"
 
-#define AP_NAME		"YOUR_ROUTER_AP_NAME"
-#define AP_PASS		"YOUR_ROUTER_AP_PASSWORD"
+void uart_debug_init();
+
+#define AP_NAME		"ChinaNet"
+#define AP_PASS		"87654321"
 
 // user entry
 void ICACHE_FLASH_ATTR user_init()
 {
 	struct station_config config;
 
-	uart_init(115200, 115200);
+	uart_debug_init();
 
 	//Go to station mode
 	if (wifi_get_opmode() != STATION_MODE) {
