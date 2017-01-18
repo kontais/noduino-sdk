@@ -27,8 +27,13 @@
 #include "uart.h"
 #include "httpclient.h"
 
-#define AP_NAME               "Xiaomi_504"
-#define AP_PASS               "qwerasdf"
+//#define AP_NAME               "Xiaomi_504"
+//#define AP_PASS               "qwerasdf"
+
+#define AP_NAME               "ChinaNet"
+#define AP_PASS               "87654321"
+
+void uart_debug_init();
 
 void wifi_enter_sta()
 {
@@ -150,9 +155,7 @@ void ICACHE_FLASH_ATTR system_init_done()
 //user_init is the user entry point of the Espressif SDK
 void ICACHE_FLASH_ATTR user_init()
 {
-	// Set baudrate
-	uart_init(BIT_RATE_115200, BIT_RATE_115200);
-	os_delay_us(100);
+	uart_debug_init();
 
 	struct station_config conf = {
 		.ssid = AP_NAME,
