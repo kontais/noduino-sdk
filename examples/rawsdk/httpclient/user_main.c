@@ -50,7 +50,7 @@ void wifi_enter_sta()
 }
 
 static ETSTimer test_timer;
-static uint8_t test_count = 0;
+static uint8_t test_count = 1;
 
 static void ICACHE_FLASH_ATTR test_timer_cb()
 {
@@ -65,7 +65,7 @@ static void ICACHE_FLASH_ATTR test_timer_cb()
 		break;
 	case 1:
 		os_printf("=> Simple GET\n");
-		http_get("http://wtfismyip.com/text", "",
+		http_get("http://www.baidu.com/", "",
 			 http_callback_example);
 		break;
 	case 2:
@@ -132,8 +132,8 @@ static void ICACHE_FLASH_ATTR test_timer_cb()
 		os_printf("=> DONE\n");
 		return;
 	}
-	test_count++;
-	os_timer_arm(&test_timer, 3000, 0);
+//	test_count++;
+//	os_timer_arm(&test_timer, 3000, 0);
 }
 
 void ICACHE_FLASH_ATTR http_test()
@@ -142,7 +142,7 @@ void ICACHE_FLASH_ATTR http_test()
 
 	os_timer_disarm(&test_timer);
 	os_timer_setfn(&test_timer, test_timer_cb, NULL);
-	os_timer_arm(&test_timer, 0, 0);	// Start immediately.
+	os_timer_arm(&test_timer, 10000, 0);	// Start immediately.
 }
 
 void ICACHE_FLASH_ATTR system_init_done()

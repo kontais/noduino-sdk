@@ -27,5 +27,6 @@ void ICACHE_FLASH_ATTR uart_debug_init()
 	UART_SetPrintPort(1);
 
 	os_printf("\n\nSDK version:%s\n", system_get_sdk_version());
+	os_printf("Heap memory size = %d bytes\n", system_get_free_heap_size());
 }
 
